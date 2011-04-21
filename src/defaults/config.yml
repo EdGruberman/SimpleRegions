@@ -1,0 +1,13 @@
+﻿logLevel: RIGHTS
+sendLevel: RIGHTS
+broadcastLevel: RIGHTS
+deniedMessage: You do not have access.
+saveMinimum: 300
+regions:
+    DEFAULT:
+        active: true
+        helpers:
+        - '[Players]'
+groups:
+    Players:
+    - EdGruberman

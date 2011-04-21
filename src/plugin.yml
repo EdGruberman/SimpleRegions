@@ -1,0 +1,16 @@
+name: SimpleRegions
+description: Protect regions of the map so only selected players can edit them.
+version: %VERSION%
+author: EdGruberman (ed@rjump.com)
+main: edgruberman.bukkit.simpleregions.Main
+commands:
+    region:
+        description: Describe, modify, create, and remove regions.
+        usage: |
+            /<command> - Show your current region(s).
+            /<command> detail - Show region details.
+            /<command> (+|-)active - Set region status.
+            /<command> (+|-)owner <Player> - Add/remove owners.
+            /<command> (+|-)helper <Player> - Add/remove helpers.
+            /<command> enter|exit <Message> - Set enter/exit messages.
+            /<command> <Region>[ <...>] - Remote management.

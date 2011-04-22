@@ -29,7 +29,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         , Material.FLINT_AND_STEEL
     }));
     
-    private final int DEFAULT_SAVE_MINIMUM = 300; // Duration in seconds to wait since last update before saving configuration file again.
+    //private final int DEFAULT_SAVE_MINIMUM = 300; // Duration in seconds to wait since last update before saving configuration file again.
     
     private final String DEFAULT_LOG_LEVEL       = "RIGHTS";
     private final String DEFAULT_SEND_LEVEL      = "RIGHTS";
@@ -45,7 +45,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
     private Map<String, Region> regions = new HashMap<String, Region>();
     private Map<String, List<String>> groupsConfig = new HashMap<String, List<String>>();
     
-    private int saveMinimum;
+    //private int saveMinimum;
     private Integer saveTimerID = null;
 
     public void onEnable() {
@@ -61,7 +61,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         Main.groupManager = new GroupManager(this);
         this.loadGroups();
         
-        this.saveMinimum = this.getConfiguration().getInt("saveMinimum", this.DEFAULT_SAVE_MINIMUM);
+        //this.saveMinimum = this.getConfiguration().getInt("saveMinimum", this.DEFAULT_SAVE_MINIMUM);
         
         Main.deniedMessage = this.getConfiguration().getString("deniedMessage", null);
         this.loadRegions();
@@ -106,7 +106,13 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         Map<String, Region> regions = new HashMap<String, Region>();
         String worldName, name;
         
-        for (Map.Entry<String, ConfigurationNode> worldEntry : this.getConfiguration().getNodes("regions").entrySet()) {
+        Map<String, ConfigurationNode> regionsNode = this.getConfiguration().getNodes("regions");
+        if (regionsNode == null) {
+            Main.messageManager.log(MessageLevel.CONFIG, "No regions defined.");
+            return 0;
+        }
+        
+        for (Map.Entry<String, ConfigurationNode> worldEntry : regionsNode.entrySet()) {
             worldName = worldEntry.getKey();
             if (worldName.equals("DEFAULT")) {
                 // Server Default
@@ -115,6 +121,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
                 continue;
             }
             
+            // TODO Compensate for periods in World Names.
             for (Map.Entry<String, ConfigurationNode> regionEntry
                     : this.getConfiguration().getNodes("regions." + worldName).entrySet()) {
                 name = regionEntry.getKey();
@@ -129,7 +136,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
     
     private void loadRegion(String worldName, String name, ConfigurationNode regionNode, Map<String, Region> regions) {
         if (!this.isRegionUnique(worldName, name, regions)) {
-            Main.messageManager.log(MessageLevel.WARNING, "Region \"" + worldName + ":" + name + "\" not loaded; Namespace conflict.");
+            Main.messageManager.log(MessageLevel.WARNING, "Region in world \"" + worldName + "\" named \"" + name + "\" not loaded; Key namespace conflict.");
             return;
         }
         
@@ -151,7 +158,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
               , Main.groupManager
           );
           region.refreshOnline();
-          regions.put(worldName + ":" + region.getName(), region);
+          regions.put(region.getKey(), region);
           Main.messageManager.log(MessageLevel.FINER, region.getDescription(3));
     }
     
@@ -167,7 +174,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         if (regions == null) regions = this.regions;
         
         for (Region region : regions.values()) {
-            if (region.getWorldName() == worldName && region.getName() == name)
+            if (region.getKey().equals(Region.formatKey(worldName, name)))
                 return false;
         }
         
@@ -175,17 +182,17 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
     }
     
     public void addRegion(Region region) {
-        this.regions.put(region.getWorldName() + ":" + region.getName(), region);
+        this.regions.put(region.getKey(), region);
     }
     
     public void removeRegion(Region region) {
-        this.regions.remove(region.getWorldName() + ":" + region.getName());
+        this.regions.remove(region.getKey());
     }
     
     public void renameRegion(Region region, String name) {
-        this.regions.remove(region.getWorldName() + ":" + region.getName());
+        this.regions.remove(region.getKey());
         region.setName(name);
-        this.regions.put(region.getWorldName() + ":" + region.getName(), region);
+        this.regions.put(region.getKey(), region);
     }
     
     public void saveRegions(boolean immediate) {
@@ -316,7 +323,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
     }
     
     public Region getRegion(String worldName, String name) {
-        return this.regions.get(worldName + ":" + name);
+        return this.regions.get(Region.formatKey(worldName, name));
     }
     
     public void addOnlinePlayer(Player player) {

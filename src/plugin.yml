@@ -13,4 +13,4 @@ commands:
             /<command> (+|-)owner <Player> - Add/remove owners.
             /<command> (+|-)helper <Player> - Add/remove helpers.
             /<command> enter|exit <Message> - Set enter/exit messages.
-            /<command> <Region>[ <...>] - Remote management.
+            /<command> <Region>[ <Action>] - Remote management.

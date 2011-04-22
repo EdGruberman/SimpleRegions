@@ -72,11 +72,9 @@ public class CommandManager implements CommandExecutor
         // If a region creation is in progress, return the uncommitted region if no region specified or the name matches.
         // Otherwise return the matching region by name, or assume the current region if player and in only one.
         Region region = null;
-        if (sender instanceof Player) {
-            region = this.main.uncommittedRegions.get(worldName + ":" + playerName);
-            if (!action.equals("create")) {
-                if (region != null && regionName != null && !region.getName().equals(regionName)) region = null;
-            }
+        region = this.main.uncommittedRegions.get(worldName + ":" + playerName);
+        if (!action.equals("create")) {
+            if (region != null && regionName != null && !region.getName().equals(regionName)) region = null;
         }
         if (region == null) region = this.main.getRegion(worldName, regionName);
         Main.messageManager.log(MessageLevel.FINEST
@@ -91,6 +89,11 @@ public class CommandManager implements CommandExecutor
 
         if (action.equals("detail")) {
             this.actionDetail(sender, region, parameters);
+            return true;
+        }
+        
+        if (action.equals("size")) {
+            Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + region.getName() + "\" Size: " + region.getSize());
             return true;
         }
         
@@ -245,12 +248,12 @@ public class CommandManager implements CommandExecutor
             }
             
             String newName = this.trimDoubleQuotes(parameters.get(0));
-            region = new Region(worldName, newName, this.main, Main.groupManager);
-            if (!this.main.isRegionUnique(region.getWorldName(), region.getName(), null)) {
-                Main.messageManager.respond(sender, MessageLevel.SEVERE, "Region name \"" + region.getName() + "\" is not unique.");
+            if (!this.main.isRegionUnique(worldName, newName, null)) {
+                Main.messageManager.respond(sender, MessageLevel.SEVERE, "Region name \"" + newName + "\" is not unique.");
                 return true;
             }
             
+            region = new Region(worldName, newName, this.main, Main.groupManager);
             this.main.uncommittedRegions.put(worldName + ":" + playerName, region);
             this.actionDetail(sender, region, parameters);
             Main.messageManager.respond(sender, MessageLevel.STATUS, "Region created. Use: /region define");
@@ -301,7 +304,7 @@ public class CommandManager implements CommandExecutor
             if (!confirmed) {
                 Main.messageManager.respond(sender, MessageLevel.WARNING
                     , "Are you sure you wish to remove this region?\n"
-                    + "To confirm: /region remove yes"
+                    + "To confirm: /region \"" + region.getName() + "\" remove yes"
                 );
                 return true;
             }            
@@ -317,7 +320,7 @@ public class CommandManager implements CommandExecutor
     // TODO Split actions into separate Action classes with aliases
     private List<String> formatArguments(List<String> original, CommandSender sender) {
         List<String> actions = Arrays.asList(
-              "current", "access", "detail", "info"
+              "current", "access", "detail", "info", "size"
             , "+active", "-active"
             , "+owner", "+owners", "-owner", "-owners", "+helper", "+helpers", "-helper", "-helpers"
             , "enter", "exit"
@@ -548,6 +551,7 @@ public class CommandManager implements CommandExecutor
         
         // Show configuration of region after update.
         this.actionDetail(sender, region, parameters);
+        Main.messageManager.respond(sender, MessageLevel.CONFIG, "Size: " + region.getSize());
         Main.messageManager.respond(sender, MessageLevel.STATUS, "Coordinate definition updated.");
         
         return;

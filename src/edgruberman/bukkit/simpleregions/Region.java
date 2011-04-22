@@ -1,5 +1,6 @@
 package edgruberman.bukkit.simpleregions;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,6 +66,27 @@ public class Region {
         
         Region.plugin = plugin;
         Region.groupManager = groupManager;
+    }
+    
+    /**
+     * Generates string to use as a key in a Map for this region.
+     * 
+     * @return String to use for key.
+     */
+    public String getKey() {
+        return Region.formatKey(this.worldName, this.name);
+    }
+    
+    /**
+     * Generates a commonly formatted string to reference for use with keys in Maps.
+     * 
+     * @param worldName
+     * @param name
+     * @return String to use for key.
+     */
+    public static String formatKey(String worldName, String name) {
+        name = (name == null ? null : name.toLowerCase());
+        return worldName + ":" + name;
     }
     
     private void setMinMax() {
@@ -222,6 +244,13 @@ public class Region {
     public Integer getY2() { return this.y2; }
     public Integer getZ1() { return this.z1; }
     public Integer getZ2() { return this.z2; }
+    
+    public Integer getN() { return this.minX; }
+    public Integer getE() { return this.minZ; }
+    public Integer getS() { return this.maxX; }
+    public Integer getW() { return this.maxZ; }
+    public Integer getU() { return this.maxY; }
+    public Integer getD() { return this.minY; }
     
     public void setX1(Integer i) {
         this.x1 = i;
@@ -449,6 +478,35 @@ public class Region {
         if (!this.isCommitted) description += "\n **** UNCOMMITTED ****";
         
         return description;
+    }
+    
+    /**
+     * Generates a textual representation of the size of this region.</br>
+     * </br>
+     * Example: 100x * 50y * 128z = 640,000 blocks
+     * 
+     * @return String representation of the size of this region.
+     */
+    public String getSize() {
+        Integer sizeX = null;
+        if (this.getN() != null && this.getS() != null)
+            sizeX = Math.abs(this.getS() - this.getN()) + 1;
+        
+        Integer sizeY = null;
+        if (this.getU() != null && this.getD() != null)
+            sizeY = Math.abs(this.getU() - this.getD()) + 1;
+        
+        Integer sizeZ = null;
+        if (this.getE() != null && this.getW() != null)
+            sizeZ = Math.abs(this.getW() - this.getE()) + 1;
+        
+        String size = String.format(
+            "%1$sx * %2$sy * %3$sz = %4$s blocks"
+            , (sizeX == null ? "?" : sizeX), (sizeY == null ? "?" : sizeY), (sizeZ == null ? "?" : sizeZ)
+            , (sizeX != null && sizeY != null && sizeZ != null ? new DecimalFormat().format(sizeX * sizeY * sizeZ) : "?")
+        );
+        
+        return size;
     }
     
     /**

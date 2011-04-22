@@ -131,6 +131,7 @@ public class CommandManager implements CommandExecutor
                         Main.messageManager.respond(sender, MessageLevel.WARNING, "\"" + member + "\" already exists in Owners.");
                         continue;
                     }
+                    
                     region.addOwner(member);
                     Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + member + "\" added to Owner.");
                     continue;
@@ -141,6 +142,12 @@ public class CommandManager implements CommandExecutor
                         Main.messageManager.respond(sender, MessageLevel.WARNING, "\"" + member + "\" is not currently in Owners.");
                         continue;
                     }
+                    
+                    if (member.equals(playerName)) {
+                        Main.messageManager.respond(sender, MessageLevel.SEVERE, "You can not remove yourself as an owner.");
+                        continue;
+                    }
+                    
                     region.removeOwner(member);
                     Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + member + "\" removed from Owners.");
                     continue;
@@ -151,6 +158,7 @@ public class CommandManager implements CommandExecutor
                         Main.messageManager.respond(sender, MessageLevel.WARNING, "\"" + member + "\" already exists in Helpers.");
                         continue;
                     }
+                    
                     region.addHelper(member);
                     Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + member + "\" added to Helpers.");
                     continue;
@@ -161,6 +169,7 @@ public class CommandManager implements CommandExecutor
                         Main.messageManager.respond(sender, MessageLevel.WARNING, "\"" + member + "\" is not currently in Helpers.");
                         continue;
                     }
+                    
                     region.removeHelper(member);
                     Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + member + "\" removed from Helpers.");
                     continue;

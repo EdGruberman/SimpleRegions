@@ -201,14 +201,20 @@ public class CommandManager implements CommandExecutor
             return true;
         } // End if; (+|-)(owner|helper)
         
+        if ((action.equals("enter") || action.equals("exit")) && (parameters.size() == 0)) {
+            this.actionDetail(sender, region, parameters);
+            Main.messageManager.respond(sender, MessageLevel.CONFIG, "Current enter message: " + region.getEnterFormatted());
+            Main.messageManager.respond(sender, MessageLevel.CONFIG, "Current exit message: " + region.getExitFormatted());
+            return true;
+        }
+
+        // ---- Only server operators can use commands past this point.
+        if (!sender.isOp()) {
+            Main.messageManager.respond(sender, MessageLevel.RIGHTS, "You must be a server operator to issue that command.");
+            return true;
+        }
+        
         if (action.equals("enter") || action.equals("exit")) {
-            if (parameters.size() == 0) {
-                this.actionDetail(sender, region, parameters);
-                Main.messageManager.respond(sender, MessageLevel.CONFIG, "Current enter message: " + region.getEnterFormatted());
-                Main.messageManager.respond(sender, MessageLevel.CONFIG, "Current exit message: " + region.getExitFormatted());
-                return true;
-            }
-            
             String message = null;
             if (!(parameters.size() == 1 && parameters.get(0).equals("null")))
                 message = this.join(parameters, " ");
@@ -228,12 +234,6 @@ public class CommandManager implements CommandExecutor
                 Main.messageManager.respond(sender, MessageLevel.STATUS, "Exit message set to: " + region.getExitFormatted());
                 return true;
             }
-        }
-
-        // ---- Only server operators can use commands past this point.
-        if (!sender.isOp()) {
-            Main.messageManager.respond(sender, MessageLevel.RIGHTS, "You must be a server operator to issue that command.");
-            return true;
         }
         
         if (action.equals("name")) {

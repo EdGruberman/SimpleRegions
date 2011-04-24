@@ -91,7 +91,6 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         
         PlayerListener playerListener = new PlayerListener(this);
         pluginManager.registerEvent(Event.Type.PLAYER_MOVE    , playerListener, Event.Priority.Monitor, this);
-        pluginManager.registerEvent(Event.Type.PLAYER_TELEPORT, playerListener, Event.Priority.Monitor, this);
         pluginManager.registerEvent(Event.Type.PLAYER_JOIN    , playerListener, Event.Priority.Monitor, this);
         pluginManager.registerEvent(Event.Type.PLAYER_QUIT    , playerListener, Event.Priority.Monitor, this);
         

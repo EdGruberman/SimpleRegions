@@ -134,6 +134,11 @@ public class CommandManager implements CommandExecutor
                     
                     region.addOwner(member);
                     Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + member + "\" added to Owner.");
+                    if (region.isCommitted() && this.main.getServer().getPlayer(member) != null) {
+                        Main.messageManager.send(this.main.getServer().getPlayer(member), MessageLevel.EVENT
+                                , "You have been added as an Owner to the \"" + region.getName() + "\" region by " + playerName + "."
+                        );
+                    }
                     continue;
                 } // End if; +owner
                 
@@ -150,6 +155,11 @@ public class CommandManager implements CommandExecutor
                     
                     region.removeOwner(member);
                     Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + member + "\" removed from Owners.");
+                    if (region.isCommitted() && this.main.getServer().getPlayer(member) != null) {
+                        Main.messageManager.send(this.main.getServer().getPlayer(member), MessageLevel.EVENT
+                                , "You have been removed as an Owner from the \"" + region.getName() + "\" region by " + playerName + "."
+                        );
+                    }
                     continue;
                 } // End if; -owner
                 
@@ -161,6 +171,11 @@ public class CommandManager implements CommandExecutor
                     
                     region.addHelper(member);
                     Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + member + "\" added to Helpers.");
+                    if (region.isCommitted() && this.main.getServer().getPlayer(member) != null) {
+                        Main.messageManager.send(this.main.getServer().getPlayer(member), MessageLevel.EVENT
+                                , "You have been added as a Helper to the \"" + region.getName() + "\" region by " + playerName + "."
+                        );
+                    }
                     continue;
                 } // End if; +helper
                 
@@ -172,6 +187,11 @@ public class CommandManager implements CommandExecutor
                     
                     region.removeHelper(member);
                     Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + member + "\" removed from Helpers.");
+                    if (region.isCommitted() && this.main.getServer().getPlayer(member) != null) {
+                        Main.messageManager.send(this.main.getServer().getPlayer(member), MessageLevel.EVENT
+                                , "You have been removed as a Helper from the \"" + region.getName() + "\" region by " + playerName + "."
+                        );
+                    }
                     continue;
                 } // End if; -helper
             } // End for; member
@@ -370,13 +390,21 @@ public class CommandManager implements CommandExecutor
                 }
             case  0: // /<command> <Action>[ <Parameters>]
                 if (sender instanceof Player) {
-                    // Assume world of requesting player.
-                    standard.set(0, ((Player) sender).getWorld().getName());
+                    String worldName = ((Player) sender).getWorld().getName();
+                    
+                    // Assume current world of requesting player.
+                    standard.set(0, worldName);
                     
                     if (standard.get(1) == null) {
-                        // Assume region of requesting player.
-                        List<Region> regions = this.main.getRegions((Player) sender, false);
-                        if (regions.size() == 1) standard.set(1, regions.get(0).getName());
+                        Region uncommitted = this.main.uncommittedRegions.get(worldName + ":" + ((Player) sender).getName());
+                        if (uncommitted != null) {
+                            // If a region creation is in progress assume that region first.
+                            standard.set(1, uncommitted.getName());
+                        } else {
+                            // Otherwise, assume current region of requesting player if they are in only one region.
+                            List<Region> regions = this.main.getRegions((Player) sender, false);
+                            if (regions.size() == 1) standard.set(1, regions.get(0).getName());
+                        }
                     }
                 }
                 break;

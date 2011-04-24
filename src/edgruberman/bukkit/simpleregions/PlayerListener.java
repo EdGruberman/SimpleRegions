@@ -5,7 +5,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
 
 import edgruberman.bukkit.simpleregions.MessageManager.MessageLevel;
 
@@ -19,19 +18,6 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
     
     @Override
     public void onPlayerMove(PlayerMoveEvent event) {
-        if (event.isCancelled()) return;
-        
-        if (!this.main.isEnabled()) return;
-
-        Block from = event.getFrom().getBlock();
-        Block to = event.getTo().getBlock();
-        if (from.equals(to)) return;
-        
-        this.main.checkCrossings(event.getPlayer(), from, to);
-    }
-    
-    @Override
-    public void onPlayerTeleport(PlayerTeleportEvent event) {
         if (event.isCancelled()) return;
         
         if (!this.main.isEnabled()) return;

@@ -230,6 +230,10 @@ public class Region {
         return this.helpersOnline.contains(playerName);
     }
     
+    public boolean isAllowedOnline(String playerName) {
+        return (this.isHelperOnline(playerName) || this.isOwnerOnline(playerName));
+    }
+    
     public String getWorldName() { return this.worldName;  }
     public String getName()      { return this.name; }
     public boolean isDefault()   { return this.isDefault; }

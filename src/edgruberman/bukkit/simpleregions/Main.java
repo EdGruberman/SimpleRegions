@@ -243,11 +243,13 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
             boolean isInTo   = region.contains(  to.getWorld().getName(),   to.getX(),   to.getY(),   to.getZ());
             if (isInFrom == isInTo) continue;
             
-            if (region.getExitFormatted().length() != 0) {
-                if (isInFrom) Main.messageManager.send(player, MessageLevel.STATUS, region.getExitFormatted());
+            if (isInFrom && region.getExitFormatted().length() != 0)
+                Main.messageManager.send(player, MessageLevel.STATUS, region.getExitFormatted());
+            
+            if (isInTo && region.getEnterFormatted().length() != 0) {
+                MessageLevel level = (region.isAllowedOnline(player.getName()) ? MessageLevel.STATUS : MessageLevel.WARNING);
+                Main.messageManager.send(player, level, region.getEnterFormatted());
             }
-            if (region.getEnterFormatted().length() != 0)
-                if (isInTo)   Main.messageManager.send(player, MessageLevel.STATUS, region.getEnterFormatted());
         }
     }
     
@@ -271,7 +273,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         for (Region region : this.regions.values()) {
             if (!region.isDefault() && region.isActive() && region.contains(worldName, x, y, z)) {
                 hasStandard = true;
-                if (region.isHelperOnline(playerName) || region.isOwnerOnline(playerName)) return true;
+                if (region.isAllowedOnline(playerName)) return true;
             }
         }
 
@@ -281,11 +283,12 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
             // Check if the World Default region exists and allows the player access.
             Region worldDefault = this.getRegion(worldName, null);
             if (worldDefault != null) {
-                isDefaultAllow = worldDefault.isHelperOnline(playerName);
+                isDefaultAllow = (worldDefault.isActive() && worldDefault.isAllowedOnline(playerName));
             } else {
                 // Check if the Server Default region exists and allows the player access.
                 Region serverDefault = this.getRegion(null, null);
-                if (serverDefault != null) isDefaultAllow = serverDefault.isHelperOnline(playerName);
+                if (serverDefault != null)
+                    isDefaultAllow = (serverDefault.isActive() && serverDefault.isAllowedOnline(playerName));
             }
         }
         

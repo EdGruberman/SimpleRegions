@@ -10,7 +10,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import edgruberman.bukkit.simpleregions.MessageManager.MessageLevel;
+import edgruberman.bukkit.messagemanager.MessageLevel;
 
 // TODO Unfuglify
 public class CommandManager implements CommandExecutor 
@@ -23,10 +23,10 @@ public class CommandManager implements CommandExecutor
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] split) {
-        // Monitoring/debug log entries.
-        String senderName = "[CONSOLE]";
-        if (sender instanceof Player) { senderName = ((Player) sender).getName(); }
-        Main.messageManager.log(MessageLevel.FINE, senderName + " issued command: /" + label + " " + this.join(Arrays.asList(split), " "));
+        Main.messageManager.log(MessageLevel.FINE
+                , ((sender instanceof Player) ? ((Player) sender).getName() : "[CONSOLE]")
+                + " issued command: " + label + " " + this.join(split)
+        );
 
         // Re-parse the command line to account for double quotes delineating a single argument that contains spaces.
         List<String> args = this.getArguments(split);
@@ -643,6 +643,10 @@ public class CommandManager implements CommandExecutor
         catch(Exception e) {   
             return false;   
         }   
+    }
+    
+    private String join(String[] s) {
+        return this.join(Arrays.asList(s), " ");
     }
     
     private String join(List<String> list, String delim) {

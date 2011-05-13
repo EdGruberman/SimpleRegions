@@ -4,7 +4,7 @@ Created-By: 19.1-b02 (Sun Microsystems Inc.)
 
 Name: edgruberman/bukkit/simpleregions/
 Specification-Title: SimpleRegions
-Specification-Version: 1.0
+Specification-Version: 1.1
 Specification-Vendor: EdGruberman (ed@rjump.com)
 Implementation-Title: edgruberman.bukkit.simpleregions
 Implementation-Version: 0b1

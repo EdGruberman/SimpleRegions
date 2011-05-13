@@ -1,6 +1,7 @@
-﻿logLevel: RIGHTS
-sendLevel: RIGHTS
-broadcastLevel: RIGHTS
+level
+    log: RIGHTS
+    send: RIGHTS
+    broadcast: RIGHTS
 deniedMessage: You do not have access.
 saveMinimum: 300
 regions:

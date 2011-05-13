@@ -3,7 +3,7 @@ package edgruberman.bukkit.simpleregions;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
-import edgruberman.bukkit.simpleregions.MessageManager.MessageLevel;
+import edgruberman.bukkit.messagemanager.MessageLevel;
 
 public class BlockListener extends org.bukkit.event.block.BlockListener {
     

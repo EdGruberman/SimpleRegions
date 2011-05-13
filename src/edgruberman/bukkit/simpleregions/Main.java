@@ -15,8 +15,10 @@ import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.util.config.ConfigurationNode;
 
-import edgruberman.bukkit.simpleregions.MessageManager.MessageLevel;
+import edgruberman.bukkit.messagemanager.MessageLevel;
+import edgruberman.bukkit.messagemanager.MessageManager;
 
+//TODO: Add painting protection.
 public class Main extends org.bukkit.plugin.java.JavaPlugin {
     
     /**
@@ -30,10 +32,6 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
     }));
     
     //private final int DEFAULT_SAVE_MINIMUM = 300; // Duration in seconds to wait since last update before saving configuration file again.
-    
-    private final String DEFAULT_LOG_LEVEL       = "RIGHTS";
-    private final String DEFAULT_SEND_LEVEL      = "RIGHTS";
-    private final String DEFAULT_BROADCAST_LEVEL = "RIGHTS";
 
     public static MessageManager messageManager = null;
     public static GroupManager groupManager = null;
@@ -48,16 +46,14 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
     //private int saveMinimum;
     private Integer saveTimerID = null;
 
+    public void onLoad() {
+        Configuration.load(this);
+    }
+    
     public void onEnable() {
         Main.messageManager = new MessageManager(this);
         Main.messageManager.log("Version " + this.getDescription().getVersion());
-        
-        Configuration.load(this);
-        
-        Main.messageManager.setLogLevel(MessageLevel.parse(      this.getConfiguration().getString("logLevel",       this.DEFAULT_LOG_LEVEL)));
-        Main.messageManager.setSendLevel(MessageLevel.parse(     this.getConfiguration().getString("sendLevel",      this.DEFAULT_SEND_LEVEL)));
-        Main.messageManager.setBroadcastLevel(MessageLevel.parse(this.getConfiguration().getString("broadcastLevel", this.DEFAULT_BROADCAST_LEVEL)));
-        
+                
         Main.groupManager = new GroupManager(this);
         this.loadGroups();
         
@@ -79,8 +75,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         //TODO Unregister listeners when Bukkit supports it.
         
         this.saveRegions(true);
-        
-        Main.groupManager = null;
+                Main.groupManager = null;
         
         Main.messageManager.log("Plugin Disabled");
         Main.messageManager = null;

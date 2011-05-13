@@ -1,8 +1,9 @@
 name: SimpleRegions
-description: Protect regions of the map so only selected players can edit them.
 version: %VERSION%
-author: EdGruberman (ed@rjump.com)
+description: Protect regions of the map so only selected players can edit them.
 main: edgruberman.bukkit.simpleregions.Main
+depend: [MessageManager]
+author: EdGruberman (ed@rjump.com)
 commands:
     region:
         description: Describe, modify, create, and remove regions.

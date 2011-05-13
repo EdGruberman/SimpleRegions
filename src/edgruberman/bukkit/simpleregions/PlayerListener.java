@@ -19,8 +19,6 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
     @Override
     public void onPlayerMove(PlayerMoveEvent event) {
         if (event.isCancelled()) return;
-        
-        if (!this.main.isEnabled()) return;
 
         Block from = event.getFrom().getBlock();
         Block to = event.getTo().getBlock();
@@ -32,8 +30,6 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
     @Override
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.isCancelled()) return;
-        
-        if (!this.main.isEnabled()) return;
 
         if (!Main.MONITORED_ITEMS.contains(event.getPlayer().getItemInHand().getType())) return;
         
@@ -47,16 +43,12 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
     
     @Override
     public void onPlayerJoin(PlayerJoinEvent event) {
-        if (!this.main.isEnabled()) return;
-        
         // Update regions' online players lists to include this player if appropriate.
         this.main.addOnlinePlayer(event.getPlayer());
     }
     
     @Override
     public void onPlayerQuit(PlayerQuitEvent event) {
-        if (!this.main.isEnabled()) return;
-        
         // Update regions' online players lists to remove this player if appropriate.
         this.main.removeOnlinePlayer(event.getPlayer());
     }

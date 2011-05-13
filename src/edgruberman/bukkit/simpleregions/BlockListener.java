@@ -16,8 +16,6 @@ public class BlockListener extends org.bukkit.event.block.BlockListener {
     @Override
     public void onBlockBreak(BlockBreakEvent event) {
         if (event.isCancelled()) return;
-        
-        if (!this.main.isEnabled()) return;
 
         if (this.main.isAllowed(event.getPlayer().getName(), event.getPlayer().getWorld().getName()
                 , event.getBlock().getX(), event.getBlock().getY(), event.getBlock().getZ())) return;
@@ -30,8 +28,6 @@ public class BlockListener extends org.bukkit.event.block.BlockListener {
     @Override
     public void onBlockPlace(BlockPlaceEvent event) {
         if (event.isCancelled()) return;
-        
-        if (!this.main.isEnabled()) return;
 
         if (this.main.isAllowed(event.getPlayer().getName(), event.getPlayer().getWorld().getName()
                 , event.getBlock().getX(), event.getBlock().getY(), event.getBlock().getZ())) return;

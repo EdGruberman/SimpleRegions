@@ -18,7 +18,6 @@ import org.bukkit.util.config.ConfigurationNode;
 import edgruberman.bukkit.messagemanager.MessageLevel;
 import edgruberman.bukkit.messagemanager.MessageManager;
 
-//TODO: Add painting protection.
 public class Main extends org.bukkit.plugin.java.JavaPlugin {
     
     /**
@@ -85,15 +84,19 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         PluginManager pluginManager = this.getServer().getPluginManager();
         
         PlayerListener playerListener = new PlayerListener(this);
-        pluginManager.registerEvent(Event.Type.PLAYER_MOVE    , playerListener, Event.Priority.Monitor, this);
-        pluginManager.registerEvent(Event.Type.PLAYER_JOIN    , playerListener, Event.Priority.Monitor, this);
-        pluginManager.registerEvent(Event.Type.PLAYER_QUIT    , playerListener, Event.Priority.Monitor, this);
+        pluginManager.registerEvent(Event.Type.PLAYER_MOVE, playerListener, Event.Priority.Monitor, this);
+        pluginManager.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Monitor, this);
+        pluginManager.registerEvent(Event.Type.PLAYER_QUIT, playerListener, Event.Priority.Monitor, this);
         
-        pluginManager.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal , this);
+        pluginManager.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
      
         BlockListener blockListener = new BlockListener(this);
         pluginManager.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Normal, this);
         pluginManager.registerEvent(Event.Type.BLOCK_PLACE, blockListener, Event.Priority.Normal, this);
+        
+        EntityListener entityListener = new EntityListener(this);
+        pluginManager.registerEvent(Event.Type.PAINTING_BREAK, entityListener, Event.Priority.Normal, this);
+        pluginManager.registerEvent(Event.Type.PAINTING_PLACE, entityListener, Event.Priority.Normal, this);
     }
     
     public int loadRegions() {

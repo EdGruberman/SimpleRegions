@@ -33,14 +33,12 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
     //private final int DEFAULT_SAVE_MINIMUM = 300; // Duration in seconds to wait since last update before saving configuration file again.
 
     public static MessageManager messageManager = null;
-    public static GroupManager groupManager = null;
     
     public static String deniedMessage = null;
     
     public Map<String, Region> uncommittedRegions = new HashMap<String, Region>();
 
     private Map<String, Region> regions = new HashMap<String, Region>();
-    private Map<String, List<String>> groupsConfig = new HashMap<String, List<String>>();
     
     //private int saveMinimum;
     private Integer saveTimerID = null;
@@ -52,9 +50,6 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
     public void onEnable() {
         Main.messageManager = new MessageManager(this);
         Main.messageManager.log("Version " + this.getDescription().getVersion());
-                
-        Main.groupManager = new GroupManager(this);
-        this.loadGroups();
         
         //this.saveMinimum = this.getConfiguration().getInt("saveMinimum", this.DEFAULT_SAVE_MINIMUM);
         
@@ -74,7 +69,6 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         //TODO Unregister listeners when Bukkit supports it.
         
         this.saveRegions(true);
-                Main.groupManager = null;
         
         Main.messageManager.log("Plugin Disabled");
         Main.messageManager = null;
@@ -152,7 +146,6 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
               , regionNode.getString("enter", null)
               , regionNode.getString("exit", null)
               , this
-              , Main.groupManager
           );
           region.refreshOnline();
           regions.put(region.getKey(), region);
@@ -336,21 +329,5 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         for (Region region : this.regions.values()) {
             region.removeOnlinePlayer(player.getName());
         }
-    }
-    
-    // TODO Overhaul group management
-    private void loadGroups() {
-        Map<String, List<String>> groups = new HashMap<String, List<String>>();
-        List<String> members = new ArrayList<String>();
-        for (String player : this.getConfiguration().getStringList("groups.Players", null)) {
-            members.add(player);
-        }
-        groups.put("Players", members);
-        this.groupsConfig = groups;
-        Main.messageManager.log(MessageLevel.FINE, "[Players]=" + this.groupsGetMembers("Players"));
-    }
-    
-    public List<String> groupsGetMembers(String group) {
-        return this.groupsConfig.get(group);
     }
 }

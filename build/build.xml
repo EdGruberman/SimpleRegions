@@ -16,11 +16,12 @@
         <pathelement path="${lib}"/>
         <pathelement location="../../bukkit.jar"/>
         <pathelement location="../../MessageManager.jar"/>
+        <pathelement location="../lib/SimpleGroups.jar"/>
     </path>
 
     <target name="JAR Export" depends="Clean">
         <mkdir dir="${stage}"/>
-        <javac srcdir="${src}" destdir="${stage}" encoding="iso-8859-1">
+        <javac srcdir="${src}" destdir="${stage}" encoding="utf-8">
             <classpath refid="classpath"/>
         </javac>
 

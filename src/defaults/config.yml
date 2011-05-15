@@ -8,7 +8,4 @@ regions:
     DEFAULT:
         active: true
         helpers:
-        - '[Players]'
-groups:
-    Players:
-    - EdGruberman
+        - [Players]

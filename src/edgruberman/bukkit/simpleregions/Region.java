@@ -10,7 +10,6 @@ public class Region {
     private static final String DEFAULT_EXIT  = "Exited \"%1$s\" region.";  // 1$ = Region Name
     
     private static Main plugin = null;
-    private static GroupManager groupManager = null;
     
     private String worldName = null;
     private String name = null;
@@ -35,7 +34,7 @@ public class Region {
             , int x1, int x2, int y1, int y2, int z1, int z2
             , List<String> owners, List<String> helpers
             , String enterMessage, String exitMessage
-            , Main plugin, GroupManager groupManager) {
+            , Main plugin) {
         
         this.worldName = worldName;
         this.name = name;
@@ -55,17 +54,15 @@ public class Region {
         }
         
         Region.plugin = plugin;
-        Region.groupManager = groupManager;
     }
     
-    public Region(String worldName, String name, Main plugin, GroupManager groupManager) {
+    public Region(String worldName, String name, Main plugin) {
         this.worldName = worldName;
         this.name = name;
         
         this.isCommitted = false;
         
         Region.plugin = plugin;
-        Region.groupManager = groupManager;
     }
     
     /**
@@ -148,13 +145,13 @@ public class Region {
         return !(x < this.minX || x > this.maxX || y < this.minY || y > this.maxY || z < this.minZ || z > this.maxZ);
     }
     
-    private void refreshExpanded(GroupManager groupManager) {
+    private void refreshExpanded() {
         // Owners
         List<String> ownersExpanded = new ArrayList<String>();
         for (String member : this.owners) {
             if (member.startsWith("[") && member.endsWith("]")) {
                 // Expand group name
-                ownersExpanded.addAll(groupManager.getMembers(member.substring(1, member.length() - 1)));
+                ownersExpanded.addAll(GroupManager.getMembers(member.substring(1, member.length() - 1)));
             } else {
                 // Direct player name
                 ownersExpanded.add(member);
@@ -167,7 +164,7 @@ public class Region {
         for (String member : this.helpers) {
             if (member.startsWith("[") && member.endsWith("]")) {
                 // Expand group name
-                helpersExpanded.addAll(groupManager.getMembers(member.substring(1, member.length() - 1)));
+                helpersExpanded.addAll(GroupManager.getMembers(member.substring(1, member.length() - 1)));
             } else {
                 // Direct player name
                 helpersExpanded.add(member);
@@ -177,7 +174,7 @@ public class Region {
     }
     
     public void refreshOnline() {
-        this.refreshExpanded(Region.groupManager);
+        this.refreshExpanded();
         
         // Owners
         List<String> ownersOnline = new ArrayList<String>();

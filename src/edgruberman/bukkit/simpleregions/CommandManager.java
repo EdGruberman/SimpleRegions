@@ -282,7 +282,7 @@ public class CommandManager implements CommandExecutor
                 return true;
             }
             
-            region = new Region(worldName, newName, this.main, Main.groupManager);
+            region = new Region(worldName, newName, this.main);
             this.main.uncommittedRegions.put(worldName + ":" + playerName, region);
             this.actionDetail(sender, region, parameters);
             Main.messageManager.respond(sender, MessageLevel.STATUS, "Region created. Use: /region define");

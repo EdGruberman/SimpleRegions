@@ -7,7 +7,7 @@ Specification-Title: SimpleRegions
 Specification-Version: 1.2
 Specification-Vendor: EdGruberman (ed@rjump.com)
 Implementation-Title: edgruberman.bukkit.simpleregions
-Implementation-Version: 0b1
+Implementation-Version: 1b1
 Implementation-Vendor: EdGruberman (ed@rjump.com)
 Class-Path: 
 

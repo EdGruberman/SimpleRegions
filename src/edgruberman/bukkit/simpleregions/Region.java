@@ -151,7 +151,9 @@ public class Region {
         for (String member : this.owners) {
             if (member.startsWith("[") && member.endsWith("]")) {
                 // Expand group name
-                ownersExpanded.addAll(GroupManager.getMembers(member.substring(1, member.length() - 1)));
+                List<String> submembers = GroupManager.getMembers(member.substring(1, member.length() - 1), true);
+                if (submembers != null)
+                    ownersExpanded.addAll(submembers);
             } else {
                 // Direct player name
                 ownersExpanded.add(member);
@@ -164,7 +166,9 @@ public class Region {
         for (String member : this.helpers) {
             if (member.startsWith("[") && member.endsWith("]")) {
                 // Expand group name
-                helpersExpanded.addAll(GroupManager.getMembers(member.substring(1, member.length() - 1)));
+                List<String> submembers = GroupManager.getMembers(member.substring(1, member.length() - 1), true);
+                if (submembers != null)
+                    helpersExpanded.addAll(submembers);
             } else {
                 // Direct player name
                 helpersExpanded.add(member);

@@ -148,12 +148,16 @@ public class CommandManager implements CommandExecutor
                         continue;
                     }
                     
-                    if (member.equals(playerName)) {
-                        Main.messageManager.respond(sender, MessageLevel.SEVERE, "You can not remove yourself as an owner.");
-                        continue;
+                    region.removeOwner(member);
+                    
+                    if (!sender.isOp()) {
+                        if (!region.isOwnerExpanded(playerName)) {
+                            region.addOwner(member);
+                            Main.messageManager.respond(sender, MessageLevel.SEVERE, "You can not remove yourself as an owner.");
+                            continue;
+                        }
                     }
                     
-                    region.removeOwner(member);
                     Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + member + "\" removed from Owners.");
                     if (region.isCommitted() && this.main.getServer().getPlayer(member) != null) {
                         Main.messageManager.send(this.main.getServer().getPlayer(member), MessageLevel.EVENT

@@ -295,7 +295,7 @@ public class Region {
  
     public void setN(int i) {
         if (this.x1 != null && this.x2 != null) {
-            if (i > this.minX) {
+            if (i > this.maxX) {
                 this.x1 = i;
                 this.x2 = i;
             } else if (this.x1 <= this.x2) { this.x1 = i;
@@ -311,7 +311,7 @@ public class Region {
  
     public void setS(int i) {
         if (this.x1 != null && this.x2 != null) {
-            if (i < this.maxX) {
+            if (i < this.minX) {
                 this.x1 = i;
                 this.x2 = i;
             } else if (this.x1 >= this.x2) { this.x1 = i;
@@ -327,7 +327,7 @@ public class Region {
     
     public void setE(int i) {
         if (this.z1 != null && this.z2 != null) {
-            if (i > this.minZ) {
+            if (i > this.maxZ) {
                 this.z1 = i;
                 this.z2 = i;
             } else if (this.z1 <= this.z2) { this.z1 = i;
@@ -343,7 +343,7 @@ public class Region {
     
     public void setW(int i) {
         if (this.z1 != null && this.z2 != null) {
-            if (i < this.maxZ) {
+            if (i < this.minZ) {
                 this.z1 = i;
                 this.z2 = i;
             } else if (this.z1 >= this.z2) { this.z1 = i;
@@ -359,7 +359,7 @@ public class Region {
     
     public void setU(int i) {
         if (this.y1 != null && this.y2 != null) {
-            if (i < this.maxY) {
+            if (i < this.minY) {
                 this.y1 = i;
                 this.y2 = i;
             } else if (this.y1 >= this.y2) { this.y1 = i;
@@ -375,7 +375,7 @@ public class Region {
 
     public void setD(int i) {
         if (this.y1 != null && this.y2 != null) {
-            if (i > this.minY) {
+            if (i > this.maxY) {
                 this.y1 = i;
                 this.y2 = i;
             } else if (this.y1 <= this.y2) { this.y1 = i;

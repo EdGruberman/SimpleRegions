@@ -21,8 +21,16 @@ public class BlockListener extends org.bukkit.event.block.BlockListener {
                 , event.getBlock().getX(), event.getBlock().getY(), event.getBlock().getZ())) return;
         
         event.setCancelled(true);
-        if (Main.deniedMessage.length() != 0)
+        if (Main.deniedMessage != null)
             Main.messageManager.send(event.getPlayer(), MessageLevel.SEVERE, Main.deniedMessage);
+        
+        Main.messageManager.log(MessageLevel.FINE
+                , "Cancelled " + event.getPlayer().getName() + " attempting to break a block"
+                + " in \"" + event.getPlayer().getWorld().getName() + "\""
+                + " at x:" + event.getBlock().getX()
+                + " y:" + event.getBlock().getY()
+                + " z:" + event.getBlock().getZ()
+        );
     }
     
     @Override
@@ -33,7 +41,15 @@ public class BlockListener extends org.bukkit.event.block.BlockListener {
                 , event.getBlock().getX(), event.getBlock().getY(), event.getBlock().getZ())) return;
         
         event.setCancelled(true);
-         if (Main.deniedMessage.length() != 0)
+        if (Main.deniedMessage != null)
             Main.messageManager.send(event.getPlayer(), MessageLevel.SEVERE, Main.deniedMessage);
+         
+        Main.messageManager.log(MessageLevel.FINE
+                , "Cancelled " + event.getPlayer().getName() + " attempting to break a block"
+                + " in \"" + event.getPlayer().getWorld().getName() + "\""
+                + " at x:" + event.getBlock().getX()
+                + " y:" + event.getBlock().getY()
+                + " z:" + event.getBlock().getZ()
+        );
     }
 }

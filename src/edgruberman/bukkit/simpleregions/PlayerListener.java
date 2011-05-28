@@ -30,15 +30,24 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
     @Override
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.isCancelled()) return;
-
+        
         if (!Main.MONITORED_ITEMS.contains(event.getPlayer().getItemInHand().getType())) return;
         
         if (this.main.isAllowed(event.getPlayer().getName(), event.getPlayer().getWorld().getName()
                 , event.getClickedBlock().getX(), event.getClickedBlock().getY(), event.getClickedBlock().getZ())) return;
         
         event.setCancelled(true);
-        if (Main.deniedMessage.length() != 0)
+        if (Main.deniedMessage != null)
             Main.messageManager.send(event.getPlayer(), MessageLevel.SEVERE, Main.deniedMessage);
+        
+        Main.messageManager.log(MessageLevel.FINE
+                , "Cancelled " + event.getPlayer().getName() + " attempting to interact"
+                + " with a " + event.getPlayer().getItemInHand().getType().name()
+                + " in \"" + event.getPlayer().getWorld().getName() + "\""
+                + " at x:" + event.getClickedBlock().getX()
+                + " y:" + event.getClickedBlock().getY()
+                + " z:" + event.getClickedBlock().getZ()
+        );
     }
     
     @Override

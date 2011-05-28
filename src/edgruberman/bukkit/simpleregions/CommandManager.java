@@ -83,6 +83,7 @@ public class CommandManager implements CommandExecutor
                 + "    region.name = "    + (region == null ? null : region.getName())
         );
         if (region == null && !action.equals("create")) {
+            // TODO show different error for correct syntax, but region not defined
             this.showUsage(sender, "region", "Unable to determine region.");
             return true;
         }

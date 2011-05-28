@@ -33,8 +33,16 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
                 , block.getX(), block.getY(), block.getZ())) return;
         
         event.setCancelled(true);
-        if (Main.deniedMessage.length() != 0)
+        if (Main.deniedMessage != null)
             Main.messageManager.send(player, MessageLevel.SEVERE, Main.deniedMessage);
+        
+        Main.messageManager.log(MessageLevel.FINE
+                , "Cancelled " + player.getName() + " attempting to break a painting"
+                + " in \"" + player.getWorld().getName() + "\""
+                + " at x:" + block.getX()
+                + " y:" + block.getY()
+                + " z:" + block.getZ()
+        );
     }
     
     @Override
@@ -45,7 +53,15 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
                 , event.getBlock().getX(), event.getBlock().getY(), event.getBlock().getZ())) return;
         
         event.setCancelled(true);
-        if (Main.deniedMessage.length() != 0)
+        if (Main.deniedMessage != null)
             Main.messageManager.send(event.getPlayer(), MessageLevel.SEVERE, Main.deniedMessage);
+        
+        Main.messageManager.log(MessageLevel.FINE
+                , "Cancelled " + event.getPlayer().getName() + " attempting to place a painting"
+                + " in \"" + event.getPlayer().getWorld().getName() + "\""
+                + " at x:" + event.getBlock().getX()
+                + " y:" + event.getBlock().getY()
+                + " z:" + event.getBlock().getZ()
+        );
     }
 }

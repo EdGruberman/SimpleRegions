@@ -30,7 +30,7 @@ public class Region {
     private List<String> ownersOnline = new ArrayList<String>();
     private List<String> helpersOnline = new ArrayList<String>();
     
-    public Region(String worldName, String name, Boolean isActive
+    protected Region(String worldName, String name, Boolean isActive
             , int x1, int x2, int y1, int y2, int z1, int z2
             , List<String> owners, List<String> helpers
             , String enterMessage, String exitMessage
@@ -56,7 +56,7 @@ public class Region {
         Region.plugin = plugin;
     }
     
-    public Region(String worldName, String name, Main plugin) {
+    protected Region(String worldName, String name, Main plugin) {
         this.worldName = worldName;
         this.name = name;
         
@@ -70,7 +70,7 @@ public class Region {
      * 
      * @return String to use for key.
      */
-    public String getKey() {
+    protected String getKey() {
         return Region.formatKey(this.worldName, this.name);
     }
     
@@ -81,7 +81,7 @@ public class Region {
      * @param name
      * @return String to use for key.
      */
-    public static String formatKey(String worldName, String name) {
+    protected static String formatKey(String worldName, String name) {
         name = (name == null ? null : name.toLowerCase());
         return worldName + ":" + name;
     }
@@ -121,7 +121,7 @@ public class Region {
      * @param z
      * @return
      */
-    public boolean contains(String worldName, int x, int y, int z) {
+    protected boolean contains(String worldName, int x, int y, int z) {
         // A region with a null worldName is a default server region and applies to everywhere in any world.
         if (this.worldName == null) return true;
         
@@ -177,7 +177,7 @@ public class Region {
         this.helpersExpanded = helpersExpanded;
     }
     
-    public void refreshOnline() {
+    protected void refreshOnline() {
         this.refreshExpanded();
         
         // Owners
@@ -197,103 +197,103 @@ public class Region {
         this.helpersOnline = helpersOnline;
     }
     
-    public void addOnlinePlayer(String playerName) {
+    protected void addOnlinePlayer(String playerName) {
         if (this.ownersExpanded.contains(playerName)  && !this.ownersOnline.contains(playerName))  this.ownersOnline.add(playerName);
         if (this.helpersExpanded.contains(playerName) && !this.helpersOnline.contains(playerName)) this.helpersOnline.add(playerName);
     }
     
-    public void removeOnlinePlayer(String playerName) {
+    protected void removeOnlinePlayer(String playerName) {
         this.ownersOnline.remove(playerName);
         this.helpersOnline.remove(playerName);
     }
     
-    public boolean isOwner(String playerName) {
+    protected boolean isOwner(String playerName) {
         return this.owners.contains(playerName);
     }
     
-    public boolean isOwnerExpanded(String playerName) {
+    protected boolean isOwnerExpanded(String playerName) {
         return this.ownersExpanded.contains(playerName);
     }
     
-    public boolean isOwnerOnline(String playerName) {
+    protected boolean isOwnerOnline(String playerName) {
         return this.ownersOnline.contains(playerName);
     }
     
-    public boolean isHelper(String playerName) {
+    protected boolean isHelper(String playerName) {
         return this.helpers.contains(playerName);
     }
     
-    public boolean isHelperExpanded(String playerName) {
+    protected boolean isHelperExpanded(String playerName) {
         return this.helpersExpanded.contains(playerName);
     }
     
-    public boolean isHelperOnline(String playerName) {
+    protected boolean isHelperOnline(String playerName) {
         return this.helpersOnline.contains(playerName);
     }
     
-    public boolean isAllowedOnline(String playerName) {
+    protected boolean isAllowedOnline(String playerName) {
         return (this.isHelperOnline(playerName) || this.isOwnerOnline(playerName));
     }
     
-    public String getWorldName() { return this.worldName;  }
-    public String getName()      { return this.name; }
-    public boolean isDefault()   { return this.isDefault; }
-    public boolean isActive()    { return this.isActive; }
-    public boolean isCommitted() { return this.isCommitted; }
-    public List<String> getOwners()  { return this.owners; }
-    public List<String> getHelpers() { return this.helpers; }
+    protected String getWorldName() { return this.worldName;  }
+    protected String getName()      { return this.name; }
+    protected boolean isDefault()   { return this.isDefault; }
+    protected boolean isActive()    { return this.isActive; }
+    protected boolean isCommitted() { return this.isCommitted; }
+    protected List<String> getOwners()  { return this.owners; }
+    protected List<String> getHelpers() { return this.helpers; }
     
-    public Integer getX1() { return this.x1; }
-    public Integer getX2() { return this.x2; }
-    public Integer getY1() { return this.y1; }
-    public Integer getY2() { return this.y2; }
-    public Integer getZ1() { return this.z1; }
-    public Integer getZ2() { return this.z2; }
+    protected Integer getX1() { return this.x1; }
+    protected Integer getX2() { return this.x2; }
+    protected Integer getY1() { return this.y1; }
+    protected Integer getY2() { return this.y2; }
+    protected Integer getZ1() { return this.z1; }
+    protected Integer getZ2() { return this.z2; }
     
-    public Integer getN() { return this.minX; }
-    public Integer getE() { return this.minZ; }
-    public Integer getS() { return this.maxX; }
-    public Integer getW() { return this.maxZ; }
-    public Integer getU() { return this.maxY; }
-    public Integer getD() { return this.minY; }
+    protected Integer getN() { return this.minX; }
+    protected Integer getE() { return this.minZ; }
+    protected Integer getS() { return this.maxX; }
+    protected Integer getW() { return this.maxZ; }
+    protected Integer getU() { return this.maxY; }
+    protected Integer getD() { return this.minY; }
     
-    public void setX1(Integer i) {
+    protected void setX1(Integer i) {
         this.x1 = i;
         this.setMinMax();
         if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
-    public void setX2(Integer i) {
+    protected void setX2(Integer i) {
         this.x2 = i;
         this.setMinMax();
         if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
-    public void setY1(Integer i) {
+    protected void setY1(Integer i) {
         this.y1 = i;
         this.setMinMax();
         if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
-    public void setY2(Integer i) {
+    protected void setY2(Integer i) {
         this.y2 = i;
         this.setMinMax();
         if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
-    public void setZ1(Integer i) {
+    protected void setZ1(Integer i) {
         this.z1 = i;
         this.setMinMax();
         if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
-    public void setZ2(Integer i) {
+    protected void setZ2(Integer i) {
         this.z2 = i;
         this.setMinMax();
         if (this.isCommitted) Region.plugin.saveRegions(false);
     }
  
-    public void setN(int i) {
+    protected void setN(int i) {
         if (this.x1 != null && this.x2 != null) {
             if (i > this.maxX) {
                 this.x1 = i;
@@ -309,7 +309,7 @@ public class Region {
         if (this.isCommitted) Region.plugin.saveRegions(false);
     }
  
-    public void setS(int i) {
+    protected void setS(int i) {
         if (this.x1 != null && this.x2 != null) {
             if (i < this.minX) {
                 this.x1 = i;
@@ -325,7 +325,7 @@ public class Region {
         if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
-    public void setE(int i) {
+    protected void setE(int i) {
         if (this.z1 != null && this.z2 != null) {
             if (i > this.maxZ) {
                 this.z1 = i;
@@ -341,7 +341,7 @@ public class Region {
         if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
-    public void setW(int i) {
+    protected void setW(int i) {
         if (this.z1 != null && this.z2 != null) {
             if (i < this.minZ) {
                 this.z1 = i;
@@ -357,7 +357,7 @@ public class Region {
         if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
-    public void setU(int i) {
+    protected void setU(int i) {
         if (this.y1 != null && this.y2 != null) {
             if (i < this.minY) {
                 this.y1 = i;
@@ -373,7 +373,7 @@ public class Region {
         if (this.isCommitted) Region.plugin.saveRegions(false);
     }
 
-    public void setD(int i) {
+    protected void setD(int i) {
         if (this.y1 != null && this.y2 != null) {
             if (i > this.maxY) {
                 this.y1 = i;
@@ -389,7 +389,7 @@ public class Region {
         if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
-    public void setName(String name) {
+    protected void setName(String name) {
         this.name = name;
         if (this.isCommitted) Region.plugin.saveRegions(false);
     }
@@ -399,63 +399,63 @@ public class Region {
      * 
      * @param isActive true to activate; false to deactivate.
      */
-    public void setActive(boolean isActive) {
+    protected void setActive(boolean isActive) {
         this.isActive = isActive;
         if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
-    public void setCommitted(boolean isCommitted) {
+    protected void setCommitted(boolean isCommitted) {
         this.isCommitted = isCommitted;
     }
     
-    public String getEnterMessage() {
+    protected String getEnterMessage() {
         return this.enterMessage;
     }
     
-    public String getEnterFormatted() {
+    protected String getEnterFormatted() {
         return (this.enterMessage == null ? String.format(Region.DEFAULT_ENTER, this.name) : this.enterMessage);
     }
     
-    public void setEnterMessage(String message) {
+    protected void setEnterMessage(String message) {
         this.enterMessage = message;
         if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
-    public String getExitMessage() {
+    protected String getExitMessage() {
         return this.exitMessage;
     }
     
-    public String getExitFormatted() {
+    protected String getExitFormatted() {
         return (this.exitMessage == null ? String.format(Region.DEFAULT_EXIT, this.name) : this.exitMessage);
     }
     
-    public void setExitMessage(String message) {
+    protected void setExitMessage(String message) {
         this.exitMessage = message;
         if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
-    public void addOwner(String member) {
+    protected void addOwner(String member) {
         if (this.owners.contains(member)) return;
         this.owners.add(member);
         this.refreshOnline();
         if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
-    public void removeOwner(String member) {
+    protected void removeOwner(String member) {
         if (!this.owners.contains(member)) return;
         this.owners.remove(member);
         this.refreshOnline();
         if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
-    public void addHelper(String member) {
+    protected void addHelper(String member) {
         if (this.helpers.contains(member)) return;
         this.helpers.add(member);
         this.refreshOnline();
         if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
-    public void removeHelper(String member) {
+    protected void removeHelper(String member) {
         if (!this.helpers.contains(member)) return;
         this.helpers.remove(member);
         this.refreshOnline();
@@ -467,7 +467,7 @@ public class Region {
      * 
      * @return Pertinent details.
      */
-    public String getDescription(int coordinatesType) {
+    protected String getDescription(int coordinatesType) {
         String description = "---- Region: ";
         if (this.getName() == null) {
             description += (this.isDefault ? "\"DEFAULT\"" : "");
@@ -492,7 +492,7 @@ public class Region {
      * 
      * @return String representation of the volumetric size of this region.
      */
-    public String getSize() {
+    protected String getSize() {
         Integer sizeX = null;
         if (this.getN() != null && this.getS() != null)
             sizeX = Math.abs(this.getS() - this.getN()) + 1;
@@ -522,7 +522,7 @@ public class Region {
      * 
      * @return String representation of the area.
      */
-    public String getArea() {
+    protected String getArea() {
         Integer sizeX = null;
         if (this.getN() != null && this.getS() != null)
             sizeX = Math.abs(this.getS() - this.getN()) + 1;
@@ -546,7 +546,7 @@ public class Region {
      * @param type Specifies the visual format to use.
      * @return A text-based visual representation.
      */
-    public String getCoordinateReference(int type) {
+    protected String getCoordinateReference(int type) {
         int lengthMinX = 1;
         if (this.minX != null) lengthMinX = Integer.toString(this.minX).length();
         int lengthMinY = 1;

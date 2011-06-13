@@ -23,36 +23,31 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
     /**
      * Items who uses are cancelled if a player is interacting with a block in a region they do not have access to.
      */
-    public static final Set<Material> MONITORED_ITEMS = new HashSet<Material>(Arrays.asList(new Material[] {
+    protected static final Set<Material> MONITORED_ITEMS = new HashSet<Material>(Arrays.asList(new Material[] {
           Material.BUCKET
         , Material.WATER_BUCKET
         , Material.LAVA_BUCKET
         , Material.FLINT_AND_STEEL
     }));
-    
-    //private final int DEFAULT_SAVE_MINIMUM = 300; // Duration in seconds to wait since last update before saving configuration file again.
 
-    public static MessageManager messageManager = null;
+    protected static ConfigurationManager configurationManager;
+    protected static MessageManager messageManager;
     
-    public static String deniedMessage = null;
+    protected static String deniedMessage = null;
     
-    public Map<String, Region> uncommittedRegions = new HashMap<String, Region>();
+    protected Map<String, Region> uncommittedRegions = new HashMap<String, Region>();
 
     private Map<String, Region> regions = new HashMap<String, Region>();
-    
-    //private int saveMinimum;
-    private Integer saveTimerID = null;
 
     public void onLoad() {
-        Configuration.load(this);
+        Main.configurationManager = new ConfigurationManager(this);
+        Main.configurationManager.load();
+        
+        Main.messageManager = new MessageManager(this);
+        Main.messageManager.log("Version " + this.getDescription().getVersion());
     }
     
     public void onEnable() {
-        Main.messageManager = new MessageManager(this);
-        Main.messageManager.log("Version " + this.getDescription().getVersion());
-        
-        //this.saveMinimum = this.getConfiguration().getInt("saveMinimum", this.DEFAULT_SAVE_MINIMUM);
-        
         Main.deniedMessage = this.getConfiguration().getString("deniedMessage", null);
         this.loadRegions();
 
@@ -65,8 +60,6 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
     
     public void onDisable() {
         this.getCommand("region").setExecutor(null);
-
-        //TODO Unregister listeners when Bukkit supports it.
         
         this.saveRegions(true);
         
@@ -93,7 +86,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         pluginManager.registerEvent(Event.Type.PAINTING_PLACE, entityListener, Event.Priority.Normal, this);
     }
     
-    public int loadRegions() {
+    protected int loadRegions() {
         Map<String, Region> regions = new HashMap<String, Region>();
         String worldName, name;
         
@@ -160,7 +153,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
      * @param regions Map of regions to test if region is unique in.
      * @return Whether or not region of the same name already exists for the world.
      */
-    public boolean isRegionUnique(String worldName, String name, Map<String, Region> regions) {
+    protected boolean isRegionUnique(String worldName, String name, Map<String, Region> regions) {
         if (regions == null) regions = this.regions;
         
         for (Region region : regions.values()) {
@@ -171,27 +164,21 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         return true;
     }
     
-    public void addRegion(Region region) {
+    protected void addRegion(Region region) {
         this.regions.put(region.getKey(), region);
     }
     
-    public void removeRegion(Region region) {
+    protected void removeRegion(Region region) {
         this.regions.remove(region.getKey());
     }
     
-    public void renameRegion(Region region, String name) {
+    protected void renameRegion(Region region, String name) {
         this.regions.remove(region.getKey());
         region.setName(name);
         this.regions.put(region.getKey(), region);
     }
     
-    public void saveRegions(boolean immediate) {
-        if (!immediate) {
-            if (this.saveTimerID != null) { return; }
-            // TODO Create TimerTask to call this.saveRegions(true) once in <saveMinimum> seconds.
-            // return;
-        }
-        
+    protected void saveRegions(boolean immediate) {
         Map<String, Region> regions = this.regions;
 
         this.getConfiguration().removeProperty("regions");
@@ -215,7 +202,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
                 this.getConfiguration().setProperty(nodeName + ".z2", region.getZ2());
             }
         }
-        this.getConfiguration().save();
+        Main.configurationManager.save(immediate);
     }
     
     /**
@@ -226,7 +213,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
      * @param from
      * @param to
      */
-    public void checkCrossings(Player player, Block from, Block to) {
+    protected void checkCrossings(Player player, Block from, Block to) {
         for (Region region : this.regions.values()) {
             if (region.isDefault() || !region.isActive()) continue;
             
@@ -258,7 +245,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
      * @param z
      * @return
      */
-    public boolean isAllowed(String playerName, String worldName, int x, int y, int z) {
+    protected boolean isAllowed(String playerName, String worldName, int x, int y, int z) {
         // Check if any standard regions allow the player access.
         boolean hasStandard = false;
         for (Region region : this.regions.values()) {
@@ -287,12 +274,11 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         return (hasStandard ? false : isDefaultAllow);
     }
     
-    //TODO Add flag for returning only regions player is owner of.
-    public List<Region> getRegions(Player player) {
+    protected List<Region> getRegions(Player player) {
         return this.getRegions(player, true);
     }
     
-    public List<Region> getRegions(Player player, boolean includeDefault) {
+    protected List<Region> getRegions(Player player, boolean includeDefault) {
         return this.getRegions(player.getWorld().getName()
                 , player.getLocation().getBlockX()
                 , player.getLocation().getBlockY()
@@ -301,7 +287,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         );
     }
     
-    public List<Region> getRegions(String worldName, int x, int y, int z, boolean includeDefault) {
+    protected List<Region> getRegions(String worldName, int x, int y, int z, boolean includeDefault) {
         List<Region> containers = new ArrayList<Region>();
         
         for (Region region : this.regions.values()) {
@@ -315,17 +301,17 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         return containers;
     }
     
-    public Region getRegion(String worldName, String name) {
+    protected Region getRegion(String worldName, String name) {
         return this.regions.get(Region.formatKey(worldName, name));
     }
     
-    public void addOnlinePlayer(Player player) {
+    protected void addOnlinePlayer(Player player) {
         for (Region region : this.regions.values()) {
             region.addOnlinePlayer(player.getName());
         }
     }
     
-    public void removeOnlinePlayer(Player player) {
+    protected void removeOnlinePlayer(Player player) {
         for (Region region : this.regions.values()) {
             region.removeOnlinePlayer(player.getName());
         }

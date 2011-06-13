@@ -47,7 +47,7 @@ public class CommandManager implements CommandExecutor
                 Main.messageManager.respond(sender, MessageLevel.RIGHTS, "You must be a server operator to issue that command.", false);
                 return true;
             }
-            Configuration.load(this.main);
+            Main.configurationManager.load();
             int count = this.main.loadRegions();
             Main.messageManager.respond(sender, MessageLevel.STATUS, "Loaded " + count + " regions.", false);
             return true;
@@ -369,7 +369,7 @@ public class CommandManager implements CommandExecutor
     // TODO Split actions into separate Action classes with aliases
     private List<String> formatArguments(List<String> original, CommandSender sender) {
         List<String> actions = Arrays.asList(
-              "current", "access", "detail", "info", "size"
+              "current", "access", "detail", "info", "size", "area"
             , "+active", "-active"
             , "+owner", "+owners", "-owner", "-owners", "+helper", "+helpers", "-helper", "-helpers"
             , "enter", "exit"

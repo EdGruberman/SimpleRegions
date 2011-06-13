@@ -3,9 +3,3 @@ level
     send: RIGHTS
     broadcast: RIGHTS
 deniedMessage: You do not have access.
-saveMinimum: 300
-regions:
-    DEFAULT:
-        active: true
-        helpers:
-        - [Players]

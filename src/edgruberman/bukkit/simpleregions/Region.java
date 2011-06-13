@@ -532,7 +532,7 @@ public class Region {
             sizeZ = Math.abs(this.getW() - this.getE()) + 1;
         
         String area = String.format(
-                "%1$x * %2$sz = %3$s square meters"
+                "%1$sx * %2$sz = %3$s square meters"
                 , (sizeX == null ? "?" : sizeX), (sizeZ == null ? "?" : sizeZ)
                 , (sizeX != null && sizeZ != null ? new DecimalFormat().format(sizeX * sizeZ) : "?")
         );

@@ -490,7 +490,7 @@ public class Region {
      * </br>
      * Example: 100x * 50y * 128z = 640,000 blocks
      * 
-     * @return String representation of the size of this region.
+     * @return String representation of the volumetric size of this region.
      */
     public String getSize() {
         Integer sizeX = null;
@@ -512,6 +512,32 @@ public class Region {
         );
         
         return size;
+    }
+    
+    /**
+     * Generates a textual representation of the two-dimensional area of this
+     * region across the x and z axes.</br>
+     * </br>
+     * Example: 100x * 128z = 12,800 square meters
+     * 
+     * @return String representation of the area.
+     */
+    public String getArea() {
+        Integer sizeX = null;
+        if (this.getN() != null && this.getS() != null)
+            sizeX = Math.abs(this.getS() - this.getN()) + 1;
+        
+        Integer sizeZ = null;
+        if (this.getE() != null && this.getW() != null)
+            sizeZ = Math.abs(this.getW() - this.getE()) + 1;
+        
+        String area = String.format(
+                "%1$x * %2$sz = %3$s square meters"
+                , (sizeX == null ? "?" : sizeX), (sizeZ == null ? "?" : sizeZ)
+                , (sizeX != null && sizeZ != null ? new DecimalFormat().format(sizeX * sizeZ) : "?")
+        );
+        
+        return area;
     }
     
     /**

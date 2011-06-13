@@ -98,6 +98,11 @@ public class CommandManager implements CommandExecutor
             return true;
         }
         
+        if (action.equals("area")) {
+            Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + region.getName() + "\" Area: " + region.getArea(), false);
+            return true;
+        }
+        
         // ---- Only region owners or server operators can use commands past this point.
         if (!sender.isOp()) {
             if (!region.isOwnerOnline(((Player) sender).getName())) {

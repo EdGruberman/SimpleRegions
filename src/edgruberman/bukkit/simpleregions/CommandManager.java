@@ -105,7 +105,7 @@ public class CommandManager implements CommandExecutor
         
         // ---- Only region owners or server operators can use commands past this point.
         if (!sender.isOp()) {
-            if (!region.isOwnerOnline(((Player) sender).getName())) {
+            if (!region.isOwner(((Player) sender).getName())) {
                 Main.messageManager.respond(sender, MessageLevel.RIGHTS
                         , "You must be one of the region owners to issue that command."
                         , false
@@ -116,6 +116,7 @@ public class CommandManager implements CommandExecutor
         
         if (action.equals("+active")) {
             region.setActive(true);
+            if (region.isCommitted()) this.main.saveRegions(false);
             this.actionDetail(sender, region, parameters);
             Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + region.getName() + "\" activated.", false);
             return true;
@@ -123,6 +124,7 @@ public class CommandManager implements CommandExecutor
         
         if (action.equals("-active")) {
             region.setActive(false);
+            if (region.isCommitted()) this.main.saveRegions(false);
             this.actionDetail(sender, region, parameters);
             Main.messageManager.respond(sender, MessageLevel.STATUS
                     , "\"" + region.getName() + "\" deactivated; Region will no longer prevent access."
@@ -139,75 +141,86 @@ public class CommandManager implements CommandExecutor
             
             for (String member : parameters) {
                 if (action.equals("+owner")) {
-                    if (region.isOwner(member)) {
+                    if (region.isDirectOwner(member)) {
                         Main.messageManager.respond(sender, MessageLevel.WARNING, "\"" + member + "\" already exists in Owners.", false);
                         continue;
                     }
                     
-                    region.addOwner(member);
-                    Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + member + "\" added to Owner.", false);
-                    if (region.isCommitted() && this.main.getServer().getPlayer(member) != null) {
-                        Main.messageManager.send(this.main.getServer().getPlayer(member), MessageLevel.EVENT
-                                , "You have been added as an Owner to the \"" + region.getName() + "\" region by " + playerName + "."
-                        );
+                    if (region.addOwner(member)) {
+                        Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + member + "\" added to Owners.", false);
+                        if (region.isCommitted()) {
+                            this.sendIfOnline(member, MessageLevel.EVENT, "You have been added as an Owner to the \"" + region.getName() + "\" region by " + playerName + ".");
+                            this.main.saveRegions(false);
+                        }
+                    } else {
+                        Main.messageManager.respond(sender, MessageLevel.WARNING, "\"" + member + "\" is unabled to be added to Owners.", false);
                     }
+                    
                     continue;
                 } // End if; +owner
                 
                 if (action.equals("-owner")) {
-                    if (!region.isOwner(member)) {
+                    if (!region.isDirectOwner(member)) {
                         Main.messageManager.respond(sender, MessageLevel.WARNING, "\"" + member + "\" is not currently in Owners.", false);
                         continue;
                     }
                     
-                    region.removeOwner(member);
-                    
-                    if (!sender.isOp()) {
-                        if (!region.isOwnerExpanded(playerName)) {
-                            region.addOwner(member);
-                            Main.messageManager.respond(sender, MessageLevel.SEVERE, "You can not remove yourself as an owner.", false);
-                            continue;
+                    if (region.removeOwner(member)) {
+                        if (!sender.isOp()) {
+                            if (!region.isOwner(playerName)) {
+                                region.addOwner(member);
+                                Main.messageManager.respond(sender, MessageLevel.SEVERE, "You can not remove yourself as an owner.", false);
+                                continue;
+                            }
                         }
+                        
+                        Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + member + "\" removed from Owners.", false);
+                        if (region.isCommitted()) {
+                            this.sendIfOnline(member, MessageLevel.EVENT, "You have been removed as an Owner from the \"" + region.getName() + "\" region by " + playerName + ".");
+                            this.main.saveRegions(false);
+                        }
+                    } else {
+                        Main.messageManager.respond(sender, MessageLevel.WARNING, "\"" + member + "\" is unable to be removed from Owners.", false);
                     }
                     
-                    Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + member + "\" removed from Owners.", false);
-                    if (region.isCommitted() && this.main.getServer().getPlayer(member) != null) {
-                        Main.messageManager.send(this.main.getServer().getPlayer(member), MessageLevel.EVENT
-                                , "You have been removed as an Owner from the \"" + region.getName() + "\" region by " + playerName + "."
-                        );
-                    }
                     continue;
                 } // End if; -owner
                 
                 if (action.equals("+helper")) {
-                    if (region.isHelper(member)) {
+                    if (region.isDirectHelper(member)) {
                         Main.messageManager.respond(sender, MessageLevel.WARNING, "\"" + member + "\" already exists in Helpers.", false);
                         continue;
                     }
                     
-                    region.addHelper(member);
-                    Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + member + "\" added to Helpers.", false);
-                    if (region.isCommitted() && this.main.getServer().getPlayer(member) != null) {
-                        Main.messageManager.send(this.main.getServer().getPlayer(member), MessageLevel.EVENT
-                                , "You have been added as a Helper to the \"" + region.getName() + "\" region by " + playerName + "."
-                        );
+                    if (region.addHelper(member)) {
+                        Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + member + "\" added to Helpers.", false);
+                        if (region.isCommitted()) {
+                            this.sendIfOnline(member, MessageLevel.EVENT, "You have been added as a Helper to the \"" + region.getName() + "\" region by " + playerName + ".");
+                            this.main.saveRegions(false);
+                        }
+                    } else {
+                        Main.messageManager.respond(sender, MessageLevel.WARNING, "\"" + member + "\" is unabled to be added to Helpers.", false);
                     }
+                    
                     continue;
                 } // End if; +helper
                 
                 if (action.equals("-helper")) {
-                    if (!region.isHelper(member)) {
+                    if (!region.isDirectHelper(member)) {
                         Main.messageManager.respond(sender, MessageLevel.WARNING, "\"" + member + "\" is not currently in Helpers.", false);
                         continue;
                     }
                     
-                    region.removeHelper(member);
-                    Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + member + "\" removed from Helpers.", false);
-                    if (region.isCommitted() && this.main.getServer().getPlayer(member) != null) {
-                        Main.messageManager.send(this.main.getServer().getPlayer(member), MessageLevel.EVENT
-                                , "You have been removed as a Helper from the \"" + region.getName() + "\" region by " + playerName + "."
-                        );
+                    if (region.removeHelper(member)) {
+                        Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + member + "\" removed from Helpers.", false);
+                        if (region.isCommitted()) {
+                            this.sendIfOnline(member, MessageLevel.EVENT, "You have been removed as a Helper from the \"" + region.getName() + "\" region by " + playerName + ".");
+                            this.main.saveRegions(false);
+                        }
+                    } else {
+                        Main.messageManager.respond(sender, MessageLevel.WARNING, "\"" + member + "\" is unable to be removed from Helpers.", false);
                     }
+                    
                     continue;
                 } // End if; -helper
             } // End for; member
@@ -237,6 +250,7 @@ public class CommandManager implements CommandExecutor
             
             if (action.equals("enter")) {
                 region.setEnterMessage(message);
+                if (region.isCommitted()) this.main.saveRegions(false);
                 this.actionDetail(sender, region, parameters);
                 Main.messageManager.respond(sender, MessageLevel.STATUS, "Enter message set to: " + region.getEnterFormatted(), false);
                 Main.messageManager.respond(sender, MessageLevel.CONFIG, "Current exit message: " + region.getExitFormatted(), false);
@@ -245,6 +259,7 @@ public class CommandManager implements CommandExecutor
             
             if (action.equals("exit")) {
                 region.setExitMessage(message);
+                if (region.isCommitted()) this.main.saveRegions(false);
                 this.actionDetail(sender, region, parameters);
                 Main.messageManager.respond(sender, MessageLevel.CONFIG, "Current enter message: " + region.getEnterFormatted(), false);
                 Main.messageManager.respond(sender, MessageLevel.STATUS, "Exit message set to: " + region.getExitFormatted(), false);
@@ -301,7 +316,7 @@ public class CommandManager implements CommandExecutor
                 return true;
             }
             
-            region = new Region(worldName, newName, this.main);
+            region = new Region(worldName, newName);
             this.main.uncommittedRegions.put(worldName + ":" + playerName, region);
             this.actionDetail(sender, region, parameters);
             Main.messageManager.respond(sender, MessageLevel.STATUS, "Region created. Use: /region define", false);
@@ -384,10 +399,13 @@ public class CommandManager implements CommandExecutor
             // No arguments; Assuming current regions requested.
             standard.set(2, "current");
         } else {
-            // Search for an explicit action in the first three arguments only.
+            // Search for an explicit action in the first three arguments only, use first action found.
             for (String arg : original.subList(0, (original.size() <= 2 ? original.size() : 3))) {
                 arg = arg.toLowerCase();
-                if (actions.contains(arg)) standard.set(2, arg);
+                if (actions.contains(arg)) {
+                    standard.set(2, arg);
+                    break;
+                }
             }
             
             // Arguments exist, but no explicit action; Assuming region specified and detail requested.
@@ -606,6 +624,8 @@ public class CommandManager implements CommandExecutor
             }
         }
         
+        if (region.isCommitted()) this.main.saveRegions(false);
+        
         // Show configuration of region after update.
         this.actionDetail(sender, region, parameters);
         Main.messageManager.respond(sender, MessageLevel.CONFIG, "Size: " + region.getSize(), false);
@@ -653,6 +673,27 @@ public class CommandManager implements CommandExecutor
         if (previousArg != null) args.add(previousArg);
         
         return args;
+    }
+    
+    private void sendIfOnline(String name, MessageLevel level, String message) {
+        if (this.getExactPlayer(name) == null) return;
+        
+        Main.messageManager.send(this.getExactPlayer(name), level, message);
+    }
+    
+    /**
+     * Returns player only if it is a full and case insensitive name match.
+     * 
+     * @param name Name of player.
+     * @return Player that matches name.
+     */
+    private Player getExactPlayer(String name) {
+        Player player = this.main.getServer().getPlayer(name);
+        if (player == null) return null;
+        
+        if (!player.getName().equalsIgnoreCase(name)) return null;
+        
+        return player;
     }
     
     private boolean isInteger(String s) {   

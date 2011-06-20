@@ -2,9 +2,7 @@ package edgruberman.bukkit.simpleregions;
 
 import org.bukkit.block.Block;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 
 import edgruberman.bukkit.messagemanager.MessageLevel;
 
@@ -48,17 +46,5 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
                 + " y:" + event.getClickedBlock().getY()
                 + " z:" + event.getClickedBlock().getZ()
         );
-    }
-    
-    @Override
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        // Update regions' online players lists to include this player if appropriate.
-        this.main.addOnlinePlayer(event.getPlayer());
-    }
-    
-    @Override
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        // Update regions' online players lists to remove this player if appropriate.
-        this.main.removeOnlinePlayer(event.getPlayer());
     }
 }

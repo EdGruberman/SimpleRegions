@@ -72,8 +72,6 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         
         PlayerListener playerListener = new PlayerListener(this);
         pluginManager.registerEvent(Event.Type.PLAYER_MOVE, playerListener, Event.Priority.Monitor, this);
-        pluginManager.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Monitor, this);
-        pluginManager.registerEvent(Event.Type.PLAYER_QUIT, playerListener, Event.Priority.Monitor, this);
         
         pluginManager.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
      
@@ -138,9 +136,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
               , regionNode.getStringList("helpers", null)
               , regionNode.getString("enter", null)
               , regionNode.getString("exit", null)
-              , this
           );
-          region.refreshOnline();
           regions.put(region.getKey(), region);
           Main.messageManager.log(MessageLevel.FINER, region.getDescription(3));
     }
@@ -176,6 +172,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         this.regions.remove(region.getKey());
         region.setName(name);
         this.regions.put(region.getKey(), region);
+        if (region.isCommitted()) this.saveRegions(false);
     }
     
     protected void saveRegions(boolean immediate) {
@@ -225,7 +222,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
                 Main.messageManager.send(player, MessageLevel.STATUS, region.getExitFormatted());
             
             if (isInTo && region.getEnterFormatted().length() != 0) {
-                MessageLevel level = (region.isAllowedOnline(player.getName()) ? MessageLevel.STATUS : MessageLevel.WARNING);
+                MessageLevel level = (region.isAllowed(player.getName()) ? MessageLevel.STATUS : MessageLevel.WARNING);
                 Main.messageManager.send(player, level, region.getEnterFormatted());
             }
         }
@@ -251,7 +248,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         for (Region region : this.regions.values()) {
             if (!region.isDefault() && region.isActive() && region.contains(worldName, x, y, z)) {
                 hasStandard = true;
-                if (region.isAllowedOnline(playerName)) return true;
+                if (region.isAllowed(playerName)) return true;
             }
         }
 
@@ -261,12 +258,12 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
             // Check if the World Default region exists and allows the player access.
             Region worldDefault = this.getRegion(worldName, null);
             if (worldDefault != null) {
-                isDefaultAllow = (worldDefault.isActive() && worldDefault.isAllowedOnline(playerName));
+                isDefaultAllow = (worldDefault.isActive() && worldDefault.isAllowed(playerName));
             } else {
                 // Check if the Server Default region exists and allows the player access.
                 Region serverDefault = this.getRegion(null, null);
                 if (serverDefault != null)
-                    isDefaultAllow = (serverDefault.isActive() && serverDefault.isAllowedOnline(playerName));
+                    isDefaultAllow = (serverDefault.isActive() && serverDefault.isAllowed(playerName));
             }
         }
         
@@ -303,17 +300,5 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
     
     protected Region getRegion(String worldName, String name) {
         return this.regions.get(Region.formatKey(worldName, name));
-    }
-    
-    protected void addOnlinePlayer(Player player) {
-        for (Region region : this.regions.values()) {
-            region.addOnlinePlayer(player.getName());
-        }
-    }
-    
-    protected void removeOnlinePlayer(Player player) {
-        for (Region region : this.regions.values()) {
-            region.removeOnlinePlayer(player.getName());
-        }
     }
 }

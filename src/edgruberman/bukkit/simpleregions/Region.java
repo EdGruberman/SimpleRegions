@@ -4,12 +4,14 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import edgruberman.bukkit.simplesecurity.AccessControlEntry;
+import edgruberman.bukkit.simplesecurity.AccessControlList;
+import edgruberman.bukkit.simplesecurity.Principal;
+
 public class Region {
     
     private static final String DEFAULT_ENTER = "Entered \"%1$s\" region."; // 1$ = Region Name
     private static final String DEFAULT_EXIT  = "Exited \"%1$s\" region.";  // 1$ = Region Name
-    
-    private static Main plugin = null;
     
     private String worldName = null;
     private String name = null;
@@ -22,29 +24,28 @@ public class Region {
     private Integer x1 = null, x2 = null, y1 = null, y2 = null, z1 = null, z2 = null;
     private Integer minX = null, maxX = null, minY = null, maxY = null, minZ = null, maxZ = null;
     
-    // TODO Create Group class for helpers and owners/tie into GroupManager.
-    private List<String> owners = new ArrayList<String>();
-    private List<String> helpers = new ArrayList<String>();
-    private List<String> ownersExpanded = new ArrayList<String>();
-    private List<String> helpersExpanded = new ArrayList<String>();
-    private List<String> ownersOnline = new ArrayList<String>();
-    private List<String> helpersOnline = new ArrayList<String>();
+    private AccessControlList acl = new AccessControlList();
     
     protected Region(String worldName, String name, Boolean isActive
             , int x1, int x2, int y1, int y2, int z1, int z2
             , List<String> owners, List<String> helpers
             , String enterMessage, String exitMessage
-            , Main plugin) {
+    ) {
         
         this.worldName = worldName;
         this.name = name;
         this.isActive = isActive;
-        if (helpers != null) this.helpers = helpers;
+        if (helpers != null)
+            for (String helper : helpers)
+                this.acl.addPermission(helper);
         
         if (this.name == null) {
             this.isDefault = true;
         } else {
-            if (owners != null) this.owners = owners;
+            if (owners != null)
+                for (String owner : owners)
+                    this.acl.addOwner(owner);
+            
             this.x1 = x1; this.x2 = x2;
             this.y1 = y1; this.y2 = y2;
             this.z1 = z1; this.z2 = z2;
@@ -52,17 +53,13 @@ public class Region {
             this.exitMessage  = exitMessage;
             this.setMinMax();           
         }
-        
-        Region.plugin = plugin;
     }
     
-    protected Region(String worldName, String name, Main plugin) {
+    protected Region(String worldName, String name) {
         this.worldName = worldName;
         this.name = name;
         
         this.isCommitted = false;
-        
-        Region.plugin = plugin;
     }
     
     /**
@@ -145,103 +142,51 @@ public class Region {
         return !(x < this.minX || x > this.maxX || y < this.minY || y > this.maxY || z < this.minZ || z > this.maxZ);
     }
     
-    private void refreshExpanded() {
-        // Owners
-        List<String> ownersExpanded = new ArrayList<String>();
-        for (String member : this.owners) {
-            if (member.startsWith("[") && member.endsWith("]")) {
-                // Expand group name
-                List<String> submembers = GroupManager.getMembers(member.substring(1, member.length() - 1), true);
-                if (submembers != null)
-                    ownersExpanded.addAll(submembers);
-            } else {
-                // Direct player name
-                ownersExpanded.add(member);
-            }
-        }
-        this.ownersExpanded = ownersExpanded;
+    protected boolean isAllowed(String name) {
+        return this.acl.isAllowed(name);
+    }
+    
+    protected boolean isOwner(String name) {
+        return this.acl.isOwner(name);
+    }
+    
+    protected boolean isDirectOwner(String name) {
+        return this.acl.isDirectOwner(name);
+    }
+    
+    protected boolean isHelper(String name) {
+        return this.acl.isAllowed(name);
+    }
+    
+    protected boolean isDirectHelper(String name) {
+        for (AccessControlEntry ace : this.acl.getEntries())
+            if (ace.getPrincipal().getName().equalsIgnoreCase(name))
+                return true;
         
-        // Helpers
-        List<String> helpersExpanded = new ArrayList<String>();
-        for (String member : this.helpers) {
-            if (member.startsWith("[") && member.endsWith("]")) {
-                // Expand group name
-                List<String> submembers = GroupManager.getMembers(member.substring(1, member.length() - 1), true);
-                if (submembers != null)
-                    helpersExpanded.addAll(submembers);
-            } else {
-                // Direct player name
-                helpersExpanded.add(member);
-            }
-        }
-        this.helpersExpanded = helpersExpanded;
+        return false;
     }
     
-    protected void refreshOnline() {
-        this.refreshExpanded();
+    protected List<String> getOwners()  {
+        List<String> owners = new ArrayList<String>();
+        for (Principal owner : this.acl.getOwners())
+            owners.add(owner.getDisplayName());
+            
+        return owners;
+    }
+    
+    protected List<String> getHelpers() {
+        List<String> helpers = new ArrayList<String>();
+        for (AccessControlEntry ace : this.acl.getEntries())
+            helpers.add(ace.getPrincipal().getDisplayName());
         
-        // Owners
-        List<String> ownersOnline = new ArrayList<String>();
-        for (String member : this.ownersExpanded) {
-            if (!ownersOnline.contains(member) && (Region.plugin.getServer().getPlayer(member) != null))
-                ownersOnline.add(member);
-        }
-        this.ownersOnline = ownersOnline;
-        
-        // Helpers
-        List<String> helpersOnline = new ArrayList<String>();
-        for (String member : this.helpersExpanded) {
-            if (!helpersOnline.contains(member) && (Region.plugin.getServer().getPlayer(member) != null))
-                helpersOnline.add(member);
-        }
-        this.helpersOnline = helpersOnline;
+        return helpers;
     }
     
-    protected void addOnlinePlayer(String playerName) {
-        if (this.ownersExpanded.contains(playerName)  && !this.ownersOnline.contains(playerName))  this.ownersOnline.add(playerName);
-        if (this.helpersExpanded.contains(playerName) && !this.helpersOnline.contains(playerName)) this.helpersOnline.add(playerName);
-    }
-    
-    protected void removeOnlinePlayer(String playerName) {
-        this.ownersOnline.remove(playerName);
-        this.helpersOnline.remove(playerName);
-    }
-    
-    protected boolean isOwner(String playerName) {
-        return this.owners.contains(playerName);
-    }
-    
-    protected boolean isOwnerExpanded(String playerName) {
-        return this.ownersExpanded.contains(playerName);
-    }
-    
-    protected boolean isOwnerOnline(String playerName) {
-        return this.ownersOnline.contains(playerName);
-    }
-    
-    protected boolean isHelper(String playerName) {
-        return this.helpers.contains(playerName);
-    }
-    
-    protected boolean isHelperExpanded(String playerName) {
-        return this.helpersExpanded.contains(playerName);
-    }
-    
-    protected boolean isHelperOnline(String playerName) {
-        return this.helpersOnline.contains(playerName);
-    }
-    
-    protected boolean isAllowedOnline(String playerName) {
-        return (this.isHelperOnline(playerName) || this.isOwnerOnline(playerName));
-    }
-    
-    protected String getWorldName() { return this.worldName;  }
+    protected String getWorldName() { return this.worldName; }
     protected String getName()      { return this.name; }
     protected boolean isDefault()   { return this.isDefault; }
     protected boolean isActive()    { return this.isActive; }
     protected boolean isCommitted() { return this.isCommitted; }
-    protected List<String> getOwners()  { return this.owners; }
-    protected List<String> getHelpers() { return this.helpers; }
     
     protected Integer getX1() { return this.x1; }
     protected Integer getX2() { return this.x2; }
@@ -260,37 +205,31 @@ public class Region {
     protected void setX1(Integer i) {
         this.x1 = i;
         this.setMinMax();
-        if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
     protected void setX2(Integer i) {
         this.x2 = i;
         this.setMinMax();
-        if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
     protected void setY1(Integer i) {
         this.y1 = i;
         this.setMinMax();
-        if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
     protected void setY2(Integer i) {
         this.y2 = i;
         this.setMinMax();
-        if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
     protected void setZ1(Integer i) {
         this.z1 = i;
         this.setMinMax();
-        if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
     protected void setZ2(Integer i) {
         this.z2 = i;
         this.setMinMax();
-        if (this.isCommitted) Region.plugin.saveRegions(false);
     }
  
     protected void setN(int i) {
@@ -306,7 +245,6 @@ public class Region {
         }
         
         this.setMinMax();
-        if (this.isCommitted) Region.plugin.saveRegions(false);
     }
  
     protected void setS(int i) {
@@ -322,7 +260,6 @@ public class Region {
         }
         
         this.setMinMax();
-        if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
     protected void setE(int i) {
@@ -338,7 +275,6 @@ public class Region {
         }
         
         this.setMinMax();
-        if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
     protected void setW(int i) {
@@ -354,7 +290,6 @@ public class Region {
         }
         
         this.setMinMax();
-        if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
     protected void setU(int i) {
@@ -370,7 +305,6 @@ public class Region {
         }
         
         this.setMinMax();
-        if (this.isCommitted) Region.plugin.saveRegions(false);
     }
 
     protected void setD(int i) {
@@ -386,12 +320,10 @@ public class Region {
         }
         
         this.setMinMax();
-        if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
     protected void setName(String name) {
         this.name = name;
-        if (this.isCommitted) Region.plugin.saveRegions(false);
     }
         
     /**
@@ -401,7 +333,6 @@ public class Region {
      */
     protected void setActive(boolean isActive) {
         this.isActive = isActive;
-        if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
     protected void setCommitted(boolean isCommitted) {
@@ -418,7 +349,6 @@ public class Region {
     
     protected void setEnterMessage(String message) {
         this.enterMessage = message;
-        if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
     protected String getExitMessage() {
@@ -431,43 +361,31 @@ public class Region {
     
     protected void setExitMessage(String message) {
         this.exitMessage = message;
-        if (this.isCommitted) Region.plugin.saveRegions(false);
     }
     
-    protected void addOwner(String member) {
-        if (this.owners.contains(member)) return;
-        this.owners.add(member);
-        this.refreshOnline();
-        if (this.isCommitted) Region.plugin.saveRegions(false);
+    protected boolean addOwner(String member) {
+        return this.acl.addOwner(member);
     }
     
-    protected void removeOwner(String member) {
-        if (!this.owners.contains(member)) return;
-        this.owners.remove(member);
-        this.refreshOnline();
-        if (this.isCommitted) Region.plugin.saveRegions(false);
+    protected boolean removeOwner(String member) {
+        return this.acl.removeOwner(member);
     }
     
-    protected void addHelper(String member) {
-        if (this.helpers.contains(member)) return;
-        this.helpers.add(member);
-        this.refreshOnline();
-        if (this.isCommitted) Region.plugin.saveRegions(false);
+    protected boolean addHelper(String member) {
+        return this.acl.addPermission(member);
     }
     
-    protected void removeHelper(String member) {
-        if (!this.helpers.contains(member)) return;
-        this.helpers.remove(member);
-        this.refreshOnline();
-        if (this.isCommitted) Region.plugin.saveRegions(false);
+    protected boolean removeHelper(String member) {
+        return this.acl.removePermission(member);
     }
     
     /**
      * Generates a human readable representation of this region.
      * 
+     * @param format Specifies the visual format to use.
      * @return Pertinent details.
      */
-    protected String getDescription(int coordinatesType) {
+    protected String getDescription(int format) {
         String description = "---- Region: ";
         if (this.getName() == null) {
             description += (this.isDefault ? "\"DEFAULT\"" : "");
@@ -477,20 +395,20 @@ public class Region {
         description += " ----";
         if (this.isDefault) description += "\nWorld: " + (this.getWorldName() == null ? "* (SERVER)" : this.getWorldName());
         description += "\nActive: " + this.isActive;
-        if (!this.isDefault) description += "\nOwners: " + (this.owners == null ? "" : this.join(this.owners, " "));
-        description += "\nHelpers: " + (this.helpers == null ? "" : this.join(this.helpers, " "));
-        if (!this.isDefault) description += "\n" + this.getCoordinateReference(coordinatesType);
+        if (!this.isDefault) description += "\nOwners: " + (this.getOwners().size() == 0 ? "" : join(this.getOwners(), " "));
+        description += "\nHelpers: " + (this.getHelpers().size() == 0 ? "" : join(this.getHelpers(), " "));
+        if (!this.isDefault) description += "\n" + this.getCoordinateReference(format);
         if (!this.isCommitted) description += "\n **** UNCOMMITTED ****";
         
         return description;
     }
     
     /**
-     * Generates a textual representation of the size of this region.</br>
+     * Generates a textual representation of the volumetric size of this region.</br>
      * </br>
      * Example: 100x * 50y * 128z = 640,000 blocks
      * 
-     * @return String representation of the volumetric size of this region.
+     * @return String representation.
      */
     protected String getSize() {
         Integer sizeX = null;
@@ -543,10 +461,10 @@ public class Region {
     /**
      * Generates a textual representation of the coordinates that define this region.
      * 
-     * @param type Specifies the visual format to use.
+     * @param format Specifies the visual format to use.
      * @return A text-based visual representation.
      */
-    protected String getCoordinateReference(int type) {
+    private String getCoordinateReference(int format) {
         int lengthMinX = 1;
         if (this.minX != null) lengthMinX = Integer.toString(this.minX).length();
         int lengthMinY = 1;
@@ -596,7 +514,7 @@ public class Region {
         String zW = (zE.equals("z1") ? "z2" : "z1");
         
         
-        switch (type) {
+        switch (format) {
             case 1:
                 // Example:
                 // [N] x1:   100 <= X <=  200 :x2 [S]
@@ -617,13 +535,13 @@ public class Region {
                 // z1: 1700         [W]   [E]  z2: 650             
                 //          x1: -1500  [S]             y1:   0 [D] 
                 return String.format(
-                    this.repeat(" ", 5 + lengthMaxZ)
+                    repeat(" ", 5 + lengthMaxZ)
                     + "%1$s: %2$#" + longestX + "s  [N]"
-                    + this.repeat(" ", 10 + lengthMinZ) + "%3$s: %4$#" + longestY + "s [U]" + "\n"
-                    + "%5$s: %6$#s" + this.repeat(" ", 5 + longestX - 1)
-                    + "[W]   [E]  %7$s: %8$#s" + this.repeat(" ", 9 + longestY) + "\n"
-                    + this.repeat(" ", 5 + lengthMaxZ) + "%9$s: %10$#" + longestX + "s  [S]"
-                    + this.repeat(" ", 10 + lengthMinZ) + "%11$s: %12$#" + longestY + "s [D]"
+                    + repeat(" ", 10 + lengthMinZ) + "%3$s: %4$#" + longestY + "s [U]" + "\n"
+                    + "%5$s: %6$#s" + repeat(" ", 5 + longestX - 1)
+                    + "[W]   [E]  %7$s: %8$#s" + repeat(" ", 9 + longestY) + "\n"
+                    + repeat(" ", 5 + lengthMaxZ) + "%9$s: %10$#" + longestX + "s  [S]"
+                    + repeat(" ", 10 + lengthMinZ) + "%11$s: %12$#" + longestY + "s [D]"
                     , xN, (this.minX == null ? "?" : this.minX), yU, (this.maxY == null ? "?" : this.maxY)
                     , zW, (this.maxZ == null ? "?" : this.maxZ), zE, (this.minZ == null ? "?" : this.minZ)
                     , xS, (this.maxX == null ? "?" : this.maxX), yD, (this.minY == null ? "?" : this.minY)
@@ -636,7 +554,7 @@ public class Region {
                 return String.format(
                       "%1$s: %2$#" + longestX + "s [N]   %3$s: %4$#" + longestY + "s [U]   "
                     + "%5$s: %6$s [W]   %7$s: %8$s [E]\n"
-                    + "%9$s: %10$#" + longestX + "s [S]   %11$s: %12$#" + longestY + "s [D]   "
+                    + "%9$s: %10$#" + longestX + "s [S]   %11$s: %12$#" + longestY + "s [D]"
                     , xN, (this.minX == null ? "?" : this.minX), yU, (this.maxY == null ? "?" : this.maxY)
                     , zW, (this.maxZ == null ? "?" : this.maxZ), zE, (this.minZ == null ? "?" : this.minZ)
                     , xS, (this.maxX == null ? "?" : this.maxX), yD, (this.minY == null ? "?" : this.minY)
@@ -653,7 +571,7 @@ public class Region {
      * @param n Number of times to repeat s.
      * @return String of s repeated n times.
      */
-    private String repeat(String s, int n) { return new String(new char[n]).replace("\0", s); }
+    private static String repeat(String s, int n) { return new String(new char[n]).replace("\0", s); }
     
     /**
      * Combine all the elements of a list together with a delimiter between each.
@@ -662,7 +580,7 @@ public class Region {
      * @param delim Delimiter to place between each element.
      * @return String combined with all elements and delimiters.
      */
-    private String join(List<String> list, String delim) {
+    private static String join(List<String> list, String delim) {
         if (list.isEmpty()) return "";
      
         StringBuilder sb = new StringBuilder();

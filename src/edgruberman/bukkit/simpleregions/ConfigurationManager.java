@@ -10,6 +10,8 @@ import java.util.GregorianCalendar;
 
 import org.bukkit.plugin.Plugin;
 
+import edgruberman.bukkit.messagemanager.MessageLevel;
+
 public class ConfigurationManager {
     
     private static final int TICKS_PER_SECOND = 20;
@@ -34,8 +36,6 @@ public class ConfigurationManager {
     
     /**
      * Create configuration file from default if necessary and then load.
-     * 
-     * @param plugin Plugin to load configuration for.
      */
     protected void load() {
         File fileConfig = new File(this.plugin.getDataFolder(), this.file);
@@ -95,7 +95,7 @@ public class ConfigurationManager {
             // Schedule task to run if last save was less than MAX_SAVE.
             if (lastSave >= 0 && lastSave < this.maxSave) {
                 // If task already scheduled return and let currently scheduled task run when expected.
-                if (this.plugin.getServer().getScheduler().isQueued(this.taskSave)) return;
+                if (this.taskSave != null && this.plugin.getServer().getScheduler().isQueued(this.taskSave)) return;
                 
                 // Schedule task to force save.
                 final ConfigurationManager configurationManager = this;
@@ -104,12 +104,14 @@ public class ConfigurationManager {
                         , new Runnable() { public void run() { configurationManager.save(true); } }
                         , (this.maxSave - lastSave) * ConfigurationManager.TICKS_PER_SECOND
                 );
-            
+                Main.messageManager.log(MessageLevel.FINEST, "Configuration file will be saved in " + (this.maxSave - lastSave) + " seconds.");
+                
                 return;
             }
         }
         
         this.plugin.getConfiguration().save();
         this.lastSave = new GregorianCalendar();
+        Main.messageManager.log(MessageLevel.FINEST, "Configuration file was saved.");
     }
 }

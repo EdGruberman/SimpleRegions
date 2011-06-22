@@ -4,9 +4,9 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import edgruberman.bukkit.simplesecurity.AccessControlEntry;
-import edgruberman.bukkit.simplesecurity.AccessControlList;
-import edgruberman.bukkit.simplesecurity.Principal;
+import edgruberman.bukkit.accesscontrol.AccessControlEntry;
+import edgruberman.bukkit.accesscontrol.Principal;
+import edgruberman.bukkit.accesscontrol.SimpleAccess;
 
 public class Region {
     
@@ -24,7 +24,7 @@ public class Region {
     private Integer x1 = null, x2 = null, y1 = null, y2 = null, z1 = null, z2 = null;
     private Integer minX = null, maxX = null, minY = null, maxY = null, minZ = null, maxZ = null;
     
-    private AccessControlList acl = new AccessControlList();
+    private SimpleAccess access = new SimpleAccess();
     
     protected Region(String worldName, String name, Boolean isActive
             , int x1, int x2, int y1, int y2, int z1, int z2
@@ -37,14 +37,14 @@ public class Region {
         this.isActive = isActive;
         if (helpers != null)
             for (String helper : helpers)
-                this.acl.addPermission(helper);
+                this.access.addPermission(helper);
         
         if (this.name == null) {
             this.isDefault = true;
         } else {
             if (owners != null)
                 for (String owner : owners)
-                    this.acl.addOwner(owner);
+                    this.access.addOwner(owner);
             
             this.x1 = x1; this.x2 = x2;
             this.y1 = y1; this.y2 = y2;
@@ -143,23 +143,23 @@ public class Region {
     }
     
     protected boolean isAllowed(String name) {
-        return this.acl.isAllowed(name);
+        return this.access.isAllowed(name);
     }
     
     protected boolean isOwner(String name) {
-        return this.acl.isOwner(name);
+        return this.access.isOwner(name);
     }
     
     protected boolean isDirectOwner(String name) {
-        return this.acl.isDirectOwner(name);
+        return this.access.isDirectOwner(name);
     }
     
     protected boolean isHelper(String name) {
-        return this.acl.isAllowed(name);
+        return this.access.isAllowed(name);
     }
     
     protected boolean isDirectHelper(String name) {
-        for (AccessControlEntry ace : this.acl.getEntries())
+        for (AccessControlEntry ace : this.access.getAcl().getEntries())
             if (ace.getPrincipal().getName().equalsIgnoreCase(name))
                 return true;
         
@@ -168,7 +168,7 @@ public class Region {
     
     protected List<String> getOwners()  {
         List<String> owners = new ArrayList<String>();
-        for (Principal owner : this.acl.getOwners())
+        for (Principal owner : this.access.getAcl().getOwners())
             owners.add(owner.getDisplayName());
             
         return owners;
@@ -176,7 +176,7 @@ public class Region {
     
     protected List<String> getHelpers() {
         List<String> helpers = new ArrayList<String>();
-        for (AccessControlEntry ace : this.acl.getEntries())
+        for (AccessControlEntry ace : this.access.getAcl().getEntries())
             helpers.add(ace.getPrincipal().getDisplayName());
         
         return helpers;
@@ -364,19 +364,19 @@ public class Region {
     }
     
     protected boolean addOwner(String member) {
-        return this.acl.addOwner(member);
+        return this.access.addOwner(member);
     }
     
     protected boolean removeOwner(String member) {
-        return this.acl.removeOwner(member);
+        return this.access.removeOwner(member);
     }
     
     protected boolean addHelper(String member) {
-        return this.acl.addPermission(member);
+        return this.access.addPermission(member);
     }
     
     protected boolean removeHelper(String member) {
-        return this.acl.removePermission(member);
+        return this.access.removePermission(member);
     }
     
     /**

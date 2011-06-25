@@ -64,7 +64,7 @@ public class ConfigurationManager {
         destination.getParentFile().mkdir();
         OutputStream out = new FileOutputStream(destination);
         
-        byte[] buf = new byte[1024];
+        byte[] buf = new byte[4096];
         int len;
         while ((len = in.read(buf)) > 0) {
             out.write(buf, 0, len);
@@ -104,7 +104,7 @@ public class ConfigurationManager {
                         , new Runnable() { public void run() { configurationManager.save(true); } }
                         , (this.maxSave - lastSave) * ConfigurationManager.TICKS_PER_SECOND
                 );
-                Main.messageManager.log(MessageLevel.FINEST, "Configuration file will be saved in " + (this.maxSave - lastSave) + " seconds.");
+                Main.getMessageManager().log(MessageLevel.FINEST, "Configuration file will be saved in " + (this.maxSave - lastSave) + " seconds.");
                 
                 return;
             }
@@ -112,6 +112,6 @@ public class ConfigurationManager {
         
         this.plugin.getConfiguration().save();
         this.lastSave = new GregorianCalendar();
-        Main.messageManager.log(MessageLevel.FINEST, "Configuration file was saved.");
+        Main.getMessageManager().log(MessageLevel.FINEST, "Configuration file was saved.");
     }
 }

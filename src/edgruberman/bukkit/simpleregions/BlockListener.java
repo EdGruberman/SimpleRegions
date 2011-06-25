@@ -22,9 +22,9 @@ public class BlockListener extends org.bukkit.event.block.BlockListener {
         
         event.setCancelled(true);
         if (Main.deniedMessage != null)
-            Main.messageManager.send(event.getPlayer(), MessageLevel.SEVERE, Main.deniedMessage);
+            Main.getMessageManager().send(event.getPlayer(), MessageLevel.SEVERE, Main.deniedMessage);
         
-        Main.messageManager.log(MessageLevel.FINE
+        Main.getMessageManager().log(MessageLevel.FINE
                 , "Cancelled " + event.getPlayer().getName() + " attempting to break a block"
                 + " in \"" + event.getPlayer().getWorld().getName() + "\""
                 + " at x:" + event.getBlock().getX()
@@ -42,9 +42,9 @@ public class BlockListener extends org.bukkit.event.block.BlockListener {
         
         event.setCancelled(true);
         if (Main.deniedMessage != null)
-            Main.messageManager.send(event.getPlayer(), MessageLevel.SEVERE, Main.deniedMessage);
+            Main.getMessageManager().send(event.getPlayer(), MessageLevel.SEVERE, Main.deniedMessage);
          
-        Main.messageManager.log(MessageLevel.FINE
+        Main.getMessageManager().log(MessageLevel.FINE
                 , "Cancelled " + event.getPlayer().getName() + " attempting to break a block"
                 + " in \"" + event.getPlayer().getWorld().getName() + "\""
                 + " at x:" + event.getBlock().getX()

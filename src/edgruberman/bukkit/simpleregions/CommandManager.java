@@ -23,33 +23,33 @@ public class CommandManager implements CommandExecutor
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] split) {
-        Main.messageManager.log(MessageLevel.FINE
+        Main.getMessageManager().log(MessageLevel.FINE
                 , ((sender instanceof Player) ? ((Player) sender).getName() : "[CONSOLE]")
                 + " issued command: " + label + " " + this.join(split)
         );
 
         // Re-parse the command line to account for double quotes delineating a single argument that contains spaces.
         List<String> args = this.getArguments(split);
-        Main.messageManager.log(MessageLevel.FINEST, "split = " + Arrays.asList(split) + "    args = " + args);
+        Main.getMessageManager().log(MessageLevel.FINEST, "split = " + Arrays.asList(split) + "    args = " + args);
         
         // Format the command line and interpret implicit parameters as necessary.
         List<String> formatted = this.formatArguments(args, sender);
-        Main.messageManager.log(MessageLevel.FINEST, "formatted = " + formatted);
+        Main.getMessageManager().log(MessageLevel.FINEST, "formatted = " + formatted);
 
         // Parse action argument and it's parameters.
         String action = formatted.get(2);
         List<String> parameters = new ArrayList<String>();
         if (formatted.size() >= 4) parameters = formatted.subList(3, formatted.size());
-        Main.messageManager.log(MessageLevel.FINEST, "parameters = " + parameters);
+        Main.getMessageManager().log(MessageLevel.FINEST, "parameters = " + parameters);
         
         if (action.equals("load")) {
             if (!sender.isOp()) {
-                Main.messageManager.respond(sender, MessageLevel.RIGHTS, "You must be a server operator to issue that command.", false);
+                Main.getMessageManager().respond(sender, MessageLevel.RIGHTS, "You must be a server operator to issue that command.", false);
                 return true;
             }
-            Main.configurationManager.load();
+            Main.getConfigurationManager().load();
             int count = this.main.loadRegions();
-            Main.messageManager.respond(sender, MessageLevel.STATUS, "Loaded " + count + " regions.", false);
+            Main.getMessageManager().respond(sender, MessageLevel.STATUS, "Loaded " + count + " regions.", false);
             return true;
         }
         
@@ -77,7 +77,7 @@ public class CommandManager implements CommandExecutor
             if (region != null && regionName != null && !region.getName().equals(regionName)) region = null;
         }
         if (region == null) region = this.main.getRegion(worldName, regionName);
-        Main.messageManager.log(MessageLevel.FINEST
+        Main.getMessageManager().log(MessageLevel.FINEST
                 , "action = " + action
                 + "    region.worldName = " + (region == null ? null : region.getWorldName())
                 + "    region.name = "    + (region == null ? null : region.getName())
@@ -94,19 +94,19 @@ public class CommandManager implements CommandExecutor
         }
         
         if (action.equals("size")) {
-            Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + region.getName() + "\" Size: " + region.getSize(), false);
+            Main.getMessageManager().respond(sender, MessageLevel.STATUS, "\"" + region.getName() + "\" Size: " + region.getSize(), false);
             return true;
         }
         
         if (action.equals("area")) {
-            Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + region.getName() + "\" Area: " + region.getArea(), false);
+            Main.getMessageManager().respond(sender, MessageLevel.STATUS, "\"" + region.getName() + "\" Area: " + region.getArea(), false);
             return true;
         }
         
         // ---- Only region owners or server operators can use commands past this point.
         if (!sender.isOp()) {
             if (!region.isOwner(((Player) sender).getName())) {
-                Main.messageManager.respond(sender, MessageLevel.RIGHTS
+                Main.getMessageManager().respond(sender, MessageLevel.RIGHTS
                         , "You must be one of the region owners to issue that command."
                         , false
                 );
@@ -118,7 +118,7 @@ public class CommandManager implements CommandExecutor
             region.setActive(true);
             if (region.isCommitted()) this.main.saveRegions(false);
             this.actionDetail(sender, region, parameters);
-            Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + region.getName() + "\" activated.", false);
+            Main.getMessageManager().respond(sender, MessageLevel.STATUS, "\"" + region.getName() + "\" activated.", false);
             return true;
         }
         
@@ -126,7 +126,7 @@ public class CommandManager implements CommandExecutor
             region.setActive(false);
             if (region.isCommitted()) this.main.saveRegions(false);
             this.actionDetail(sender, region, parameters);
-            Main.messageManager.respond(sender, MessageLevel.STATUS
+            Main.getMessageManager().respond(sender, MessageLevel.STATUS
                     , "\"" + region.getName() + "\" deactivated; Region will no longer prevent access."
                     , false
             );
@@ -142,18 +142,18 @@ public class CommandManager implements CommandExecutor
             for (String member : parameters) {
                 if (action.equals("+owner")) {
                     if (region.isDirectOwner(member)) {
-                        Main.messageManager.respond(sender, MessageLevel.WARNING, "\"" + member + "\" already exists in Owners.", false);
+                        Main.getMessageManager().respond(sender, MessageLevel.WARNING, "\"" + member + "\" already exists in Owners.", false);
                         continue;
                     }
                     
                     if (region.addOwner(member)) {
-                        Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + member + "\" added to Owners.", false);
+                        Main.getMessageManager().respond(sender, MessageLevel.STATUS, "\"" + member + "\" added to Owners.", false);
                         if (region.isCommitted()) {
                             this.sendIfOnline(member, MessageLevel.EVENT, "You have been added as an Owner to the \"" + region.getName() + "\" region by " + playerName + ".");
                             this.main.saveRegions(false);
                         }
                     } else {
-                        Main.messageManager.respond(sender, MessageLevel.WARNING, "\"" + member + "\" is unabled to be added to Owners.", false);
+                        Main.getMessageManager().respond(sender, MessageLevel.WARNING, "\"" + member + "\" is unabled to be added to Owners.", false);
                     }
                     
                     continue;
@@ -161,7 +161,7 @@ public class CommandManager implements CommandExecutor
                 
                 if (action.equals("-owner")) {
                     if (!region.isDirectOwner(member)) {
-                        Main.messageManager.respond(sender, MessageLevel.WARNING, "\"" + member + "\" is not currently in Owners.", false);
+                        Main.getMessageManager().respond(sender, MessageLevel.WARNING, "\"" + member + "\" is not currently in Owners.", false);
                         continue;
                     }
                     
@@ -169,18 +169,18 @@ public class CommandManager implements CommandExecutor
                         if (!sender.isOp()) {
                             if (!region.isOwner(playerName)) {
                                 region.addOwner(member);
-                                Main.messageManager.respond(sender, MessageLevel.SEVERE, "You can not remove yourself as an owner.", false);
+                                Main.getMessageManager().respond(sender, MessageLevel.SEVERE, "You can not remove yourself as an owner.", false);
                                 continue;
                             }
                         }
                         
-                        Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + member + "\" removed from Owners.", false);
+                        Main.getMessageManager().respond(sender, MessageLevel.STATUS, "\"" + member + "\" removed from Owners.", false);
                         if (region.isCommitted()) {
                             this.sendIfOnline(member, MessageLevel.EVENT, "You have been removed as an Owner from the \"" + region.getName() + "\" region by " + playerName + ".");
                             this.main.saveRegions(false);
                         }
                     } else {
-                        Main.messageManager.respond(sender, MessageLevel.WARNING, "\"" + member + "\" is unable to be removed from Owners.", false);
+                        Main.getMessageManager().respond(sender, MessageLevel.WARNING, "\"" + member + "\" is unable to be removed from Owners.", false);
                     }
                     
                     continue;
@@ -188,18 +188,18 @@ public class CommandManager implements CommandExecutor
                 
                 if (action.equals("+helper")) {
                     if (region.isDirectHelper(member)) {
-                        Main.messageManager.respond(sender, MessageLevel.WARNING, "\"" + member + "\" already exists in Helpers.", false);
+                        Main.getMessageManager().respond(sender, MessageLevel.WARNING, "\"" + member + "\" already exists in Helpers.", false);
                         continue;
                     }
                     
                     if (region.addHelper(member)) {
-                        Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + member + "\" added to Helpers.", false);
+                        Main.getMessageManager().respond(sender, MessageLevel.STATUS, "\"" + member + "\" added to Helpers.", false);
                         if (region.isCommitted()) {
                             this.sendIfOnline(member, MessageLevel.EVENT, "You have been added as a Helper to the \"" + region.getName() + "\" region by " + playerName + ".");
                             this.main.saveRegions(false);
                         }
                     } else {
-                        Main.messageManager.respond(sender, MessageLevel.WARNING, "\"" + member + "\" is unabled to be added to Helpers.", false);
+                        Main.getMessageManager().respond(sender, MessageLevel.WARNING, "\"" + member + "\" is unabled to be added to Helpers.", false);
                     }
                     
                     continue;
@@ -207,18 +207,18 @@ public class CommandManager implements CommandExecutor
                 
                 if (action.equals("-helper")) {
                     if (!region.isDirectHelper(member)) {
-                        Main.messageManager.respond(sender, MessageLevel.WARNING, "\"" + member + "\" is not currently in Helpers.", false);
+                        Main.getMessageManager().respond(sender, MessageLevel.WARNING, "\"" + member + "\" is not currently in Helpers.", false);
                         continue;
                     }
                     
                     if (region.removeHelper(member)) {
-                        Main.messageManager.respond(sender, MessageLevel.STATUS, "\"" + member + "\" removed from Helpers.", false);
+                        Main.getMessageManager().respond(sender, MessageLevel.STATUS, "\"" + member + "\" removed from Helpers.", false);
                         if (region.isCommitted()) {
                             this.sendIfOnline(member, MessageLevel.EVENT, "You have been removed as a Helper from the \"" + region.getName() + "\" region by " + playerName + ".");
                             this.main.saveRegions(false);
                         }
                     } else {
-                        Main.messageManager.respond(sender, MessageLevel.WARNING, "\"" + member + "\" is unable to be removed from Helpers.", false);
+                        Main.getMessageManager().respond(sender, MessageLevel.WARNING, "\"" + member + "\" is unable to be removed from Helpers.", false);
                     }
                     
                     continue;
@@ -226,20 +226,20 @@ public class CommandManager implements CommandExecutor
             } // End for; member
             
             this.actionDetail(sender, region, parameters);
-            Main.messageManager.respond(sender, MessageLevel.STATUS, "Members adjusted.", false);
+            Main.getMessageManager().respond(sender, MessageLevel.STATUS, "Members adjusted.", false);
             return true;
         } // End if; (+|-)(owner|helper)
         
         if ((action.equals("enter") || action.equals("exit")) && (parameters.size() == 0)) {
             this.actionDetail(sender, region, parameters);
-            Main.messageManager.respond(sender, MessageLevel.CONFIG, "Current enter message: " + region.getEnterFormatted(), false);
-            Main.messageManager.respond(sender, MessageLevel.CONFIG, "Current exit message: " + region.getExitFormatted(), false);
+            Main.getMessageManager().respond(sender, MessageLevel.CONFIG, "Current enter message: " + region.getEnterFormatted(), false);
+            Main.getMessageManager().respond(sender, MessageLevel.CONFIG, "Current exit message: " + region.getExitFormatted(), false);
             return true;
         }
 
         // ---- Only server operators can use commands past this point.
         if (!sender.isOp()) {
-            Main.messageManager.respond(sender, MessageLevel.RIGHTS, "You must be a server operator to issue that command.", false);
+            Main.getMessageManager().respond(sender, MessageLevel.RIGHTS, "You must be a server operator to issue that command.", false);
             return true;
         }
         
@@ -252,8 +252,8 @@ public class CommandManager implements CommandExecutor
                 region.setEnterMessage(message);
                 if (region.isCommitted()) this.main.saveRegions(false);
                 this.actionDetail(sender, region, parameters);
-                Main.messageManager.respond(sender, MessageLevel.STATUS, "Enter message set to: " + region.getEnterFormatted(), false);
-                Main.messageManager.respond(sender, MessageLevel.CONFIG, "Current exit message: " + region.getExitFormatted(), false);
+                Main.getMessageManager().respond(sender, MessageLevel.STATUS, "Enter message set to: " + region.getEnterFormatted(), false);
+                Main.getMessageManager().respond(sender, MessageLevel.CONFIG, "Current exit message: " + region.getExitFormatted(), false);
                 return true;
             }
             
@@ -261,8 +261,8 @@ public class CommandManager implements CommandExecutor
                 region.setExitMessage(message);
                 if (region.isCommitted()) this.main.saveRegions(false);
                 this.actionDetail(sender, region, parameters);
-                Main.messageManager.respond(sender, MessageLevel.CONFIG, "Current enter message: " + region.getEnterFormatted(), false);
-                Main.messageManager.respond(sender, MessageLevel.STATUS, "Exit message set to: " + region.getExitFormatted(), false);
+                Main.getMessageManager().respond(sender, MessageLevel.CONFIG, "Current enter message: " + region.getEnterFormatted(), false);
+                Main.getMessageManager().respond(sender, MessageLevel.STATUS, "Exit message set to: " + region.getExitFormatted(), false);
                 return true;
             }
         }
@@ -275,7 +275,7 @@ public class CommandManager implements CommandExecutor
             
             String newName = this.trimDoubleQuotes(parameters.get(0));
             if (!this.main.isRegionUnique(region.getWorldName(), newName, null)) {
-                Main.messageManager.respond(sender, MessageLevel.SEVERE, "Region name \"" + newName + "\" is not unique.", false);
+                Main.getMessageManager().respond(sender, MessageLevel.SEVERE, "Region name \"" + newName + "\" is not unique.", false);
                 return true;
             }
             
@@ -286,7 +286,7 @@ public class CommandManager implements CommandExecutor
                 region.setName(newName);
             }
             this.actionDetail(sender, region, parameters);
-            Main.messageManager.respond(sender, MessageLevel.STATUS
+            Main.getMessageManager().respond(sender, MessageLevel.STATUS
                     , "Region renamed from \"" + original + "\" to \"" + region.getName() + "\"."
                     , false
             );
@@ -301,7 +301,7 @@ public class CommandManager implements CommandExecutor
         if (action.equals("create")) {
             if (region != null && !region.isCommitted()) {
                 this.actionDetail(sender, region, parameters);
-                Main.messageManager.respond(sender, MessageLevel.SEVERE, "You already have a definition in progress.", false);
+                Main.getMessageManager().respond(sender, MessageLevel.SEVERE, "You already have a definition in progress.", false);
                 return true;
             }
             
@@ -312,32 +312,32 @@ public class CommandManager implements CommandExecutor
             
             String newName = this.trimDoubleQuotes(parameters.get(0));
             if (!this.main.isRegionUnique(worldName, newName, null)) {
-                Main.messageManager.respond(sender, MessageLevel.SEVERE, "Region name \"" + newName + "\" is not unique.", false);
+                Main.getMessageManager().respond(sender, MessageLevel.SEVERE, "Region name \"" + newName + "\" is not unique.", false);
                 return true;
             }
             
             region = new Region(worldName, newName);
             this.main.uncommittedRegions.put(worldName + ":" + playerName, region);
             this.actionDetail(sender, region, parameters);
-            Main.messageManager.respond(sender, MessageLevel.STATUS, "Region created. Use: /region define", false);
+            Main.getMessageManager().respond(sender, MessageLevel.STATUS, "Region created. Use: /region define", false);
             return true;
         }
         
         if (action.equals("clear")) {
             if (region == null || (region != null && region.isCommitted())) {
-                Main.messageManager.respond(sender, MessageLevel.SEVERE, "You do not currently have a definition in progress.", false);
+                Main.getMessageManager().respond(sender, MessageLevel.SEVERE, "You do not currently have a definition in progress.", false);
                 return true;
             }
             
             this.actionDetail(sender, region, parameters);
             this.main.uncommittedRegions.remove(region.getWorldName() + ":" + playerName);
-            Main.messageManager.respond(sender, MessageLevel.STATUS, "Uncommitted region cleared.", false);
+            Main.getMessageManager().respond(sender, MessageLevel.STATUS, "Uncommitted region cleared.", false);
             return true;
         }
         
         if (action.equals("commit")) {
             if (region == null || (region != null && region.isCommitted())) {
-                Main.messageManager.respond(sender, MessageLevel.SEVERE, "You do not currently have a definition in progress.", false);
+                Main.getMessageManager().respond(sender, MessageLevel.SEVERE, "You do not currently have a definition in progress.", false);
                 return true;
             }
             
@@ -346,7 +346,7 @@ public class CommandManager implements CommandExecutor
                     || region.getZ1() == null || region.getZ2() == null) {
                 
                 this.actionDetail(sender, region, parameters);
-                Main.messageManager.respond(sender, MessageLevel.SEVERE, "You have not finished defining the coordinates.", false);
+                Main.getMessageManager().respond(sender, MessageLevel.SEVERE, "You have not finished defining the coordinates.", false);
                 return true;
             }
  
@@ -354,7 +354,7 @@ public class CommandManager implements CommandExecutor
             this.main.addRegion(region);
             this.actionDetail(sender, region, parameters);
             this.main.uncommittedRegions.remove(region.getWorldName() + ":" + playerName);
-            Main.messageManager.respond(sender, MessageLevel.STATUS, "Region committed.", false);
+            Main.getMessageManager().respond(sender, MessageLevel.STATUS, "Region committed.", false);
             this.main.saveRegions(true);
             return true;
         }
@@ -365,7 +365,7 @@ public class CommandManager implements CommandExecutor
             boolean confirmed = false;
             if ((parameters.size() != 0) && (parameters.get(0).equals("yes"))) confirmed = true;
             if (!confirmed) {
-                Main.messageManager.respond(sender, MessageLevel.WARNING
+                Main.getMessageManager().respond(sender, MessageLevel.WARNING
                     , "Are you sure you wish to remove this region?\n"
                     + "To confirm: /region \"" + region.getName() + "\" remove yes"
                     , false
@@ -374,7 +374,7 @@ public class CommandManager implements CommandExecutor
             }            
 
             this.main.removeRegion(region);
-            Main.messageManager.respond(sender, MessageLevel.STATUS, "Region removed.", false);
+            Main.getMessageManager().respond(sender, MessageLevel.STATUS, "Region removed.", false);
             return true;
         }
         
@@ -514,20 +514,20 @@ public class CommandManager implements CommandExecutor
         }
         
         if (sender instanceof Player) {
-            Main.messageManager.send((Player) sender, MessageLevel.STATUS, message, false);
+            Main.getMessageManager().send((Player) sender, MessageLevel.STATUS, message, false);
         } else {
             message += " (World \"" + target.getWorld().getName() + "\")";
-            Main.messageManager.log(message);
+            Main.getMessageManager().log(message);
         }
         
         boolean access = this.main.isAllowed(target.getName(), target.getWorld().getName()
             , target.getLocation().getBlockX(), target.getLocation().getBlockY(), target.getLocation().getBlockZ());
         if (access == true) {
-            if (sender == target) { Main.messageManager.send((Player) sender, MessageLevel.STATUS, "You have access here.", false);
-            } else {Main.messageManager.log(target.getName() + " has access there."); }
+            if (sender == target) { Main.getMessageManager().send((Player) sender, MessageLevel.STATUS, "You have access here.", false);
+            } else {Main.getMessageManager().log(target.getName() + " has access there."); }
         } else {
-            if (sender == target) { Main.messageManager.send((Player) sender, MessageLevel.WARNING, "You do not have access here.", false);
-            } else { Main.messageManager.log(target.getName() + " does not have access there."); }
+            if (sender == target) { Main.getMessageManager().send((Player) sender, MessageLevel.WARNING, "You do not have access here.", false);
+            } else { Main.getMessageManager().log(target.getName() + " does not have access there."); }
         }
     }
     
@@ -536,12 +536,12 @@ public class CommandManager implements CommandExecutor
         if ((parameters.size() >= 1) && this.isInteger(parameters.get(0))) {
             referenceType = Integer.parseInt(parameters.get(0));
         }
-        Main.messageManager.respond(sender, MessageLevel.CONFIG, region.getDescription(referenceType), false);
+        Main.getMessageManager().respond(sender, MessageLevel.CONFIG, region.getDescription(referenceType), false);
         if (!region.isCommitted()
                 && region.getX1() != null && region.getX2() != null
                 && region.getY1() != null && region.getY2() != null
                 && region.getZ1() != null && region.getZ2() != null) {
-            Main.messageManager.respond(sender, MessageLevel.NOTICE, "To finalize: /region commit", false);
+            Main.getMessageManager().respond(sender, MessageLevel.NOTICE, "To finalize: /region commit", false);
         }
     }
 
@@ -553,7 +553,7 @@ public class CommandManager implements CommandExecutor
 
         if (parameters.size() == 0) {
             if (block == null) {        
-                Main.messageManager.respond(sender, MessageLevel.WARNING, "Unable to determine target block.", false);
+                Main.getMessageManager().respond(sender, MessageLevel.WARNING, "Unable to determine target block.", false);
                 return;
             }
 
@@ -628,20 +628,20 @@ public class CommandManager implements CommandExecutor
         
         // Show configuration of region after update.
         this.actionDetail(sender, region, parameters);
-        Main.messageManager.respond(sender, MessageLevel.CONFIG, "Size: " + region.getSize(), false);
-        Main.messageManager.respond(sender, MessageLevel.STATUS, "Coordinate definition updated.", false);
+        Main.getMessageManager().respond(sender, MessageLevel.CONFIG, "Size: " + region.getSize(), false);
+        Main.getMessageManager().respond(sender, MessageLevel.STATUS, "Coordinate definition updated.", false);
         
         return;
     }
         
     private void showUsage(CommandSender sender, String label, String error) {
-        Main.messageManager.respond(sender, MessageLevel.SEVERE, "Syntax Error: " + error, false);
+        Main.getMessageManager().respond(sender, MessageLevel.SEVERE, "Syntax Error: " + error, false);
         this.showUsage(sender, label);
     }
     
     private void showUsage(CommandSender sender, String label) {
       //TODO show only action usage and help usage if not help
-        Main.messageManager.respond(sender, MessageLevel.NOTICE, this.main.getCommand(label).getUsage().replaceAll("<command>", label), false);
+        Main.getMessageManager().respond(sender, MessageLevel.NOTICE, this.main.getCommand(label).getUsage().replaceAll("<command>", label), false);
     }
     
     /**
@@ -678,7 +678,7 @@ public class CommandManager implements CommandExecutor
     private void sendIfOnline(String name, MessageLevel level, String message) {
         if (this.getExactPlayer(name) == null) return;
         
-        Main.messageManager.send(this.getExactPlayer(name), level, message);
+        Main.getMessageManager().send(this.getExactPlayer(name), level, message);
     }
     
     /**

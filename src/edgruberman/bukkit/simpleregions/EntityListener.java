@@ -34,9 +34,9 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
         
         event.setCancelled(true);
         if (Main.deniedMessage != null)
-            Main.messageManager.send(player, MessageLevel.SEVERE, Main.deniedMessage);
+            Main.getMessageManager().send(player, MessageLevel.SEVERE, Main.deniedMessage);
         
-        Main.messageManager.log(MessageLevel.FINE
+        Main.getMessageManager().log(MessageLevel.FINE
                 , "Cancelled " + player.getName() + " attempting to break a painting"
                 + " in \"" + player.getWorld().getName() + "\""
                 + " at x:" + block.getX()
@@ -54,9 +54,9 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
         
         event.setCancelled(true);
         if (Main.deniedMessage != null)
-            Main.messageManager.send(event.getPlayer(), MessageLevel.SEVERE, Main.deniedMessage);
+            Main.getMessageManager().send(event.getPlayer(), MessageLevel.SEVERE, Main.deniedMessage);
         
-        Main.messageManager.log(MessageLevel.FINE
+        Main.getMessageManager().log(MessageLevel.FINE
                 , "Cancelled " + event.getPlayer().getName() + " attempting to place a painting"
                 + " in \"" + event.getPlayer().getWorld().getName() + "\""
                 + " at x:" + event.getBlock().getX()

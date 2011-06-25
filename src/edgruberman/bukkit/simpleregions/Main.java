@@ -23,15 +23,15 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
     /**
      * Items who uses are cancelled if a player is interacting with a block in a region they do not have access to.
      */
-    protected static final Set<Material> MONITORED_ITEMS = new HashSet<Material>(Arrays.asList(new Material[] {
+    private static final Set<Material> MONITORED_ITEMS = new HashSet<Material>(Arrays.asList(new Material[] {
           Material.BUCKET
         , Material.WATER_BUCKET
         , Material.LAVA_BUCKET
         , Material.FLINT_AND_STEEL
     }));
 
-    protected static ConfigurationManager configurationManager;
-    protected static MessageManager messageManager;
+    private static ConfigurationManager configurationManager;
+    private static MessageManager messageManager;
     
     protected static String deniedMessage = null;
     
@@ -41,10 +41,10 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
 
     public void onLoad() {
         Main.configurationManager = new ConfigurationManager(this);
-        Main.configurationManager.load();
+        Main.getConfigurationManager().load();
         
         Main.messageManager = new MessageManager(this);
-        Main.messageManager.log("Version " + this.getDescription().getVersion());
+        Main.getMessageManager().log("Version " + this.getDescription().getVersion());
     }
     
     public void onEnable() {
@@ -55,7 +55,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         
         this.getCommand("region").setExecutor(new CommandManager(this));
 
-        Main.messageManager.log("Plugin Enabled");
+        Main.getMessageManager().log("Plugin Enabled");
     }
     
     public void onDisable() {
@@ -63,8 +63,19 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         
         this.saveRegions(true);
         
-        Main.messageManager.log("Plugin Disabled");
-        Main.messageManager = null;
+        Main.getMessageManager().log("Plugin Disabled");
+    }
+    
+    protected static ConfigurationManager getConfigurationManager() {
+        return Main.configurationManager;
+    }
+    
+    protected static MessageManager getMessageManager() {
+        return Main.messageManager;
+    }
+    
+    protected static Set<Material> getMonitoredItems() {
+        return Main.MONITORED_ITEMS;
     }
     
     private void registerEvents() {
@@ -74,6 +85,9 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         pluginManager.registerEvent(Event.Type.PLAYER_MOVE, playerListener, Event.Priority.Monitor, this);
         
         pluginManager.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
+        pluginManager.registerEvent(Event.Type.PLAYER_INTERACT_ENTITY, playerListener, Event.Priority.Normal, this);
+        pluginManager.registerEvent(Event.Type.PLAYER_BUCKET_FILL, playerListener, Event.Priority.Normal, this);
+        pluginManager.registerEvent(Event.Type.PLAYER_BUCKET_EMPTY, playerListener, Event.Priority.Normal, this);
      
         BlockListener blockListener = new BlockListener(this);
         pluginManager.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Normal, this);

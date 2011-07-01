@@ -47,7 +47,7 @@ public class CommandManager implements CommandExecutor
                 Main.getMessageManager().respond(sender, MessageLevel.RIGHTS, "You must be a server operator to issue that command.", false);
                 return true;
             }
-            Main.getConfigurationManager().load();
+            Main.getConfigurationFile().load();
             int count = this.main.loadRegions();
             Main.getMessageManager().respond(sender, MessageLevel.STATUS, "Loaded " + count + " regions.", false);
             return true;

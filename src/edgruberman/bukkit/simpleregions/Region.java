@@ -4,8 +4,9 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import edgruberman.bukkit.accesscontrol.AccessControlEntry;
-import edgruberman.bukkit.accesscontrol.Principal;
+import edgruberman.accesscontrol.AccessControlEntry;
+import edgruberman.accesscontrol.Principal;
+import edgruberman.bukkit.accesscontrol.AccountManager;
 import edgruberman.bukkit.accesscontrol.SimpleAccess;
 
 public class Region {
@@ -37,7 +38,7 @@ public class Region {
         this.isActive = isActive;
         if (helpers != null)
             for (String helper : helpers)
-                this.access.addPermission(helper);
+                this.access.grant(helper);
         
         if (this.name == null) {
             this.isDefault = true;
@@ -151,7 +152,11 @@ public class Region {
     }
     
     protected boolean isDirectOwner(String name) {
-        return this.access.isDirectOwner(name);
+        for (Principal owner : this.access.getAcl().getOwners())
+            if (AccountManager.formatName(owner).equalsIgnoreCase(name))
+                return true;
+        
+        return false;
     }
     
     protected boolean isHelper(String name) {
@@ -160,7 +165,7 @@ public class Region {
     
     protected boolean isDirectHelper(String name) {
         for (AccessControlEntry ace : this.access.getAcl().getEntries())
-            if (ace.getPrincipal().getName().equalsIgnoreCase(name))
+            if (AccountManager.formatName(ace.getPrincipal()).equalsIgnoreCase(name))
                 return true;
         
         return false;
@@ -169,7 +174,7 @@ public class Region {
     protected List<String> getOwners()  {
         List<String> owners = new ArrayList<String>();
         for (Principal owner : this.access.getAcl().getOwners())
-            owners.add(owner.getDisplayName());
+            owners.add(AccountManager.formatName(owner));
             
         return owners;
     }
@@ -177,7 +182,7 @@ public class Region {
     protected List<String> getHelpers() {
         List<String> helpers = new ArrayList<String>();
         for (AccessControlEntry ace : this.access.getAcl().getEntries())
-            helpers.add(ace.getPrincipal().getDisplayName());
+            helpers.add(AccountManager.formatName(ace.getPrincipal()));
         
         return helpers;
     }
@@ -372,11 +377,11 @@ public class Region {
     }
     
     protected boolean addHelper(String member) {
-        return this.access.addPermission(member);
+        return this.access.grant(member);
     }
     
     protected boolean removeHelper(String member) {
-        return this.access.removePermission(member);
+        return this.access.revoke(member);
     }
     
     /**

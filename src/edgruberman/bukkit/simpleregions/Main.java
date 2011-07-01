@@ -30,7 +30,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         , Material.FLINT_AND_STEEL
     }));
 
-    private static ConfigurationManager configurationManager;
+    private static ConfigurationFile configurationFile;
     private static MessageManager messageManager;
     
     protected static String deniedMessage = null;
@@ -40,8 +40,8 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
     private Map<String, Region> regions = new HashMap<String, Region>();
 
     public void onLoad() {
-        Main.configurationManager = new ConfigurationManager(this);
-        Main.getConfigurationManager().load();
+        Main.configurationFile = new ConfigurationFile(this, "config.yml", "/defaults/config.yml", 10);
+        Main.getConfigurationFile().load();
         
         Main.messageManager = new MessageManager(this);
         Main.getMessageManager().log("Version " + this.getDescription().getVersion());
@@ -66,8 +66,8 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         Main.getMessageManager().log("Plugin Disabled");
     }
     
-    protected static ConfigurationManager getConfigurationManager() {
-        return Main.configurationManager;
+    protected static ConfigurationFile getConfigurationFile() {
+        return Main.configurationFile;
     }
     
     protected static MessageManager getMessageManager() {
@@ -213,7 +213,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
                 this.getConfiguration().setProperty(nodeName + ".z2", region.getZ2());
             }
         }
-        Main.configurationManager.save(immediate);
+        Main.configurationFile.save(immediate);
     }
     
     /**

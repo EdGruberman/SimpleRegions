@@ -1,7 +1,11 @@
 package edgruberman.bukkit.simpleregions;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
@@ -14,6 +18,7 @@ import edgruberman.bukkit.messagemanager.MessageLevel;
 public class PlayerListener extends org.bukkit.event.player.PlayerListener {
     
     private Main main;
+    private Map<Player, Block> last = new HashMap<Player, Block>();
     
     public PlayerListener(Main main) {
         this.main = main;
@@ -22,8 +27,11 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
     @Override
     public void onPlayerMove(PlayerMoveEvent event) {
         if (event.isCancelled()) return;
-
-        Block from = event.getFrom().getBlock();
+        
+        Block from = this.last.get(event.getPlayer());
+        this.last.put(event.getPlayer(), event.getTo().getBlock());
+        if (from == null) return;
+        
         Block to = event.getTo().getBlock();
         if (from.equals(to)) return;
         

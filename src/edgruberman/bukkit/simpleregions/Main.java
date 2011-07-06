@@ -29,18 +29,18 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         , Material.LAVA_BUCKET
         , Material.FLINT_AND_STEEL
     }));
-
+    
     private static ConfigurationFile configurationFile;
     private static MessageManager messageManager;
     
     protected static String deniedMessage = null;
     
     protected Map<String, Region> uncommittedRegions = new HashMap<String, Region>();
-
+    
     private Map<String, Region> regions = new HashMap<String, Region>();
-
+    
     public void onLoad() {
-        Main.configurationFile = new ConfigurationFile(this, "config.yml", "/defaults/config.yml", 10);
+        Main.configurationFile = new ConfigurationFile(this, 10);
         Main.getConfigurationFile().load();
         
         Main.messageManager = new MessageManager(this);
@@ -66,11 +66,11 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         Main.getMessageManager().log("Plugin Disabled");
     }
     
-    protected static ConfigurationFile getConfigurationFile() {
+    static ConfigurationFile getConfigurationFile() {
         return Main.configurationFile;
     }
     
-    protected static MessageManager getMessageManager() {
+    static MessageManager getMessageManager() {
         return Main.messageManager;
     }
     

@@ -54,7 +54,12 @@ public class CommandManager implements CommandExecutor
         }
         
         if (action.equals("current")) {
-            this.actionCurrent(sender, (formatted.size() >= 4 ? formatted.get(3) : null));
+            this.actionCurrent(sender, (formatted.size() >= 4 ? formatted.get(3) : null), null);
+            return true;
+        }
+        
+        if (action.equals("target")) {
+            this.actionCurrent(sender, null, ((Player) sender).getTargetBlock(null, 50));
             return true;
         }
         
@@ -68,9 +73,9 @@ public class CommandManager implements CommandExecutor
             if (regionName.equals("DEFAULT")) regionName = null;
         }
         
-        // Determine targeted region.
+        // Determine region.
         // If a region creation is in progress, return the uncommitted region if no region specified or the name matches.
-        // Otherwise return the matching region by name, or assume the current region if player and in only one.
+        // Otherwise return the matching region by name, or assume the current region if player is in only one.
         Region region = null;
         region = this.main.uncommittedRegions.get(worldName + ":" + playerName);
         if (!action.equals("create")) {
@@ -384,9 +389,9 @@ public class CommandManager implements CommandExecutor
     // TODO Split actions into separate Action classes with aliases
     private List<String> formatArguments(List<String> original, CommandSender sender) {
         List<String> actions = Arrays.asList(
-              "current", "access", "detail", "info", "size", "area"
+              "current", "access", "detail", "info", "target", "size", "area"
             , "+active", "-active"
-            , "+owner", "+owners", "-owner", "-owners", "+helper", "+helpers", "-helper", "-helpers"
+            , "+owner", "+owners", "-owner", "-owners", "+helper", "+helpers", "-helper", "-helpers", "+", "-"
             , "enter", "exit"
             , "load", "define", "create", "clear", "commit", "remove", "name"
         );
@@ -428,19 +433,20 @@ public class CommandManager implements CommandExecutor
                 }
             case  0: // /<command> <Action>[ <Parameters>]
                 if (sender instanceof Player) {
-                    String worldName = ((Player) sender).getWorld().getName();
+                    Player player = (Player) sender;
+                    String worldName = player.getWorld().getName();
                     
                     // Assume current world of requesting player.
                     standard.set(0, worldName);
                     
                     if (standard.get(1) == null) {
-                        Region uncommitted = this.main.uncommittedRegions.get(worldName + ":" + ((Player) sender).getName());
+                        Region uncommitted = this.main.uncommittedRegions.get(worldName + ":" + (player.getName()));
                         if (uncommitted != null) {
                             // If a region creation is in progress assume that region first.
                             standard.set(1, uncommitted.getName());
                         } else {
                             // Otherwise, assume current region of requesting player if they are in only one region.
-                            List<Region> regions = this.main.getRegions((Player) sender, false);
+                            List<Region> regions = this.main.getRegions(player, false);
                             if (regions.size() == 1) standard.set(1, regions.get(0).getName());
                         }
                     }
@@ -466,31 +472,41 @@ public class CommandManager implements CommandExecutor
         else if (standard.get(2).equals("-owners"))  { standard.set(2, "-owner"); }
         else if (standard.get(2).equals("+helpers")) { standard.set(2, "+helper"); }
         else if (standard.get(2).equals("-helpers")) { standard.set(2, "-helper"); }
+        else if (standard.get(2).equals("+"))        { standard.set(2, "+helper"); }
+        else if (standard.get(2).equals("-"))        { standard.set(2, "-helper"); }
         else if (standard.get(2).equals("access"))   { standard.set(2, "current"); }
         else if (standard.get(2).equals("info"))     { standard.set(2, "detail"); }
         
         return standard;
     }
     
-    private void actionCurrent(CommandSender sender, String targetName) {
+    private void actionCurrent(CommandSender sender, String targetName, Block block) {
         // /<command>[ current[ <Player>]]- Show the current region(s) for specified player, defaulting to sending player.
         
-        Player target;
+        Block target;
+        Player player;
         if (targetName == null) {
             if (!(sender instanceof Player)) {
                 this.showUsage(sender, "region", "Target <Player> parameter required from console.");
                 return;
             }
-            target = (Player) sender;
+            player = (Player) sender;
+            if (block != null) {
+                target = block;
+            } else {
+                target = player.getLocation().getBlock();
+            }
         } else {
-            target = this.main.getServer().getPlayer(targetName);
-            if (target == null) {
+            player = this.main.getServer().getPlayer(targetName);
+            if (player == null) {
                 this.showUsage(sender, "region", "Unable to find \"" + targetName + "\" player.");
                 return;
             }
+            target = player.getLocation().getBlock();
         }
         
-        List<Region> regions = this.main.getRegions(target, false);
+        List<Region> regions = this.main.getRegions(target.getWorld().getName(), target.getX(), target.getY(), target.getZ(), false);
+        
         String regionsMessage = null;
         for (Region r : regions) {
             if (regionsMessage == null) {
@@ -501,10 +517,12 @@ public class CommandManager implements CommandExecutor
         }
         
         String message;
-        if (sender == target) {
+        if (block != null) {
+            message = "Target block (x:" + target.getX() + " y:" + target.getY() + " z:" + target.getZ() + ") ";
+        } else if (sender == target) {
             message = "You are ";
         } else {
-            message = target.getName() + " is ";
+            message = player.getName() + " is ";
         }
         
         if (regions.size() == 0 ) {
@@ -520,14 +538,14 @@ public class CommandManager implements CommandExecutor
             Main.getMessageManager().log(message);
         }
         
-        boolean access = this.main.isAllowed(target.getName(), target.getWorld().getName()
+        boolean access = this.main.isAllowed(player.getName(), target.getWorld().getName()
             , target.getLocation().getBlockX(), target.getLocation().getBlockY(), target.getLocation().getBlockZ());
         if (access == true) {
             if (sender == target) { Main.getMessageManager().send((Player) sender, MessageLevel.STATUS, "You have access here.", false);
-            } else {Main.getMessageManager().log(target.getName() + " has access there."); }
+            } else {Main.getMessageManager().log(player.getName() + " has access there."); }
         } else {
             if (sender == target) { Main.getMessageManager().send((Player) sender, MessageLevel.WARNING, "You do not have access here.", false);
-            } else { Main.getMessageManager().log(target.getName() + " does not have access there."); }
+            } else { Main.getMessageManager().log(player.getName() + " does not have access there."); }
         }
     }
     
@@ -544,7 +562,7 @@ public class CommandManager implements CommandExecutor
             Main.getMessageManager().respond(sender, MessageLevel.NOTICE, "To finalize: /region commit", false);
         }
     }
-
+    
 //  /region[ <Region>]define x1:-100 y1:64 z1:-2000 x2:100 y2:66 z2:2000
 //  /region[ <Region>]define[ 1|2|N|E|S|W|U|D]
     private void actionDefine(CommandSender sender, Region region, List<String> parameters) {

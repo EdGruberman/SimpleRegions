@@ -11,51 +11,51 @@ import java.util.Set;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.util.config.ConfigurationNode;
 
 import edgruberman.bukkit.messagemanager.MessageLevel;
 import edgruberman.bukkit.messagemanager.MessageManager;
 
-public class Main extends org.bukkit.plugin.java.JavaPlugin {
+public final class Main extends org.bukkit.plugin.java.JavaPlugin {
     
     /**
      * Items who uses are cancelled if a player is interacting with a block in a region they do not have access to.
      */
-    private static final Set<Material> MONITORED_ITEMS = new HashSet<Material>(Arrays.asList(new Material[] {
+    static final Set<Material> MONITORED_ITEMS = new HashSet<Material>(Arrays.asList(new Material[] {
           Material.BUCKET
         , Material.WATER_BUCKET
         , Material.LAVA_BUCKET
         , Material.FLINT_AND_STEEL
     }));
     
-    private static ConfigurationFile configurationFile;
-    private static MessageManager messageManager;
+    static ConfigurationFile configurationFile;
+    static MessageManager messageManager;
     
-    protected static String deniedMessage = null;
+    static String deniedMessage = null;
     
-    protected Map<String, Region> uncommittedRegions = new HashMap<String, Region>();
+    Map<String, Region> uncommittedRegions = new HashMap<String, Region>();
     
     private Map<String, Region> regions = new HashMap<String, Region>();
     
     public void onLoad() {
         Main.configurationFile = new ConfigurationFile(this, 10);
-        Main.getConfigurationFile().load();
+        Main.configurationFile.load();
         
         Main.messageManager = new MessageManager(this);
-        Main.getMessageManager().log("Version " + this.getDescription().getVersion());
+        Main.messageManager.log("Version " + this.getDescription().getVersion());
     }
     
     public void onEnable() {
         Main.deniedMessage = this.getConfiguration().getString("deniedMessage", null);
         this.loadRegions();
 
-        this.registerEvents();
+        new PlayerListener(this);
+        new BlockListener(this);
+        new EntityListener(this);
         
         this.getCommand("region").setExecutor(new CommandManager(this));
 
-        Main.getMessageManager().log("Plugin Enabled");
+        Main.messageManager.log("Plugin Enabled");
     }
     
     public void onDisable() {
@@ -63,48 +63,16 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         
         this.saveRegions(true);
         
-        Main.getMessageManager().log("Plugin Disabled");
+        Main.messageManager.log("Plugin Disabled");
     }
     
-    static ConfigurationFile getConfigurationFile() {
-        return Main.configurationFile;
-    }
-    
-    static MessageManager getMessageManager() {
-        return Main.messageManager;
-    }
-    
-    protected static Set<Material> getMonitoredItems() {
-        return Main.MONITORED_ITEMS;
-    }
-    
-    private void registerEvents() {
-        PluginManager pluginManager = this.getServer().getPluginManager();
-        
-        PlayerListener playerListener = new PlayerListener(this);
-        pluginManager.registerEvent(Event.Type.PLAYER_MOVE, playerListener, Event.Priority.Monitor, this);
-        
-        pluginManager.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Event.Priority.Normal, this);
-        pluginManager.registerEvent(Event.Type.PLAYER_INTERACT_ENTITY, playerListener, Event.Priority.Normal, this);
-        pluginManager.registerEvent(Event.Type.PLAYER_BUCKET_FILL, playerListener, Event.Priority.Normal, this);
-        pluginManager.registerEvent(Event.Type.PLAYER_BUCKET_EMPTY, playerListener, Event.Priority.Normal, this);
-     
-        BlockListener blockListener = new BlockListener(this);
-        pluginManager.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Normal, this);
-        pluginManager.registerEvent(Event.Type.BLOCK_PLACE, blockListener, Event.Priority.Normal, this);
-        
-        EntityListener entityListener = new EntityListener(this);
-        pluginManager.registerEvent(Event.Type.PAINTING_BREAK, entityListener, Event.Priority.Normal, this);
-        pluginManager.registerEvent(Event.Type.PAINTING_PLACE, entityListener, Event.Priority.Normal, this);
-    }
-    
-    protected int loadRegions() {
+    int loadRegions() {
         Map<String, Region> regions = new HashMap<String, Region>();
         String worldName, name;
         
         Map<String, ConfigurationNode> regionsNode = this.getConfiguration().getNodes("regions");
         if (regionsNode == null) {
-            Main.messageManager.log(MessageLevel.CONFIG, "No regions defined.");
+            Main.messageManager.log("No regions defined.", MessageLevel.CONFIG);
             return 0;
         }
         
@@ -126,13 +94,13 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
             }
         }
         this.regions = regions;
-        Main.messageManager.log(MessageLevel.CONFIG, "Loaded " + this.regions.size() + " regions.");
+        Main.messageManager.log("Loaded " + this.regions.size() + " regions.", MessageLevel.CONFIG);
         return this.regions.size();
     }
     
     private void loadRegion(String worldName, String name, ConfigurationNode regionNode, Map<String, Region> regions) {
         if (!this.isRegionUnique(worldName, name, regions)) {
-            Main.messageManager.log(MessageLevel.WARNING, "Region in world \"" + worldName + "\" named \"" + name + "\" not loaded; Key namespace conflict.");
+            Main.messageManager.log("Region in world \"" + worldName + "\" named \"" + name + "\" not loaded; Key namespace conflict.", MessageLevel.WARNING);
             return;
         }
         
@@ -152,7 +120,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
               , regionNode.getString("exit", null)
           );
           regions.put(region.getKey(), region);
-          Main.messageManager.log(MessageLevel.FINER, region.getDescription(3));
+          Main.messageManager.log(region.getDescription(3), MessageLevel.FINER);
     }
     
     /**
@@ -163,7 +131,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
      * @param regions Map of regions to test if region is unique in.
      * @return Whether or not region of the same name already exists for the world.
      */
-    protected boolean isRegionUnique(String worldName, String name, Map<String, Region> regions) {
+    boolean isRegionUnique(String worldName, String name, Map<String, Region> regions) {
         if (regions == null) regions = this.regions;
         
         for (Region region : regions.values()) {
@@ -174,22 +142,22 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         return true;
     }
     
-    protected void addRegion(Region region) {
+    void addRegion(Region region) {
         this.regions.put(region.getKey(), region);
     }
     
-    protected void removeRegion(Region region) {
+    void removeRegion(Region region) {
         this.regions.remove(region.getKey());
     }
     
-    protected void renameRegion(Region region, String name) {
+    void renameRegion(Region region, String name) {
         this.regions.remove(region.getKey());
         region.setName(name);
         this.regions.put(region.getKey(), region);
         if (region.isCommitted()) this.saveRegions(false);
     }
     
-    protected void saveRegions(boolean immediate) {
+    void saveRegions(boolean immediate) {
         Map<String, Region> regions = this.regions;
 
         this.getConfiguration().removeProperty("regions");
@@ -224,7 +192,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
      * @param from
      * @param to
      */
-    protected void checkCrossings(Player player, Block from, Block to) {
+    void checkCrossings(Player player, Block from, Block to) {
         for (Region region : this.regions.values()) {
             if (region.isDefault() || !region.isActive()) continue;
             
@@ -233,11 +201,11 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
             if (isInFrom == isInTo) continue;
             
             if (isInFrom && region.getExitFormatted().length() != 0)
-                Main.messageManager.send(player, MessageLevel.STATUS, region.getExitFormatted());
+                Main.messageManager.send(player, region.getExitFormatted(), MessageLevel.STATUS);
             
             if (isInTo && region.getEnterFormatted().length() != 0) {
                 MessageLevel level = (region.isAllowed(player.getName()) ? MessageLevel.STATUS : MessageLevel.WARNING);
-                Main.messageManager.send(player, level, region.getEnterFormatted());
+                Main.messageManager.send(player, region.getEnterFormatted(), level);
             }
         }
     }
@@ -256,7 +224,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
      * @param z
      * @return
      */
-    protected boolean isAllowed(String playerName, String worldName, int x, int y, int z) {
+    boolean isAllowed(String playerName, String worldName, int x, int y, int z) {
         // Check if any standard regions allow the player access.
         boolean hasStandard = false;
         for (Region region : this.regions.values()) {
@@ -285,11 +253,11 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         return (hasStandard ? false : isDefaultAllow);
     }
     
-    protected List<Region> getRegions(Player player) {
+    List<Region> getRegions(Player player) {
         return this.getRegions(player, true);
     }
     
-    protected List<Region> getRegions(Player player, boolean includeDefault) {
+    List<Region> getRegions(Player player, boolean includeDefault) {
         return this.getRegions(player.getWorld().getName()
                 , player.getLocation().getBlockX()
                 , player.getLocation().getBlockY()
@@ -298,7 +266,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         );
     }
     
-    protected List<Region> getRegions(String worldName, int x, int y, int z, boolean includeDefault) {
+    List<Region> getRegions(String worldName, int x, int y, int z, boolean includeDefault) {
         List<Region> containers = new ArrayList<Region>();
         
         for (Region region : this.regions.values()) {
@@ -312,7 +280,7 @@ public class Main extends org.bukkit.plugin.java.JavaPlugin {
         return containers;
     }
     
-    protected Region getRegion(String worldName, String name) {
+    Region getRegion(String worldName, String name) {
         return this.regions.get(Region.formatKey(worldName, name));
     }
 }

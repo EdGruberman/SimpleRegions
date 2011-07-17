@@ -1,5 +1,1 @@
-level
-    log: RIGHTS
-    send: RIGHTS
-    broadcast: RIGHTS
 deniedMessage: You do not have access.

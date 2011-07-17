@@ -47,6 +47,8 @@ public final class Main extends org.bukkit.plugin.java.JavaPlugin {
     
     public void onEnable() {
         Main.deniedMessage = this.getConfiguration().getString("deniedMessage", null);
+        Main.messageManager.log("Denied Message = " + Main.deniedMessage, MessageLevel.CONFIG);
+        
         this.loadRegions();
 
         new PlayerListener(this);

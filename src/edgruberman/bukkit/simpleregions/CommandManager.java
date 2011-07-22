@@ -255,7 +255,7 @@ public class CommandManager implements CommandExecutor
         if (action.equals("enter") || action.equals("exit")) {
             String message = null;
             if (!(parameters.size() == 1 && parameters.get(0).equals("null")))
-                message = this.join(parameters, " ");
+                message = this.trimDoubleQuotes(this.join(parameters, " "));
             
             if (action.equals("enter")) {
                 region.setEnterMessage(message);

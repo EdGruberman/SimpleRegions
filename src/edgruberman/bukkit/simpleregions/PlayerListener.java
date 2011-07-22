@@ -44,6 +44,8 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
         if (from == null) return;
         
         Block to = event.getTo().getBlock();
+        // Players in vehicles seem to drop 1 on y, so bring them back up.
+        if (event.getPlayer().isInsideVehicle()) to = to.getRelative(0, 1, 0);
         if (from.equals(to)) return;
         
         this.main.checkCrossings(event.getPlayer(), from, to);
@@ -56,7 +58,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
         if (
                 !(
                         event.getAction().equals(Action.LEFT_CLICK_BLOCK)
-                        && event.getClickedBlock().getFace(event.getBlockFace()).getType().equals(Material.FIRE)
+                        && event.getClickedBlock().getRelative(event.getBlockFace()).getType().equals(Material.FIRE)
                 )
                 && !Main.MONITORED_ITEMS.contains(event.getPlayer().getItemInHand().getType())
         ) return;

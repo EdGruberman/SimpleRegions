@@ -31,7 +31,7 @@ public class BlockListener extends org.bukkit.event.block.BlockListener {
             Main.messageManager.send(event.getPlayer(), Main.deniedMessage, MessageLevel.SEVERE);
         
         Main.messageManager.log(
-                "Cancelled " + event.getPlayer().getName() + " attempting to break a block"
+                "Cancelled " + event.getPlayer().getName() + " attempting to break a " + event.getBlock().getType().name()
                     + " in \"" + event.getPlayer().getWorld().getName() + "\""
                     + " at x:" + event.getBlock().getX()
                     + " y:" + event.getBlock().getY()
@@ -52,7 +52,7 @@ public class BlockListener extends org.bukkit.event.block.BlockListener {
             Main.messageManager.send(event.getPlayer(), Main.deniedMessage, MessageLevel.SEVERE);
          
         Main.messageManager.log(
-                "Cancelled " + event.getPlayer().getName() + " attempting to break a block"
+                "Cancelled " + event.getPlayer().getName() + " attempting to place a " + event.getBlock().getType().name()
                     + " in \"" + event.getPlayer().getWorld().getName() + "\""
                     + " at x:" + event.getBlock().getX()
                     + " y:" + event.getBlock().getY()

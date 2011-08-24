@@ -195,6 +195,10 @@ public final class Main extends org.bukkit.plugin.java.JavaPlugin {
      * @param to
      */
     void checkCrossings(Player player, Block from, Block to) {
+        List<String> exited = new ArrayList<String>();
+        List<String> entered = new ArrayList<String>();
+        List<MessageLevel> enteredLevel = new ArrayList<MessageLevel>();
+        
         for (Region region : this.regions.values()) {
             if (region.isDefault() || !region.isActive()) continue;
             
@@ -203,13 +207,20 @@ public final class Main extends org.bukkit.plugin.java.JavaPlugin {
             if (isInFrom == isInTo) continue;
             
             if (isInFrom && region.getExitFormatted().length() != 0)
-                Main.messageManager.send(player, region.getExitFormatted(), MessageLevel.STATUS);
+                exited.add(region.getExitFormatted());
             
             if (isInTo && region.getEnterFormatted().length() != 0) {
                 MessageLevel level = (region.isAllowed(player.getName()) ? MessageLevel.STATUS : MessageLevel.WARNING);
-                Main.messageManager.send(player, region.getEnterFormatted(), level);
+                entered.add(region.getEnterFormatted());
+                enteredLevel.add(level);
             }
         }
+        
+        for (String message : exited)
+            Main.messageManager.send(player, message, MessageLevel.STATUS);
+        
+        for (int i = 0; i <= entered.size() - 1; i++)
+            Main.messageManager.send(player, entered.get(i), enteredLevel.get(i));
     }
     
     /**

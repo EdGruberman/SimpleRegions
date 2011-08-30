@@ -9,7 +9,7 @@ import edgruberman.accesscontrol.Principal;
 import edgruberman.bukkit.accesscontrol.AccountManager;
 import edgruberman.bukkit.accesscontrol.SimpleAccess;
 
-public class Region {
+final class Region {
     
     private static final String DEFAULT_ENTER = "Entered \"%1$s\" region."; // 1$ = Region Name
     private static final String DEFAULT_EXIT  = "Exited \"%1$s\" region.";  // 1$ = Region Name
@@ -27,10 +27,10 @@ public class Region {
     
     private SimpleAccess access = new SimpleAccess();
     
-    protected Region(String worldName, String name, Boolean isActive
-            , int x1, int x2, int y1, int y2, int z1, int z2
-            , List<String> owners, List<String> helpers
-            , String enterMessage, String exitMessage
+    Region(final String worldName, final String name, final Boolean isActive
+            , final int x1, final int x2, final int y1, final int y2, final int z1, final int z2
+            , final List<String> owners, final List<String> helpers
+            , final String enterMessage, final String exitMessage
     ) {
         
         this.worldName = worldName;
@@ -56,7 +56,7 @@ public class Region {
         }
     }
     
-    protected Region(String worldName, String name) {
+    Region(final String worldName, final String name) {
         this.worldName = worldName;
         this.name = name;
         
@@ -68,7 +68,7 @@ public class Region {
      * 
      * @return String to use for key.
      */
-    protected String getKey() {
+    String getKey() {
         return Region.formatKey(this.worldName, this.name);
     }
     
@@ -79,9 +79,8 @@ public class Region {
      * @param name
      * @return String to use for key.
      */
-    protected static String formatKey(String worldName, String name) {
-        name = (name == null ? null : name.toLowerCase());
-        return worldName + ":" + name;
+    static String formatKey(final String worldName, final String name) {
+        return worldName + ":" + (name == null ? null : name.toLowerCase());
     }
     
     private void setMinMax() {
@@ -119,7 +118,7 @@ public class Region {
      * @param z
      * @return
      */
-    protected boolean contains(String worldName, int x, int y, int z) {
+    boolean contains(final String worldName, final int x, final int y, final int z) {
         // A region with a null worldName is a default server region and applies to everywhere in any world.
         if (this.worldName == null) return true;
         
@@ -139,19 +138,19 @@ public class Region {
      * @param z Z coordinate.
      * @return True if coordinates are inside the region; Otherwise false.
      */
-    private boolean contains(int x, int y, int z) {
+    private boolean contains(final int x, final int y, final int z) {
         return !(x < this.minX || x > this.maxX || z < this.minZ || z > this.maxZ || y < this.minY || y > this.maxY);
     }
     
-    protected boolean isAllowed(String name) {
+    boolean isAllowed(final String name) {
         return this.access.isAllowed(name);
     }
     
-    protected boolean isOwner(String name) {
+    boolean isOwner(final String name) {
         return this.access.isOwner(name);
     }
     
-    protected boolean isDirectOwner(String name) {
+    boolean isDirectOwner(final String name) {
         for (Principal owner : this.access.getAcl().getOwners())
             if (AccountManager.formatName(owner).equalsIgnoreCase(name))
                 return true;
@@ -159,11 +158,11 @@ public class Region {
         return false;
     }
     
-    protected boolean isHelper(String name) {
+    boolean isHelper(final String name) {
         return this.access.isAllowed(name);
     }
     
-    protected boolean isDirectHelper(String name) {
+    boolean isDirectHelper(final String name) {
         for (AccessControlEntry ace : this.access.getAcl().getEntries())
             if (AccountManager.formatName(ace.getPrincipal()).equalsIgnoreCase(name))
                 return true;
@@ -171,7 +170,7 @@ public class Region {
         return false;
     }
     
-    protected List<String> getOwners()  {
+    List<String> getOwners()  {
         List<String> owners = new ArrayList<String>();
         for (Principal owner : this.access.getAcl().getOwners())
             owners.add(AccountManager.formatName(owner));
@@ -179,7 +178,7 @@ public class Region {
         return owners;
     }
     
-    protected List<String> getHelpers() {
+    List<String> getHelpers() {
         List<String> helpers = new ArrayList<String>();
         for (AccessControlEntry ace : this.access.getAcl().getEntries())
             helpers.add(AccountManager.formatName(ace.getPrincipal()));
@@ -187,57 +186,57 @@ public class Region {
         return helpers;
     }
     
-    protected String getWorldName() { return this.worldName; }
-    protected String getName()      { return this.name; }
-    protected boolean isDefault()   { return this.isDefault; }
-    protected boolean isActive()    { return this.isActive; }
-    protected boolean isCommitted() { return this.isCommitted; }
+    String getWorldName() { return this.worldName; }
+    String getName()      { return this.name; }
+    boolean isDefault()   { return this.isDefault; }
+    boolean isActive()    { return this.isActive; }
+    boolean isCommitted() { return this.isCommitted; }
     
-    protected Integer getX1() { return this.x1; }
-    protected Integer getX2() { return this.x2; }
-    protected Integer getY1() { return this.y1; }
-    protected Integer getY2() { return this.y2; }
-    protected Integer getZ1() { return this.z1; }
-    protected Integer getZ2() { return this.z2; }
+    Integer getX1() { return this.x1; }
+    Integer getX2() { return this.x2; }
+    Integer getY1() { return this.y1; }
+    Integer getY2() { return this.y2; }
+    Integer getZ1() { return this.z1; }
+    Integer getZ2() { return this.z2; }
     
-    protected Integer getN() { return this.minX; }
-    protected Integer getE() { return this.minZ; }
-    protected Integer getS() { return this.maxX; }
-    protected Integer getW() { return this.maxZ; }
-    protected Integer getU() { return this.maxY; }
-    protected Integer getD() { return this.minY; }
+    Integer getN() { return this.minX; }
+    Integer getE() { return this.minZ; }
+    Integer getS() { return this.maxX; }
+    Integer getW() { return this.maxZ; }
+    Integer getU() { return this.maxY; }
+    Integer getD() { return this.minY; }
     
-    protected void setX1(Integer i) {
+    void setX1(final Integer i) {
         this.x1 = i;
         this.setMinMax();
     }
     
-    protected void setX2(Integer i) {
+    void setX2(final Integer i) {
         this.x2 = i;
         this.setMinMax();
     }
     
-    protected void setY1(Integer i) {
+    void setY1(final Integer i) {
         this.y1 = i;
         this.setMinMax();
     }
     
-    protected void setY2(Integer i) {
+    void setY2(final Integer i) {
         this.y2 = i;
         this.setMinMax();
     }
     
-    protected void setZ1(Integer i) {
+    void setZ1(final Integer i) {
         this.z1 = i;
         this.setMinMax();
     }
     
-    protected void setZ2(Integer i) {
+    void setZ2(final Integer i) {
         this.z2 = i;
         this.setMinMax();
     }
  
-    protected void setN(int i) {
+    void setN(final int i) {
         if (this.x1 != null && this.x2 != null) {
             if (i > this.maxX) {
                 this.x1 = i;
@@ -252,7 +251,7 @@ public class Region {
         this.setMinMax();
     }
  
-    protected void setS(int i) {
+    void setS(final int i) {
         if (this.x1 != null && this.x2 != null) {
             if (i < this.minX) {
                 this.x1 = i;
@@ -267,7 +266,7 @@ public class Region {
         this.setMinMax();
     }
     
-    protected void setE(int i) {
+    void setE(final int i) {
         if (this.z1 != null && this.z2 != null) {
             if (i > this.maxZ) {
                 this.z1 = i;
@@ -282,7 +281,7 @@ public class Region {
         this.setMinMax();
     }
     
-    protected void setW(int i) {
+    void setW(final int i) {
         if (this.z1 != null && this.z2 != null) {
             if (i < this.minZ) {
                 this.z1 = i;
@@ -297,7 +296,7 @@ public class Region {
         this.setMinMax();
     }
     
-    protected void setU(int i) {
+    void setU(final int i) {
         if (this.y1 != null && this.y2 != null) {
             if (i < this.minY) {
                 this.y1 = i;
@@ -312,7 +311,7 @@ public class Region {
         this.setMinMax();
     }
 
-    protected void setD(int i) {
+    void setD(final int i) {
         if (this.y1 != null && this.y2 != null) {
             if (i > this.maxY) {
                 this.y1 = i;
@@ -327,7 +326,7 @@ public class Region {
         this.setMinMax();
     }
     
-    protected void setName(String name) {
+    void setName(final String name) {
         this.name = name;
     }
         
@@ -336,51 +335,51 @@ public class Region {
      * 
      * @param isActive true to activate; false to deactivate.
      */
-    protected void setActive(boolean isActive) {
+    void setActive(final boolean isActive) {
         this.isActive = isActive;
     }
     
-    protected void setCommitted(boolean isCommitted) {
+    void setCommitted(final boolean isCommitted) {
         this.isCommitted = isCommitted;
     }
     
-    protected String getEnterMessage() {
+    String getEnterMessage() {
         return this.enterMessage;
     }
     
-    protected String getEnterFormatted() {
+    String getEnterFormatted() {
         return (this.enterMessage == null ? String.format(Region.DEFAULT_ENTER, this.name) : this.enterMessage);
     }
     
-    protected void setEnterMessage(String message) {
+    void setEnterMessage(final String message) {
         this.enterMessage = message;
     }
     
-    protected String getExitMessage() {
+    String getExitMessage() {
         return this.exitMessage;
     }
     
-    protected String getExitFormatted() {
+    String getExitFormatted() {
         return (this.exitMessage == null ? String.format(Region.DEFAULT_EXIT, this.name) : this.exitMessage);
     }
     
-    protected void setExitMessage(String message) {
+    void setExitMessage(final String message) {
         this.exitMessage = message;
     }
     
-    protected boolean addOwner(String member) {
+    boolean addOwner(final String member) {
         return this.access.addOwner(member);
     }
     
-    protected boolean removeOwner(String member) {
+    boolean removeOwner(final String member) {
         return this.access.removeOwner(member);
     }
     
-    protected boolean addHelper(String member) {
+    boolean addHelper(final String member) {
         return this.access.grant(member);
     }
     
-    protected boolean removeHelper(String member) {
+    boolean removeHelper(final String member) {
         return this.access.revoke(member);
     }
     
@@ -390,7 +389,7 @@ public class Region {
      * @param format Specifies the visual format to use.
      * @return Pertinent details.
      */
-    protected String getDescription(int format) {
+    String getDescription(final int format) {
         String description = "---- Region: ";
         if (this.getName() == null) {
             description += (this.isDefault ? "\"DEFAULT\"" : "");
@@ -415,7 +414,7 @@ public class Region {
      * 
      * @return String representation.
      */
-    protected String getSize() {
+    String getSize() {
         Integer sizeX = null;
         if (this.getN() != null && this.getS() != null)
             sizeX = Math.abs(this.getS() - this.getN()) + 1;
@@ -445,7 +444,7 @@ public class Region {
      * 
      * @return String representation of the area.
      */
-    protected String getArea() {
+    String getArea() {
         Integer sizeX = null;
         if (this.getN() != null && this.getS() != null)
             sizeX = Math.abs(this.getS() - this.getN()) + 1;
@@ -469,7 +468,7 @@ public class Region {
      * @param format Specifies the visual format to use.
      * @return A text-based visual representation.
      */
-    private String getCoordinateReference(int format) {
+    private String getCoordinateReference(final int format) {
         int lengthMinX = 1;
         if (this.minX != null) lengthMinX = Integer.toString(this.minX).length();
         int lengthMinY = 1;
@@ -576,7 +575,9 @@ public class Region {
      * @param n Number of times to repeat s.
      * @return String of s repeated n times.
      */
-    private static String repeat(String s, int n) { return new String(new char[n]).replace("\0", s); }
+    private static String repeat(final String s, int n) {
+        return new String(new char[n]).replace("\0", s);
+    }
     
     /**
      * Combine all the elements of a list together with a delimiter between each.
@@ -585,7 +586,7 @@ public class Region {
      * @param delim Delimiter to place between each element.
      * @return String combined with all elements and delimiters.
      */
-    private static String join(List<String> list, String delim) {
+    private static String join(final List<String> list, final String delim) {
         if (list.isEmpty()) return "";
      
         StringBuilder sb = new StringBuilder();

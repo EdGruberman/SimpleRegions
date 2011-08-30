@@ -13,11 +13,11 @@ import org.bukkit.entity.Player;
 import edgruberman.bukkit.messagemanager.MessageLevel;
 
 // TODO Unfuglify
-public class CommandManager implements CommandExecutor 
-{
+final class CommandManager implements CommandExecutor {
+    
     private Main main;
 
-    public CommandManager (Main main) {
+    CommandManager (Main main) {
         this.main = main;
     }
 

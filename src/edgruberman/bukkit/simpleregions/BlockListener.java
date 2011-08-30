@@ -7,11 +7,11 @@ import org.bukkit.plugin.PluginManager;
 
 import edgruberman.bukkit.messagemanager.MessageLevel;
 
-public class BlockListener extends org.bukkit.event.block.BlockListener {
+final class BlockListener extends org.bukkit.event.block.BlockListener {
     
     private Main main;
     
-    public BlockListener(Main plugin) {
+    BlockListener(final Main plugin) {
         this.main = plugin;
         
         PluginManager pluginManager = plugin.getServer().getPluginManager();
@@ -20,7 +20,7 @@ public class BlockListener extends org.bukkit.event.block.BlockListener {
     }
     
     @Override
-    public void onBlockBreak(BlockBreakEvent event) {
+    public void onBlockBreak(final BlockBreakEvent event) {
         if (event.isCancelled()) return;
         
         if (this.main.isAllowed(event.getPlayer().getName(), event.getPlayer().getWorld().getName()
@@ -41,7 +41,7 @@ public class BlockListener extends org.bukkit.event.block.BlockListener {
     }
     
     @Override
-    public void onBlockPlace(BlockPlaceEvent event) {
+    public void onBlockPlace(final BlockPlaceEvent event) {
         if (event.isCancelled()) return;
         
         if (this.main.isAllowed(event.getPlayer().getName(), event.getPlayer().getWorld().getName()

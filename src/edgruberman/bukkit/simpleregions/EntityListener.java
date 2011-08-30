@@ -11,11 +11,11 @@ import org.bukkit.plugin.PluginManager;
 
 import edgruberman.bukkit.messagemanager.MessageLevel;
 
-public class EntityListener extends org.bukkit.event.entity.EntityListener {
+final class EntityListener extends org.bukkit.event.entity.EntityListener {
     
     private Main main;
     
-    public EntityListener(Main plugin) {
+    EntityListener(final Main plugin) {
         this.main = plugin;
         
         PluginManager pluginManager = plugin.getServer().getPluginManager();
@@ -24,7 +24,7 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
     }
     
     @Override
-    public void onPaintingBreak(PaintingBreakEvent event) {
+    public void onPaintingBreak(final PaintingBreakEvent event) {
         if (event.isCancelled()) return;
         
         if (event.getCause().equals(RemoveCause.WORLD)) return;
@@ -53,7 +53,7 @@ public class EntityListener extends org.bukkit.event.entity.EntityListener {
     }
     
     @Override
-    public void onPaintingPlace(PaintingPlaceEvent event) {
+    public void onPaintingPlace(final PaintingPlaceEvent event) {
         if (event.isCancelled()) return;
         
         if (this.main.isAllowed(event.getPlayer().getName(), event.getPlayer().getWorld().getName()

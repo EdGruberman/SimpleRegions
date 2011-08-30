@@ -11,12 +11,13 @@ import java.util.Set;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.ConfigurationNode;
 
 import edgruberman.bukkit.messagemanager.MessageLevel;
 import edgruberman.bukkit.messagemanager.MessageManager;
 
-public final class Main extends org.bukkit.plugin.java.JavaPlugin {
+public final class Main extends JavaPlugin {
     
     /**
      * Items who uses are cancelled if a player is interacting with a block in a region they do not have access to.
@@ -38,11 +39,10 @@ public final class Main extends org.bukkit.plugin.java.JavaPlugin {
     private Map<String, Region> regions = new HashMap<String, Region>();
     
     public void onLoad() {
-        Main.configurationFile = new ConfigurationFile(this, 10);
-        Main.configurationFile.load();
-        
         Main.messageManager = new MessageManager(this);
         Main.messageManager.log("Version " + this.getDescription().getVersion());
+        
+        Main.configurationFile = new ConfigurationFile(this, 10);
     }
     
     public void onEnable() {
@@ -100,7 +100,7 @@ public final class Main extends org.bukkit.plugin.java.JavaPlugin {
         return this.regions.size();
     }
     
-    private void loadRegion(String worldName, String name, ConfigurationNode regionNode, Map<String, Region> regions) {
+    private void loadRegion(final String worldName, final String name, final ConfigurationNode regionNode, Map<String, Region> regions) {
         if (!this.isRegionUnique(worldName, name, regions)) {
             Main.messageManager.log("Region in world \"" + worldName + "\" named \"" + name + "\" not loaded; Key namespace conflict.", MessageLevel.WARNING);
             return;
@@ -133,7 +133,7 @@ public final class Main extends org.bukkit.plugin.java.JavaPlugin {
      * @param regions Map of regions to test if region is unique in.
      * @return Whether or not region of the same name already exists for the world.
      */
-    boolean isRegionUnique(String worldName, String name, Map<String, Region> regions) {
+    boolean isRegionUnique(final String worldName, String name, Map<String, Region> regions) {
         if (regions == null) regions = this.regions;
         
         for (Region region : regions.values()) {
@@ -144,22 +144,22 @@ public final class Main extends org.bukkit.plugin.java.JavaPlugin {
         return true;
     }
     
-    void addRegion(Region region) {
+    void addRegion(final Region region) {
         this.regions.put(region.getKey(), region);
     }
     
-    void removeRegion(Region region) {
+    void removeRegion(final Region region) {
         this.regions.remove(region.getKey());
     }
     
-    void renameRegion(Region region, String name) {
+    void renameRegion(final Region region, String name) {
         this.regions.remove(region.getKey());
         region.setName(name);
         this.regions.put(region.getKey(), region);
         if (region.isCommitted()) this.saveRegions(false);
     }
     
-    void saveRegions(boolean immediate) {
+    void saveRegions(final boolean immediate) {
         Map<String, Region> regions = this.regions;
 
         this.getConfiguration().removeProperty("regions");
@@ -194,7 +194,7 @@ public final class Main extends org.bukkit.plugin.java.JavaPlugin {
      * @param from
      * @param to
      */
-    void checkCrossings(Player player, Block from, Block to) {
+    void checkCrossings(final Player player, final Block from, final Block to) {
         List<String> exited = new ArrayList<String>();
         List<String> entered = new ArrayList<String>();
         List<MessageLevel> enteredLevel = new ArrayList<MessageLevel>();
@@ -237,13 +237,13 @@ public final class Main extends org.bukkit.plugin.java.JavaPlugin {
      * @param z
      * @return
      */
-    boolean isAllowed(String playerName, String worldName, int x, int y, int z) {
+    boolean isAllowed(final String playerName, final String worldName, final int x, final int y, final int z) {
         // Check if any standard regions allow the player access.
         boolean hasStandard = false;
         for (Region region : this.regions.values()) {
             if (!region.isDefault() && region.isActive() && region.contains(worldName, x, y, z)) {
-                hasStandard = true;
                 if (region.isAllowed(playerName)) return true;
+                hasStandard = true;
             }
         }
 
@@ -266,11 +266,11 @@ public final class Main extends org.bukkit.plugin.java.JavaPlugin {
         return (hasStandard ? false : isDefaultAllow);
     }
     
-    List<Region> getRegions(Player player) {
+    List<Region> getRegions(final Player player) {
         return this.getRegions(player, true);
     }
     
-    List<Region> getRegions(Player player, boolean includeDefault) {
+    List<Region> getRegions(final Player player, final boolean includeDefault) {
         return this.getRegions(player.getWorld().getName()
                 , player.getLocation().getBlockX()
                 , player.getLocation().getBlockY()
@@ -279,7 +279,7 @@ public final class Main extends org.bukkit.plugin.java.JavaPlugin {
         );
     }
     
-    List<Region> getRegions(String worldName, int x, int y, int z, boolean includeDefault) {
+    List<Region> getRegions(final String worldName, final int x, final int y, final int z, final boolean includeDefault) {
         List<Region> containers = new ArrayList<Region>();
         
         for (Region region : this.regions.values()) {
@@ -293,7 +293,7 @@ public final class Main extends org.bukkit.plugin.java.JavaPlugin {
         return containers;
     }
     
-    Region getRegion(String worldName, String name) {
+    Region getRegion(final String worldName, final String name) {
         return this.regions.get(Region.formatKey(worldName, name));
     }
 }

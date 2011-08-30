@@ -17,12 +17,12 @@ import org.bukkit.plugin.PluginManager;
 
 import edgruberman.bukkit.messagemanager.MessageLevel;
 
-public class PlayerListener extends org.bukkit.event.player.PlayerListener {
+final class PlayerListener extends org.bukkit.event.player.PlayerListener {
     
     private Main main;
     private Map<Player, Block> last = new HashMap<Player, Block>();
     
-    public PlayerListener(Main plugin) {
+    public PlayerListener(final Main plugin) {
         this.main = plugin;
         
         PluginManager pluginManager = plugin.getServer().getPluginManager();
@@ -36,7 +36,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
     }
     
     @Override
-    public void onPlayerMove(PlayerMoveEvent event) {
+    public void onPlayerMove(final PlayerMoveEvent event) {
         if (event.isCancelled()) return;
         
         Block from = this.last.get(event.getPlayer());
@@ -52,7 +52,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
     }
     
     @Override
-    public void onPlayerInteract(PlayerInteractEvent event) {
+    public void onPlayerInteract(final PlayerInteractEvent event) {
         if (event.isCancelled()) return;
         
         if (
@@ -82,7 +82,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
     }
     
     @Override
-    public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
+    public void onPlayerInteractEntity(final PlayerInteractEntityEvent event) {
         if (event.isCancelled()) return;
         
         if (!Main.MONITORED_ITEMS.contains(event.getPlayer().getItemInHand().getType())) return;
@@ -110,7 +110,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
     }
     
     @Override
-    public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
+    public void onPlayerBucketEmpty(final PlayerBucketEmptyEvent event) {
         if (event.isCancelled()) return;
         
         if (!Main.MONITORED_ITEMS.contains(event.getBucket())) return;
@@ -134,7 +134,7 @@ public class PlayerListener extends org.bukkit.event.player.PlayerListener {
     }
     
     @Override
-    public void onPlayerBucketFill(PlayerBucketFillEvent event) {
+    public void onPlayerBucketFill(final PlayerBucketFillEvent event) {
         if (event.isCancelled()) return;
         
         if (!Main.MONITORED_ITEMS.contains(event.getBucket())) return;

@@ -101,12 +101,12 @@ final class CommandManager implements CommandExecutor {
         }
         
         if (action.equals("size")) {
-            Main.messageManager.respond(sender, "\"" + region.getName() + "\" Size: " + region.getSize(), MessageLevel.STATUS, false);
+            Main.messageManager.respond(sender, "\"" + region.getName() + "\" Size: " + region.describeVolume(), MessageLevel.STATUS, false);
             return true;
         }
         
         if (action.equals("area")) {
-            Main.messageManager.respond(sender, "\"" + region.getName() + "\" Area: " + region.getArea(), MessageLevel.STATUS, false);
+            Main.messageManager.respond(sender, "\"" + region.getName() + "\" Area: " + region.describeArea(), MessageLevel.STATUS, false);
             return true;
         }
         
@@ -196,7 +196,7 @@ final class CommandManager implements CommandExecutor {
                 } // End if; -owner
                 
                 if (action.equals("+helper")) {
-                    if (region.isDirectHelper(member)) {
+                    if (region.isDirectAccess(member)) {
                         Main.messageManager.respond(sender, "\"" + member + "\" already exists in Helpers.", MessageLevel.WARNING, false);
                         continue;
                     }
@@ -215,7 +215,7 @@ final class CommandManager implements CommandExecutor {
                 } // End if; +helper
                 
                 if (action.equals("-helper")) {
-                    if (!region.isDirectHelper(member)) {
+                    if (!region.isDirectAccess(member)) {
                         Main.messageManager.respond(sender, "\"" + member + "\" is not currently in Helpers.", MessageLevel.WARNING, false);
                         continue;
                     }
@@ -241,7 +241,7 @@ final class CommandManager implements CommandExecutor {
         
         if ((action.equals("enter") || action.equals("exit")) && (parameters.size() == 0)) {
             this.actionDetail(sender, region, parameters);
-            Main.messageManager.respond(sender, "Current enter message: " + region.getEnterFormatted(), MessageLevel.CONFIG, false);
+            Main.messageManager.respond(sender, "Current enter message: " + region.formatEnterMessage(), MessageLevel.CONFIG, false);
             Main.messageManager.respond(sender, "Current exit message: " + region.getExitFormatted(), MessageLevel.CONFIG, false);
             return true;
         }
@@ -261,7 +261,7 @@ final class CommandManager implements CommandExecutor {
                 region.setEnterMessage(message);
                 if (region.isCommitted()) this.main.saveRegions(false);
                 this.actionDetail(sender, region, parameters);
-                Main.messageManager.respond(sender, "Enter message set to: " + region.getEnterFormatted(), MessageLevel.STATUS, false);
+                Main.messageManager.respond(sender, "Enter message set to: " + region.formatEnterMessage(), MessageLevel.STATUS, false);
                 Main.messageManager.respond(sender, "Current exit message: " + region.getExitFormatted(), MessageLevel.CONFIG, false);
                 return true;
             }
@@ -270,7 +270,7 @@ final class CommandManager implements CommandExecutor {
                 region.setExitMessage(message);
                 if (region.isCommitted()) this.main.saveRegions(false);
                 this.actionDetail(sender, region, parameters);
-                Main.messageManager.respond(sender, "Current enter message: " + region.getEnterFormatted(), MessageLevel.CONFIG, false);
+                Main.messageManager.respond(sender, "Current enter message: " + region.formatEnterMessage(), MessageLevel.CONFIG, false);
                 Main.messageManager.respond(sender, "Exit message set to: " + region.getExitFormatted(), MessageLevel.STATUS, false);
                 return true;
             }
@@ -560,7 +560,7 @@ final class CommandManager implements CommandExecutor {
         if ((parameters.size() >= 1) && this.isInteger(parameters.get(0))) {
             referenceType = Integer.parseInt(parameters.get(0));
         }
-        Main.messageManager.respond(sender, region.getDescription(referenceType), MessageLevel.CONFIG, false);
+        Main.messageManager.respond(sender, region.describe(referenceType), MessageLevel.CONFIG, false);
         if (!region.isCommitted()
                 && region.getX1() != null && region.getX2() != null
                 && region.getY1() != null && region.getY2() != null
@@ -652,7 +652,7 @@ final class CommandManager implements CommandExecutor {
         
         // Show configuration of region after update.
         this.actionDetail(sender, region, parameters);
-        Main.messageManager.respond(sender, "Size: " + region.getSize(), MessageLevel.CONFIG, false);
+        Main.messageManager.respond(sender, "Size: " + region.describeVolume(), MessageLevel.CONFIG, false);
         Main.messageManager.respond(sender, "Coordinate definition updated.", MessageLevel.STATUS, false);
         
         return;

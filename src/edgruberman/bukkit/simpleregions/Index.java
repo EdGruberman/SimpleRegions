@@ -23,12 +23,16 @@ public final class Index {
     public static Region serverDefault = null;
     
     public Region worldDefault = null;
-    public Set<Region> regions = new HashSet<Region>();
-    
+
+    World world;
+    Map<String, Region> regions = new HashMap<String, Region>();
     Map<Long, Set<Region>> loaded = new HashMap<Long, Set<Region>>();
     
     /**
-     * Currently loaded regions that are inside the chunk of the specified location.
+     * Currently active and loaded regions that are inside the chunk of the
+     * specified location. (This should only be used to check actions being
+     * performed by players against loaded chunks.  Unloaded chunks will
+     * not have regions returned from this function.)
      * 
      * @param target location to return loaded regions for
      * @return loaded regions that contain location, empty list if none apply
@@ -38,12 +42,35 @@ public final class Index {
         return (possible != null ? possible : Collections.<Region>emptySet());
     }
     
-    static boolean add(final Region region) {
-        if (!Index.isUnique(region)) {
-            Main.messageManager.log("Unable to index region \"" + region.getName() + "\" in world [" + region.getWorld().getName() + "]; Name not unique.", MessageLevel.WARNING);
-            return false;
-        }
+    /**
+     * Currently active and loaded regions that contain the specified target.
+     * 
+     * @param target contained by regions
+     * @return regions containing target
+     */
+    public static Set<Region> getRegions(final Location target) {
+        Set<Region> regions = new HashSet<Region>();
+        for (Region region : Index.getChunkRegions(target))
+            if (region.contains(target)) regions.add(region);
         
+        return regions;
+    }
+    
+    /**
+     * Determines default applicable region for specified world. A world's
+     * default region (non-null) overrides the server default region.
+     * 
+     * @param world world to return applicable default region for
+     * @return default region applicable for world
+     */
+    public static Region getDefault(final World world) {
+        Region def = Index.worlds.get(world).worldDefault;
+        if (def != null) return def;
+        
+        return Index.serverDefault;
+    }
+    
+    static boolean add(final Region region) {
         // Add as a default region
         if (region.getName() == null) {
             if (region.getWorld() == null) {
@@ -55,14 +82,20 @@ public final class Index {
             return true;
         }
         
+        // Ensure the region can be uniquely identified
+        if (!Index.isUnique(region)) {
+            Main.messageManager.log("Unable to index region \"" + region.getName() + "\" in world [" + region.getWorld().getName() + "]; Name not unique.", MessageLevel.WARNING);
+            return false;
+        }
+        
         // Add as a world region
         Index index = Index.worlds.get(region.getWorld());
-        if (!index.regions.add(region)) return false;
+        index.regions.put(region.getName(), region);
         
         // Inactive regions have nothing left to do here
         if (!region.isActive()) return true;
         
-        // Populate loaded chunk index
+        // Populate loaded chunk index for active regions
         for (ChunkCoordinates coords : Index.chunks(region))
             if (region.getWorld().isChunkLoaded(coords.x, coords.z)) {
                 if (!index.loaded.containsKey(coords.getHash())) index.loaded.put(coords.getHash(), new HashSet<Region>());
@@ -79,13 +112,33 @@ public final class Index {
     }
     
     static boolean remove(final Region region) {
-        Index index = Index.worlds.get(region.getWorld());
-        if (!index.regions.remove(region)) return false;
+        // Remove default regions only if they match the requested one.
+        if (region.getName() == null) {
+            if (region.getWorld() == null) {
+                if (Index.serverDefault != null && !Index.serverDefault.equals(region)) return false;
+                
+                Index.serverDefault = null;
+                return true;
+            }
+            
+            if (Index.worlds.get(region.getWorld()).worldDefault != null && Index.worlds.get(region.getWorld()).worldDefault.equals(region)) return false;
+            
+            Index.worlds.get(region.getWorld()).worldDefault = null;
+            return true;
+        }
         
+        // Remove the region itself
+        Index index = Index.worlds.get(region.getWorld());
+        if (!index.regions.containsKey(region.getName())) return false;
+        index.regions.remove(region);
+        
+        // Remove chunk references to region
         for (ChunkCoordinates coords : Index.chunks(region)) {
             if (!index.loaded.containsKey(coords.getHash())) continue;
             
             index.loaded.get(coords.getHash()).remove(region);
+            
+            // Remove the chunk from the index if it's no longer referencing any regions
             if (index.loaded.get(coords.getHash()).size() == 0)
                 index.loaded.remove(coords.getHash());
         }
@@ -100,7 +153,7 @@ public final class Index {
      * @return true if the region name is unique for the world; otherwise false
      */
     static boolean isUnique(final Region region) {
-        return Index.worlds.get(region.getWorld()).regions.contains(region);
+        return !Index.worlds.get(region.getWorld()).regions.containsKey(region.getName());
     }
     
     /**
@@ -126,7 +179,22 @@ public final class Index {
      * @param world world to index regions for
      */
     Index(final World world) {
+        this.world = world;
+        Index.worlds.remove(world);
         Index.worlds.put(world, this);
         Main.loadRegions(world);
+    }
+    
+    public World getWorld() {
+        return this.world;
+    }
+    
+    /**
+     * All regions for this index.
+     * 
+     * @return unmodifiable set of regions
+     */
+    public Map<String, Region> getRegions() {
+        return Collections.unmodifiableMap(this.regions);
     }
 }

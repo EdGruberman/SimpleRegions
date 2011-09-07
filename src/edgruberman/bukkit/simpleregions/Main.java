@@ -2,6 +2,7 @@ package edgruberman.bukkit.simpleregions;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Location;
@@ -30,8 +31,8 @@ public final class Main extends JavaPlugin {
      */
     private static final String WORLD_SPECIFICS = "Worlds";
     
-    static MessageManager messageManager;
-    static ConfigurationFile configurationFile;
+    public static MessageManager messageManager;
+    public static ConfigurationFile configurationFile;
     
     private static Plugin plugin;
     private static Map<World, ConfigurationFile> worldFiles = new HashMap<World, ConfigurationFile>();
@@ -45,8 +46,7 @@ public final class Main extends JavaPlugin {
     }
     
     public void onEnable() {
-        Region.deniedMessage = this.getConfiguration().getString("deniedMessage", null);
-        Main.messageManager.log("Denied Message: " + Region.deniedMessage, MessageLevel.CONFIG);
+        Main.loadConfiguration(false);
         
         new IndexPublisher(this);
         new BlockGuard(this);
@@ -54,13 +54,26 @@ public final class Main extends JavaPlugin {
         new PaintingGuard(this);
         new BoundaryAlerter(this);
         
-        this.getCommand("region").setExecutor(new CommandManager(this));
+        new edgruberman.bukkit.simpleregions.commands.Region(this);
         
         Main.messageManager.log("Plugin Enabled");
     }
     
     public void onDisable() {
         Main.messageManager.log("Plugin Disabled");
+    }
+    
+    public static void loadConfiguration(final boolean reload) {
+        if (reload) Main.configurationFile.load();
+        
+        Region.deniedMessage = Main.configurationFile.getConfiguration().getString("deniedMessage", null);
+        Main.messageManager.log("Denied Message: " + Region.deniedMessage, MessageLevel.CONFIG);
+        
+        Main.loadServerDefault();
+        
+        Index.worlds.clear();
+        for (World world : plugin.getServer().getWorlds())
+            new Index(world);
     }
     
     public static boolean loadServerDefault() {
@@ -70,7 +83,14 @@ public final class Main extends JavaPlugin {
             return true;
         }
         
-        return Index.add(new Region(entry.getBoolean("active", false), new HashSet<String>(entry.getStringList("access", null))));
+        Region region = new Region(entry.getBoolean("active", false), new HashSet<String>(entry.getStringList("access", null)));
+        if (!Index.add(region)) {
+            Main.messageManager.log("Unable to add " + Region.SERVER_DEFAULT_DISPLAY + " " + Region.NAME_DEFAULT_DISLAY + " region.", MessageLevel.FINEST);
+            return false;
+        }
+        
+        Main.messageManager.log(region.describe(3), MessageLevel.FINEST);
+        return true;
     }
     
     public static int loadRegions(final World world) {
@@ -80,30 +100,31 @@ public final class Main extends JavaPlugin {
             Main.worldFiles.get(world).load();
         }
         
-        Map<String, ConfigurationNode> regions = Main.worldFiles.get(world).getConfiguration().getNodes("");
-        if (regions == null) {
+        Configuration cfg = Main.worldFiles.get(world).getConfiguration();
+        List<String> regions = cfg.getKeys();
+        if (regions == null || regions.size() == 0) {
             Main.messageManager.log("No regions defined for [" + world.getName() + "]", MessageLevel.CONFIG);
             return 0;
         }
         
-        for (Map.Entry<String, ConfigurationNode> entry : regions.entrySet()) {
+        for (String key : regions) {
             Region region = new Region(
                       world
-                    , (entry.getKey().equals(Region.NAME_DEFAULT) ? null : entry.getKey())
-                    , entry.getValue().getBoolean("active", false)
-                    , entry.getValue().getInt("x1", 0)
-                    , entry.getValue().getInt("x2", 0)
-                    , entry.getValue().getInt("y1", 0)
-                    , entry.getValue().getInt("y2", 0)
-                    , entry.getValue().getInt("z1", 0)
-                    , entry.getValue().getInt("z2", 0)
-                    , new HashSet<String>(entry.getValue().getStringList("owners", null))
-                    , new HashSet<String>(entry.getValue().getStringList("access", null))
-                    , entry.getValue().getString("enter", null)
-                    , entry.getValue().getString("exit", null)
+                    , (key.equals(Region.NAME_DEFAULT) ? null : key)
+                    , cfg.getNode(key).getBoolean("active", false)
+                    , cfg.getNode(key).getInt("x1", 0)
+                    , cfg.getNode(key).getInt("x2", 0)
+                    , cfg.getNode(key).getInt("y1", 0)
+                    , cfg.getNode(key).getInt("y2", 0)
+                    , cfg.getNode(key).getInt("z1", 0)
+                    , cfg.getNode(key).getInt("z2", 0)
+                    , new HashSet<String>(cfg.getNode(key).getStringList("owners", null))
+                    , new HashSet<String>(cfg.getNode(key).getStringList("access", null))
+                    , cfg.getNode(key).getString("enter", null)
+                    , cfg.getNode(key).getString("exit", null)
             );
             if (Index.add(region))
-                Main.messageManager.log(region.describe(3), MessageLevel.FINER);
+                Main.messageManager.log(region.describe(3), MessageLevel.FINEST);
         }
         
         int count = Index.worlds.get(world).regions.size();
@@ -161,7 +182,7 @@ public final class Main extends JavaPlugin {
         // Check all regions only if chunk is not loaded at target.
         // Slightly redundant in checking loaded regions again, but this should be a rare edge case.
         if (!target.getWorld().isChunkLoaded(target.getBlockX() >> 4, target.getBlockZ() >> 4)) {
-            for (Region region : Index.worlds.get(target.getWorld()).regions)
+            for (Region region : Index.worlds.get(target.getWorld()).regions.values())
                 if (region.isActive() && region.contains(target)) {
                     if (region.access.isAllowed(player)) return true;
                     found = true;

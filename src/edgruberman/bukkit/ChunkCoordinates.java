@@ -2,6 +2,9 @@ package edgruberman.bukkit;
 
 import org.bukkit.Location;
 
+/**
+ * Pair of coordinates and utility methods for hashing chunk coordinates.
+ */
 public class ChunkCoordinates {
 
     /**

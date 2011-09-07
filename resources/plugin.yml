@@ -7,6 +7,7 @@ author: EdGruberman (ed@rjump.com)
 commands:
     region:
         description: Describe, modify, create, and remove regions.
+        permission: simpleregions.region
         usage: |
             /<command> - Show your current region(s).
             /<command> info - Show region details.
@@ -14,3 +15,17 @@ commands:
             /<command> (+|-)owner <Player> - Add/remove owners.
             /<command> (+|-)helper <Player> - Add/remove helpers.
             /<command> <Region>[ <Action>] - Remote management.
+permissions:
+    simpleregions.region.current:
+        description: Can use current action of region command.
+        default: true
+        children:
+            simpleregions.region: true
+    simpleregions.region.reload:
+        description: Can use reload action of region command.
+        default: op
+        children:
+            simpleregions.region: true
+    simpleregions.region:
+        description: Can use region command.
+        default: false

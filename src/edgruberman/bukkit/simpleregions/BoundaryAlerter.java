@@ -42,8 +42,8 @@ final class BoundaryAlerter extends PlayerListener {
         Location last = this.lastBlockChange.get(event.getPlayer());
         Location to = event.getTo();
         
-        // Only check on block transitions.
-        if (last.getBlockX() == to.getBlockX() && last.getBlockZ() == to.getBlockZ() && last.getBlockY() == to.getBlockY()) return;
+        // Only check further on block transitions.
+        if ((last.getBlockX() == to.getBlockX()) && (last.getBlockZ() == to.getBlockZ()) && (last.getBlockY() == to.getBlockY())) return;
         
         this.lastBlockChange.put(event.getPlayer(), to);
         

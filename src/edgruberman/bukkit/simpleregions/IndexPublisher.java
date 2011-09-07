@@ -2,7 +2,6 @@ package edgruberman.bukkit.simpleregions;
 
 import java.util.HashSet;
 
-import org.bukkit.World;
 import org.bukkit.event.Event;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
@@ -20,9 +19,6 @@ import edgruberman.bukkit.ChunkCoordinates;
 public class IndexPublisher extends WorldListener {
     
     IndexPublisher(final Plugin plugin) {
-        for (World world : plugin.getServer().getWorlds())
-            new Index(world);
-        
         PluginManager pluginManager = plugin.getServer().getPluginManager();
         pluginManager.registerEvent(Event.Type.CHUNK_LOAD, this, Event.Priority.Monitor, plugin);
         pluginManager.registerEvent(Event.Type.CHUNK_UNLOAD, this, Event.Priority.Monitor, plugin);
@@ -33,7 +29,7 @@ public class IndexPublisher extends WorldListener {
     @Override
     public void onChunkLoad(final ChunkLoadEvent event) {
         Index index = Index.worlds.get(event.getWorld());
-        for (Region region : index.regions)
+        for (Region region : index.regions.values())
             if (region.isActive() && region.within(event.getChunk().getX(), event.getChunk().getZ())) {
                 ChunkCoordinates coords = new ChunkCoordinates(event.getChunk().getX(), event.getChunk().getZ());
                 if (!index.loaded.containsKey(coords.getHash())) index.loaded.put(coords.getHash(), new HashSet<Region>());

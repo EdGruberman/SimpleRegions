@@ -20,17 +20,17 @@ public final class Region extends CachingRectangularCuboid {
     private static final String DEFAULT_EXIT_FORMAT  = "Exited region: %1$s";  // 1 = Region Name
     private static final String DEFAULT_DENIED_MESSAGE = "No regions grant you access here.";
     
-    static final String NAME_DEFAULT = "DEFAULT";
-    static final String SERVER_DEFAULT_DISPLAY = "(SERVER)";
-    static final String NAME_DEFAULT_DISLAY = "(DEFAULT)";
+    public static final String NAME_DEFAULT = "DEFAULT";
+    public static final String SERVER_DEFAULT_DISPLAY = "(SERVER)";
+    public static final String NAME_DEFAULT_DISLAY = "(DEFAULT)";
 
     static String deniedMessage = Region.DEFAULT_DENIED_MESSAGE;
     
     private World world;
     private CaseInsensitiveString name;
     private boolean active = false;
-    public FormattedString enter = new FormattedString(Region.DEFAULT_ENTER_FORMAT, this.name);
-    public FormattedString exit = new FormattedString(Region.DEFAULT_EXIT_FORMAT, this.name);
+    public FormattedString enter = null;
+    public FormattedString exit = null;
     public SimpleAccess access = new SimpleAccess();
     
     Region(final World world, final String name, final boolean active
@@ -44,8 +44,8 @@ public final class Region extends CachingRectangularCuboid {
         this.setY1(y1); this.setY2(y2);
         this.setZ1(z1); this.setZ2(z2);
         
-        // Only set active to true if all coordinates supplied.
-        if (active && this.isDefined()) this.active = active;
+        if (active && (this.isDefined() || this.getName() == null))
+            this.active = active;
         
         if (owners != null)
             for (String owner : owners)
@@ -55,7 +55,9 @@ public final class Region extends CachingRectangularCuboid {
             for (String a : access)
                 this.access.grant(a);
         
+        this.enter = new FormattedString(Region.DEFAULT_ENTER_FORMAT, this.name);
         if (enterFormat != null) this.enter.setFormat(enterFormat);
+        this.exit = new FormattedString(Region.DEFAULT_EXIT_FORMAT, this.name);
         if (exitFormat != null) this.exit.setFormat(exitFormat);
     }
     
@@ -106,7 +108,8 @@ public final class Region extends CachingRectangularCuboid {
     }
     
     boolean setActive(final boolean active) {
-        if (!this.isDefined()) return false;
+        // Only set active to true if all coordinates supplied or it is a default region
+        if (!this.isDefined() && this.getName() != null) return false;
         
         if (this.active == active) return true;
         

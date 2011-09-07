@@ -16,19 +16,32 @@ commands:
             /<command> (+|-)helper <Player> - Add/remove helpers.
             /<command> <Region>[ <Action>] - Remote management.
 permissions:
+    simpleregions.region.read:
+        description: Can use all read related actions of region command.
+        default: true
+        children:
+            simpleregions.region.current: true
+            simpleregions.region.target: true
+            simpleregions.region.detail: true
+            simpleregions.region.size: true
     simpleregions.region.current:
         description: Can use current action of region command.
-        default: true
+        default: false
         children:
             simpleregions.region: true
     simpleregions.region.target:
         description: Can use target action of region command.
-        default: true
+        default: false
         children:
             simpleregions.region: true
     simpleregions.region.detail:
         description: Can use detail action of region command.
-        default: true
+        default: false
+        children:
+            simpleregions.region: true
+    simpleregions.region.size:
+        description: Can use detail action of region command.
+        default: false
         children:
             simpleregions.region: true
     simpleregions.region.reload:

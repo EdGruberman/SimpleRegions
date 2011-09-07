@@ -1,5 +1,7 @@
 package edgruberman.bukkit.simpleregions.commands;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.World;
@@ -16,12 +18,16 @@ public final class Region extends Command implements CommandExecutor {
     
     public static final String NAME = "region";
     
+    static Map<CommandSender, edgruberman.bukkit.simpleregions.Region> working = new HashMap<CommandSender, edgruberman.bukkit.simpleregions.Region>();
+    
     public Region(final JavaPlugin plugin) {
         super(plugin, Region.NAME, Permission.REGION);
         this.setExecutorOf(this);
         
         this.registerAction(new RegionCurrent(this), true);
         this.registerAction(new RegionTarget(this));
+        this.registerAction(new RegionSet(this));
+        this.registerAction(new RegionUnset(this));
         this.registerAction(new RegionDetail(this));
         this.registerAction(new RegionSize(this));
         this.registerAction(new RegionReload(this));
@@ -66,8 +72,11 @@ public final class Region extends Command implements CommandExecutor {
     
     // Command Syntax: /region[[ <World>] <Region>][ <Action>][ <Parameters>]
     static edgruberman.bukkit.simpleregions.Region parseRegion(final Context context) {
-        // Assume player's current region if not specified and player is in only one.
         if (context.actionIndex <= 0) {
+            // Use current working region if specified
+            if (Region.working.containsKey(context.sender)) return Region.working.get(context.sender);
+            
+            // Assume player's current region if not specified and player is in only one
             if (context.player == null) return null;
             
             Set<edgruberman.bukkit.simpleregions.Region> regions = Index.getRegions(context.player.getLocation());

@@ -22,6 +22,7 @@ permissions:
         children:
             simpleregions.region.current: true
             simpleregions.region.target: true
+            simpleregions.region.set: true
             simpleregions.region.detail: true
             simpleregions.region.size: true
     simpleregions.region.current:
@@ -31,6 +32,11 @@ permissions:
             simpleregions.region: true
     simpleregions.region.target:
         description: Can use target action of region command.
+        default: false
+        children:
+            simpleregions.region: true
+    simpleregions.region.set:
+        description: Can use set and unset actions of region command.
         default: false
         children:
             simpleregions.region: true

@@ -44,6 +44,8 @@ public final class Index {
     
     /**
      * Currently active and loaded regions that contain the specified target.
+     * If no regions apply, world default is supplied.  If no world default
+     * server default is supplied.
      * 
      * @param target contained by regions
      * @return regions containing target
@@ -52,6 +54,11 @@ public final class Index {
         Set<Region> regions = new HashSet<Region>();
         for (Region region : Index.getChunkRegions(target))
             if (region.contains(target)) regions.add(region);
+        
+        if (regions.size() == 0) {
+            Region def = Index.getDefault(target.getWorld());
+            if (def != null) regions.add(def);
+        }
         
         return regions;
     }

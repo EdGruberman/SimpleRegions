@@ -6,6 +6,8 @@ import java.text.DecimalFormat;
  * attribute reading through up-front caching on property changes.
  */
 public class CachingRectangularCuboid {
+    
+    private static final int DEFAULT_COORDINATE_FORMAT = 3;
 
     private Integer x1 = null, x2 = null, y1 = null, y2 = null, z1 = null, z2 = null;
     private Integer minX = null, maxX = null, minY = null, maxY = null, minZ = null, maxZ = null;
@@ -36,7 +38,6 @@ public class CachingRectangularCuboid {
      * @throws NullPointerException when !isDefined()
      */
     public boolean within(final int chunkX, final int chunkZ) {
-        // TODO check efficiency on chunk coords int/double/? when calling this?
         return chunkX >= this.minChunkX && chunkX <= this.maxChunkX && chunkZ >= this.minChunkZ && chunkZ <= this.maxChunkZ;
     }
     
@@ -319,8 +320,7 @@ public class CachingRectangularCuboid {
         }
         String zW = (zE.equals("z1") ? "z2" : "z1");
         
-        
-        switch (format) {
+        switch ((format != null ? format : CachingRectangularCuboid.DEFAULT_COORDINATE_FORMAT)) {
             default:
             case 1:
                 // Example:

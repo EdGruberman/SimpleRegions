@@ -29,10 +29,6 @@ public class RegionCurrent extends Action {
         
         // Get applicable regions
         Set<edgruberman.bukkit.simpleregions.Region> regions = Index.getRegions(target.getLocation());
-        if (regions.size() == 0) {
-            edgruberman.bukkit.simpleregions.Region def = Index.getDefault(target.getWorld());
-            if (def != null) regions.add(Index.getDefault(target.getWorld()));
-        }
         
         // Compile region name list
         String names = "";

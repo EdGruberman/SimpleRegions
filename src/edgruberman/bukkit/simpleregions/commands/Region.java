@@ -21,6 +21,7 @@ public final class Region extends Command implements CommandExecutor {
         this.setExecutorOf(this);
         
         this.registerAction(new RegionCurrent(this), true);
+        this.registerAction(new RegionDetail(this));
         this.registerAction(new RegionReload(this));
     }
     
@@ -79,14 +80,4 @@ public final class Region extends Command implements CommandExecutor {
         String regionName = context.arguments.get(context.actionIndex - 1);
         return Index.worlds.get(world).getRegions().get(regionName);
     }
-    
-//    static String parsePlayer(final Context context) {
-//        String name = (context.matches.size() >= 1 ? context.matches.get(0) : null);
-//        if (name != null && name.equals("")) name = null;
-//        
-//        if (context.sender instanceof Player && name == null)
-//            name = ((Player) context.sender).getName();
-//        
-//        return name;
-//    }
 }

@@ -59,6 +59,9 @@ class Command  {
             throw new IllegalArgumentException("Action " + action.name + " already registered.");
         
         this.actions.put(action.name, action);
+        for (String alias : action.aliases)
+            this.actions.put(alias, action);
+        
         if (isDefault) this.defaultAction = action;
     }
     

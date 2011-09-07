@@ -123,13 +123,17 @@ public final class Region extends CachingRectangularCuboid {
         return "[" + this.getWorld().getName() + "] (x:" + this.getX1() + ",y:" + this.getY1() + ",z:" + this.getZ1() + ") - (x:" + this.getX2() + ",y:" + this.getY2() + ",z:" + this.getZ2() + ")";
     }
     
+    public String describe() {
+        return this.describe(null);
+    }
+    
     /**
      * Generates a human readable representation of a region.
      * 
      * @param format Specifies the visual format to use.
      * @return Pertinent details.
      */
-    public String describe(final int format) {
+    public String describe(final Integer format) {
         String description = "---- Region: " + (this.getName() == null ? Region.NAME_DEFAULT_DISLAY :  "\"" + this.getName() + "\"") + " ----";
         description += "\nWorld: " + (this.getWorld() == null ? Region.SERVER_DEFAULT_DISPLAY : this.getWorld().getName());
         description += "\nActive: " + this.active;

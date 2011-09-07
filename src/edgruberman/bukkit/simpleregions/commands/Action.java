@@ -1,5 +1,8 @@
 package edgruberman.bukkit.simpleregions.commands;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.bukkit.command.CommandSender;
 
 import edgruberman.bukkit.simpleregions.Permission;
@@ -10,6 +13,7 @@ abstract class Action {
     String name;
     Permission required;
     String pattern;
+    Set<String> aliases = new HashSet<String>();
     
     Action(final Command command, final String name, final Permission required) {
         this(command, name, required, null);

@@ -167,12 +167,29 @@ public final class Main extends JavaPlugin {
      * @return true if player has access, otherwise false
      */
     public static boolean isAllowed(final Player player, final Location target) {
+        return Main.isAllowed(player.getName(), target);
+    }
+    
+    /**
+     * Determine if player is allowed to manipulate the target location based
+     * on region configuration.<br>
+     * Access is determined by:<br>
+     *     = true if any active region applies and allows access to the player<br>
+     *     = true if no active region applies and the world default region allows access to the player<br>
+     *     = true if no active region applies and no world default region applies and the server default region allows access to the player<br>
+     *     = false otherwise
+     * 
+     * @param name player name to check access for
+     * @param target block to determine if player has access to
+     * @return true if player has access, otherwise false
+     */
+    public static boolean isAllowed(final String name, final Location target) {
         boolean found = false;
         
         // Check loaded regions.
         for (Region region : Index.getChunkRegions(target))
             if (region.contains(target)) {
-                if (region.access.isAllowed(player)) return true;
+                if (region.access.isAllowed(name)) return true;
                 found = true;
             }
         
@@ -184,7 +201,7 @@ public final class Main extends JavaPlugin {
         if (!target.getWorld().isChunkLoaded(target.getBlockX() >> 4, target.getBlockZ() >> 4)) {
             for (Region region : Index.worlds.get(target.getWorld()).regions.values())
                 if (region.isActive() && region.contains(target)) {
-                    if (region.access.isAllowed(player)) return true;
+                    if (region.access.isAllowed(name)) return true;
                     found = true;
                 }
             
@@ -195,11 +212,11 @@ public final class Main extends JavaPlugin {
         // Check world default region only if no other regions apply.
         Region worldDefault = Index.worlds.get(target.getWorld()).worldDefault;
         if (worldDefault != null && worldDefault.isActive())
-            return Index.worlds.get(target.getWorld()).worldDefault.access.isAllowed(player);
+            return Index.worlds.get(target.getWorld()).worldDefault.access.isAllowed(name);
         
         // Check server default region only if no other regions apply and there is no world default region.
         if (Index.serverDefault != null && Index.serverDefault.isActive())
-            return Index.serverDefault.access.isAllowed(player);
+            return Index.serverDefault.access.isAllowed(name);
         
         return false;
     }

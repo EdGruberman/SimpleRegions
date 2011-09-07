@@ -21,6 +21,11 @@ permissions:
         default: true
         children:
             simpleregions.region: true
+    simpleregions.region.target:
+        description: Can use target action of region command.
+        default: true
+        children:
+            simpleregions.region: true
     simpleregions.region.detail:
         description: Can use detail action of region command.
         default: true

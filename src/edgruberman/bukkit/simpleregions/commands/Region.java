@@ -21,6 +21,7 @@ public final class Region extends Command implements CommandExecutor {
         this.setExecutorOf(this);
         
         this.registerAction(new RegionCurrent(this), true);
+        this.registerAction(new RegionTarget(this));
         this.registerAction(new RegionDetail(this));
         this.registerAction(new RegionReload(this));
     }

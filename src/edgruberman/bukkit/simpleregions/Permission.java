@@ -3,6 +3,7 @@ package edgruberman.bukkit.simpleregions;
 import edgruberman.bukkit.simpleregions.commands.RegionCurrent;
 import edgruberman.bukkit.simpleregions.commands.RegionDetail;
 import edgruberman.bukkit.simpleregions.commands.RegionReload;
+import edgruberman.bukkit.simpleregions.commands.RegionTarget;
 
 public enum Permission {
       REGION(edgruberman.bukkit.simpleregions.commands.Region.NAME)
@@ -10,6 +11,7 @@ public enum Permission {
     , REGION_RELOAD(Permission.REGION.append(RegionReload.NAME))
     
     , REGION_CURRENT(Permission.REGION.append(RegionCurrent.NAME))
+    , REGION_TARGET(Permission.REGION.append(RegionTarget.NAME))
     , REGION_DETAIL(Permission.REGION.append(RegionDetail.NAME))
     
     ;

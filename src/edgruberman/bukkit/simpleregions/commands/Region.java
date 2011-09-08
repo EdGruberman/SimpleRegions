@@ -21,7 +21,7 @@ import edgruberman.bukkit.simpleregions.Permission;
 public final class Region extends Command implements CommandExecutor {
     
     public static final String NAME = "region";
-    public static final Set<String> OWNER_ALLOWED = new HashSet<String>(Arrays.asList(RegionActivate.NAME, RegionAccess.NAME));
+    public static final Set<String> OWNER_ALLOWED = new HashSet<String>(Arrays.asList(RegionActive.NAME, RegionAccess.NAME));
     
     static Map<CommandSender, edgruberman.bukkit.simpleregions.Region> working = new HashMap<CommandSender, edgruberman.bukkit.simpleregions.Region>();
     
@@ -32,11 +32,9 @@ public final class Region extends Command implements CommandExecutor {
         this.registerAction(new RegionCurrent(this), true);
         this.registerAction(new RegionTarget(this));
         this.registerAction(new RegionSet(this));
-        this.registerAction(new RegionUnset(this));
         this.registerAction(new RegionDetail(this));
         this.registerAction(new RegionSize(this));
-        this.registerAction(new RegionActivate(this));
-        this.registerAction(new RegionDeactivate(this));
+        this.registerAction(new RegionActive(this));
         this.registerAction(new RegionAccess(this));
         this.registerAction(new RegionReload(this));
     }

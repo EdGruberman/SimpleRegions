@@ -8,14 +8,14 @@ import edgruberman.bukkit.messagemanager.MessageLevel;
 import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Permission;
 
-public class RegionActivate extends Action {
+public class RegionActive extends Action {
     
-    public static final String NAME = "activate";
-    public static final Set<String> ALIASES = new HashSet<String>(Arrays.asList("+active", "+activate"));
+    public static final String NAME = "active";
+    public static final Set<String> ALIASES = new HashSet<String>(Arrays.asList("activate", "+active", "+activate", "deactivate", "-active", "-activate"));
     
-    RegionActivate(final Command owner) {
-        super(owner, RegionActivate.NAME, Permission.REGION_ACTIVATE);
-        this.aliases.addAll(RegionActivate.ALIASES);
+    RegionActive(final Command owner) {
+        super(owner, RegionActive.NAME, Permission.REGION_ACTIVE);
+        this.aliases.addAll(RegionActive.ALIASES);
     }
     
     @Override
@@ -26,8 +26,17 @@ public class RegionActivate extends Action {
             return;
         }
         
-        if (!region.setActive(true)) {
-            Main.messageManager.respond(context.sender, "Unable to activate " + region.getDisplayName() + " region.", MessageLevel.WARNING, false);
+        String operation = context.arguments.get(context.actionIndex).substring(0, 1);
+        boolean active = (operation.equals("+") || operation.equals("a")); // false for "-" or "d"
+        if (!region.setActive(active)) {
+            Main.messageManager.respond(context.sender, "Unable to " + (active ? "activate " : "deactivate ") + region.getDisplayName() + " region.", MessageLevel.WARNING, false);
+            return;
+        }
+        
+        Main.saveRegion(region, false);
+        
+        if (!active) {
+            Main.messageManager.respond(context.sender, "Deactivated " + region.getDisplayName() + " region.", MessageLevel.STATUS, false);
             return;
         }
         
@@ -37,8 +46,6 @@ public class RegionActivate extends Action {
             Region.working.remove(context.sender);
             unset = true;
         }
-        
-        Main.saveRegion(region, false);
         
         Main.messageManager.respond(context.sender, (unset ? "Unset and activated " : "Activated ") + region.getDisplayName() + " region.", MessageLevel.STATUS, false);
     }

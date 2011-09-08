@@ -30,6 +30,8 @@ public final class Region extends Command implements CommandExecutor {
         this.registerAction(new RegionUnset(this));
         this.registerAction(new RegionDetail(this));
         this.registerAction(new RegionSize(this));
+        this.registerAction(new RegionActivate(this));
+        this.registerAction(new RegionDeactivate(this));
         this.registerAction(new RegionReload(this));
     }
     
@@ -67,7 +69,10 @@ public final class Region extends Command implements CommandExecutor {
             return context.player.getWorld();
         }
         
-        return context.owner.plugin.getServer().getWorld(context.arguments.get(context.actionIndex - 2));
+        String name = context.arguments.get(context.actionIndex - 2);
+        if (name.equals(edgruberman.bukkit.simpleregions.Region.SERVER_DEFAULT)) return null;
+        
+        return context.owner.plugin.getServer().getWorld(name);
     }
     
     // Command Syntax: /region[[ <World>] <Region>][ <Action>][ <Parameters>]
@@ -86,9 +91,16 @@ public final class Region extends Command implements CommandExecutor {
         }
         
         World world = Region.parseWorld(context);
+        String name = context.arguments.get(context.actionIndex - 1);
+        
+        if (name.equals(edgruberman.bukkit.simpleregions.Region.NAME_DEFAULT)) {
+            if (world == null) return Index.serverDefault;
+            
+            return Index.worlds.get(world).worldDefault;
+        }
+        
         if (world == null) return null;
         
-        String regionName = context.arguments.get(context.actionIndex - 1);
-        return Index.worlds.get(world).getRegions().get(regionName);
+        return Index.worlds.get(world).getRegions().get(name);
     }
 }

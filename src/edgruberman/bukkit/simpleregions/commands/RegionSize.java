@@ -31,6 +31,6 @@ public class RegionSize extends Action {
             return;
         }
         
-        Main.messageManager.respond(context.sender, "-- Region Size for " + region.getName() + ":\n" + region.describeArea() + "\n" + region.describeVolume(), MessageLevel.STATUS, false);
+        Main.messageManager.respond(context.sender, "-- Region size for " + region.getDisplayName() + ":\n" + region.describeArea() + "\n" + region.describeVolume(), MessageLevel.STATUS, false);
     }
 }

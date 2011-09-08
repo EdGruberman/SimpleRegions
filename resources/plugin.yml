@@ -50,6 +50,11 @@ permissions:
         default: false
         children:
             simpleregions.region: true
+    simpleregions.region.activate:
+        description: Can use activate and deactivate actions of region command.
+        default: op
+        children:
+            simpleregions.region: true
     simpleregions.region.reload:
         description: Can use reload action of region command.
         default: op

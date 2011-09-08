@@ -20,6 +20,7 @@ public final class Region extends CachingRectangularCuboid {
     private static final String DEFAULT_EXIT_FORMAT  = "Exited region: %1$s";  // 1 = Region Name
     private static final String DEFAULT_DENIED_MESSAGE = "No regions grant you access here.";
     
+    public static final String SERVER_DEFAULT = "SERVER";
     public static final String NAME_DEFAULT = "DEFAULT";
     public static final String SERVER_DEFAULT_DISPLAY = "(SERVER)";
     public static final String NAME_DEFAULT_DISLAY = "(DEFAULT)";
@@ -95,6 +96,15 @@ public final class Region extends CachingRectangularCuboid {
         return this.name.toString();
     }
     
+    public String getDisplayName() {
+        if (this.getName() == null) return Region.NAME_DEFAULT_DISLAY;
+
+        String display = this.getName();
+        if (display.contains(" ")) display = "\"" + display + "\"";
+        
+        return display;
+    }
+    
     public boolean contains(final Location loc) {
         return this.contains(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
     }
@@ -107,7 +117,7 @@ public final class Region extends CachingRectangularCuboid {
         return this.active;
     }
     
-    boolean setActive(final boolean active) {
+    public boolean setActive(final boolean active) {
         // Only set active to true if all coordinates supplied or it is a default region
         if (!this.isDefined() && this.getName() != null) return false;
         
@@ -134,7 +144,7 @@ public final class Region extends CachingRectangularCuboid {
      * @return Pertinent details.
      */
     public String describe(final Integer format) {
-        String description = "---- Region: " + (this.getName() == null ? Region.NAME_DEFAULT_DISLAY :  "\"" + this.getName() + "\"") + " ----";
+        String description = "---- Region: " + this.getDisplayName() + " ----";
         description += "\nWorld: " + (this.getWorld() == null ? Region.SERVER_DEFAULT_DISPLAY : this.getWorld().getName());
         description += "\nActive: " + this.active;
         if (!this.isDefault()) description += "\nOwners: " + (this.ownerNames().size() == 0 ? "" : join(this.ownerNames(), " "));

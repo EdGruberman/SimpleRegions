@@ -132,7 +132,7 @@ public final class Main extends JavaPlugin {
         return count;
     }
     
-    public void saveRegion(final Region region, final boolean immediate) {
+    public static void saveRegion(final Region region, final boolean immediate) {
         Configuration cfg = Main.worldFiles.get(region.getWorld()).getConfiguration();
         
         String regionName = (region.getName() == null ? Region.NAME_DEFAULT : region.getName());
@@ -150,7 +150,7 @@ public final class Main extends JavaPlugin {
             cfg.setProperty(regionName + ".z2", region.getZ2());
         }
         
-        Main.configurationFile.save(immediate);
+        Main.worldFiles.get(region.getWorld()).save(immediate);
     }
     
     /**

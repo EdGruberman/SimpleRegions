@@ -54,11 +54,7 @@ public class RegionCurrent extends Action {
         String names = "";
         for (edgruberman.bukkit.simpleregions.Region region : regions) {
             if (names.length() != 0) names += ", ";
-            if (region.getName() == null) {
-                names += edgruberman.bukkit.simpleregions.Region.NAME_DEFAULT_DISLAY;
-            } else {
-                names += (region.getName().contains(" ") ? "\"" + region.getName() + "\"" : region.getName());
-            }
+            names += region.getDisplayName();
         }
         
         // Compile response message

@@ -28,6 +28,7 @@ public class RegionSet extends Action {
         
         Region.working.put(context.sender, region);
         
-        Main.messageManager.respond(context.sender, "Working region set to: " + region.getName(), MessageLevel.STATUS, false);
+        String world = (region.getWorld() == null ? edgruberman.bukkit.simpleregions.Region.SERVER_DEFAULT : region.getWorld().getName());
+        Main.messageManager.respond(context.sender, "Working region set to: [" + world + "] " + region.getDisplayName(), MessageLevel.STATUS, false);
     }
 }

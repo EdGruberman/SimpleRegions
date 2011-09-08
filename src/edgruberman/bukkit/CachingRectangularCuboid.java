@@ -8,7 +8,7 @@ import java.text.DecimalFormat;
 public class CachingRectangularCuboid {
     
     private static final int DEFAULT_COORDINATE_FORMAT = 3;
-
+    
     private Integer x1 = null, x2 = null, y1 = null, y2 = null, z1 = null, z2 = null;
     private Integer minX = null, maxX = null, minY = null, maxY = null, minZ = null, maxZ = null;
     private Integer minChunkX = null, maxChunkX = null, minChunkZ = null, maxChunkZ = null;
@@ -51,6 +51,11 @@ public class CachingRectangularCuboid {
     public Integer getY2() { return this.y2; }
     public Integer getZ1() { return this.z1; }
     public Integer getZ2() { return this.z2; }
+    
+    public Integer getMinChunkX() { return this.minChunkX; }
+    public Integer getMaxChunkX() { return this.maxChunkX; }
+    public Integer getMinChunkZ() { return this.minChunkZ; }
+    public Integer getMaxChunkZ() { return this.maxChunkZ; }
     
     /**
      * Northern most coordinate.

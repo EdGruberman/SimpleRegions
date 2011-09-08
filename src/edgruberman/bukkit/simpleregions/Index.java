@@ -137,7 +137,7 @@ public final class Index {
         // Remove the region itself
         Index index = Index.worlds.get(region.getWorld());
         if (!index.regions.containsKey(region.getName())) return false;
-        index.regions.remove(region);
+        index.regions.remove(region.getName());
         
         // Remove chunk references to region
         for (ChunkCoordinates coords : Index.chunks(region)) {
@@ -173,8 +173,8 @@ public final class Index {
         if (!region.isDefined()) return Collections.<ChunkCoordinates>emptyList();
         
         List<ChunkCoordinates> coords = new ArrayList<ChunkCoordinates>();
-        for (int x = region.getN(); x <= region.getS(); x++)
-            for (int z = region.getE(); z <= region.getW(); z++)
+        for (int x = region.getMinChunkX(); x <= region.getMaxChunkX(); x++)
+            for (int z = region.getMinChunkZ(); z <= region.getMaxChunkZ(); z++)
                 coords.add(new ChunkCoordinates(x, z));
         
         return coords;

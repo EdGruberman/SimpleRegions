@@ -47,6 +47,10 @@ public class ChunkCoordinates {
         return this.hash;
     }
     
+    @Override public String toString() {
+        return "(x:" + this.x + " z:" + this.z + ")";
+    }
+    
     /**
      * Mimicing from nms.ChunkCoordIntPair
      * TODO figure out exactly what this does and if it's possible to simplify/eliminate

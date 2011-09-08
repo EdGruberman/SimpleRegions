@@ -1,5 +1,6 @@
 package edgruberman.bukkit.simpleregions;
 
+import edgruberman.bukkit.simpleregions.commands.RegionAccess;
 import edgruberman.bukkit.simpleregions.commands.RegionActivate;
 import edgruberman.bukkit.simpleregions.commands.RegionCurrent;
 import edgruberman.bukkit.simpleregions.commands.RegionDetail;
@@ -21,6 +22,7 @@ public enum Permission {
     , REGION_SIZE(Permission.REGION.append(RegionSize.NAME))
     
     , REGION_ACTIVATE(Permission.REGION.append(RegionActivate.NAME))
+    , REGION_ACCESS(Permission.REGION.append(RegionAccess.NAME))
     
     ;
     

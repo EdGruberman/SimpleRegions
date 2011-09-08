@@ -190,7 +190,7 @@ public final class ConfigurationFile {
             if (sinceLastSave < this.maxSaveFrequency) {
                 // If task already scheduled let it run when expected.
                 if (this.isSaveQueued()) {
-                    Main.messageManager.log("Save request queued; Last save was " + sinceLastSave + " seconds ago.", MessageLevel.FINEST);
+                    Main.messageManager.log("Save request already queued; Last save was " + sinceLastSave + " seconds ago.", MessageLevel.FINEST);
                     return;
                 }
                 
@@ -201,7 +201,8 @@ public final class ConfigurationFile {
                         , new Runnable() { public void run() { configurationFile.save(true); } }
                         , (this.maxSaveFrequency - sinceLastSave) * ConfigurationFile.TICKS_PER_SECOND
                 );
-            
+                
+                Main.messageManager.log("Save request queued; Last save was " + sinceLastSave + " seconds ago.", MessageLevel.FINEST);
                 return;
             }
         } else if (this.isSaveQueued()) {

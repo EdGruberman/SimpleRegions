@@ -133,13 +133,17 @@ public final class Main extends JavaPlugin {
     }
     
     public static void saveRegion(final Region region, final boolean immediate) {
-        Configuration cfg = Main.worldFiles.get(region.getWorld()).getConfiguration();
+        ConfigurationFile file = Main.configurationFile;
+        if (region.getWorld() != null)
+            file = Main.worldFiles.get(region.getWorld());
         
+        Configuration cfg = file.getConfiguration();
         String regionName = (region.getName() == null ? Region.NAME_DEFAULT : region.getName());
+        
         cfg.setProperty(regionName + ".active", region.isActive());
-        cfg.setProperty(regionName + ".access", region.accessNames());
+        cfg.setProperty(regionName + ".access", region.access.formatAllowed());
         if (!region.isDefault()) {
-            cfg.setProperty(regionName + ".owners", region.ownerNames());
+            cfg.setProperty(regionName + ".owners", region.access.formatOwners());
             cfg.setProperty(regionName + ".enter", (region.enter == null ? null : region.enter.getFormat()));
             cfg.setProperty(regionName + ".exit", (region.exit == null ? null : region.exit.getFormat()));
             cfg.setProperty(regionName + ".x1", region.getX1());
@@ -150,7 +154,7 @@ public final class Main extends JavaPlugin {
             cfg.setProperty(regionName + ".z2", region.getZ2());
         }
         
-        Main.worldFiles.get(region.getWorld()).save(immediate);
+        file.save(immediate);
     }
     
     /**

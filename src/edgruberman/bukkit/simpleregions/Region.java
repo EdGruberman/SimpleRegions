@@ -1,6 +1,6 @@
 package edgruberman.bukkit.simpleregions;
 
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.bukkit.Location;
@@ -147,8 +147,8 @@ public final class Region extends CachingRectangularCuboid {
         String description = "---- Region: " + this.getDisplayName() + " ----";
         description += "\nWorld: " + (this.getWorld() == null ? Region.SERVER_DEFAULT_DISPLAY : this.getWorld().getName());
         description += "\nActive: " + this.active;
-        if (!this.isDefault()) description += "\nOwners: " + (this.ownerNames().size() == 0 ? "" : join(this.ownerNames(), " "));
-        description += "\nAccess: " + (this.accessNames().size() == 0 ? "" : join(this.accessNames(), " "));
+        if (!this.isDefault()) description += "\nOwners: " + (this.access.getAcl().getOwners().size() == 0 ? "" : join(this.access.formatOwners(), " "));
+        description += "\nAccess: " + (this.access.getAcl().getEntries().size() == 0 ? "" : join(this.access.formatAllowed(), " "));
         if (!this.isDefault()) description += "\n" + this.describeCoordinates(format);
         
         return description;
@@ -164,7 +164,7 @@ public final class Region extends CachingRectangularCuboid {
         return Index.refresh(this);
     }
     
-    boolean isDirectOwner(final String name) {
+    public boolean isDirectOwner(final String name) {
         for (Principal owner : this.access.getAcl().getOwners())
             if (AccountManager.formatName(owner).equalsIgnoreCase(name))
                 return true;
@@ -172,28 +172,12 @@ public final class Region extends CachingRectangularCuboid {
         return false;
     }
     
-    boolean isDirectAccess(final String name) {
+    public boolean isDirectAccess(final String name) {
         for (AccessControlEntry ace : this.access.getAcl().getEntries())
             if (AccountManager.formatName(ace.getPrincipal()).equalsIgnoreCase(name))
                 return true;
         
         return false;
-    }
-    
-    Set<String> ownerNames()  {
-        Set<String> owners = new HashSet<String>();
-        for (Principal owner : this.access.getAcl().getOwners())
-            owners.add(AccountManager.formatName(owner));
-            
-        return owners;
-    }
-    
-    Set<String> accessNames() {
-        Set<String> access = new HashSet<String>();
-        for (AccessControlEntry ace : this.access.getAcl().getEntries())
-            access.add(AccountManager.formatName(ace.getPrincipal()));
-        
-        return access;
     }
     
     @Override
@@ -273,7 +257,7 @@ public final class Region extends CachingRectangularCuboid {
      * @param delim Delimiter to place between each element.
      * @return String combined with all elements and delimiters.
      */
-    private static String join(final Set<String> list, final String delim) {
+    private static String join(final List<String> list, final String delim) {
         if (list.isEmpty()) return "";
      
         StringBuilder sb = new StringBuilder();

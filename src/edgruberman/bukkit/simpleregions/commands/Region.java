@@ -1,12 +1,16 @@
 package edgruberman.bukkit.simpleregions.commands;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import edgruberman.bukkit.messagemanager.MessageLevel;
@@ -17,6 +21,7 @@ import edgruberman.bukkit.simpleregions.Permission;
 public final class Region extends Command implements CommandExecutor {
     
     public static final String NAME = "region";
+    public static final Set<String> OWNER_ALLOWED = new HashSet<String>(Arrays.asList(RegionActivate.NAME, RegionAccess.NAME));
     
     static Map<CommandSender, edgruberman.bukkit.simpleregions.Region> working = new HashMap<CommandSender, edgruberman.bukkit.simpleregions.Region>();
     
@@ -32,6 +37,7 @@ public final class Region extends Command implements CommandExecutor {
         this.registerAction(new RegionSize(this));
         this.registerAction(new RegionActivate(this));
         this.registerAction(new RegionDeactivate(this));
+        this.registerAction(new RegionAccess(this));
         this.registerAction(new RegionReload(this));
     }
     
@@ -40,19 +46,31 @@ public final class Region extends Command implements CommandExecutor {
             , final String label, final String[] args) {
         Context context = super.parse(this, sender, command, label, args);
         
-        if (!this.isAllowed(context.sender)) {
-            Main.messageManager.respond(context.sender, "You are not allowed to use the " + context.label + " command.", MessageLevel.RIGHTS, false);
-            return true;
+        boolean owner = false;
+        edgruberman.bukkit.simpleregions.Region region = Region.parseRegion(context);
+        if (context.player != null && region.access.isOwner(context.player) && context.action != null) { 
+            // if region owner, then allow certain actions
+            // TODO integrate this "better"
+            if (Region.OWNER_ALLOWED.contains(context.action.name)) owner = true;
         }
         
-        if (context.action == null) {
-            Main.messageManager.respond(context.sender, "Unrecognized action for the " + context.label + " command.", MessageLevel.WARNING, false);
-            return true;
-        }
-        
-        if (!context.action.isAllowed(context.sender)) {
-            Main.messageManager.respond(context.sender, "You are not allowed to use the " + context.action.name + " action of the " + context.label + " command.", MessageLevel.RIGHTS, false);
-            return true;
+        if (!owner) {
+            // Standard access checks
+            if (!this.isAllowed(context.sender)) {
+                Main.messageManager.respond(context.sender, "You are not allowed to use the " + context.label + " command.", MessageLevel.RIGHTS, false);
+                return true;
+            }
+            
+            if (context.action == null) {
+                Main.messageManager.respond(context.sender, "Unrecognized action for the " + context.label + " command.", MessageLevel.WARNING, false);
+                return true;
+            }
+            
+            if (!context.action.isAllowed(context.sender)) {
+                Main.messageManager.respond(context.sender, "You are not allowed to use the " + context.action.name + " action of the " + context.label + " command.", MessageLevel.RIGHTS, false);
+                return true;
+            }
+            
         }
         
         context.action.execute(context);
@@ -102,5 +120,26 @@ public final class Region extends Command implements CommandExecutor {
         if (world == null) return null;
         
         return Index.worlds.get(world).getRegions().get(name);
+    }
+    
+    static void sendIfOnline(final String name, final MessageLevel level, final String message) {
+        if (Region.getExactPlayer(name) == null) return;
+        
+        Main.messageManager.send(Region.getExactPlayer(name), message, level);
+    }
+    
+    /**
+     * Returns player only if it is a full and case insensitive name match.
+     *
+     * @param name name of player
+     * @return player that matches name
+     */
+    static Player getExactPlayer(final String name) {
+        Player player = Bukkit.getServer().getPlayer(name);
+        if (player == null) return null;
+        
+        if (!player.getName().equalsIgnoreCase(name)) return null;
+        
+        return player;
     }
 }

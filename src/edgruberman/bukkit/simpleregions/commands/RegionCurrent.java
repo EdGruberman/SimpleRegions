@@ -2,7 +2,6 @@ package edgruberman.bukkit.simpleregions.commands;
 
 import java.util.Set;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -37,7 +36,7 @@ public class RegionCurrent extends Action {
         
         // If a specific location is not specific, use target player's current location
         if (location == null) {
-            Player player = RegionCurrent.getExactPlayer(name);
+            Player player = Region.getExactPlayer(name);
             if (player == null) {
                 Main.messageManager.respond(context.sender, "Unable to find target player \"" + name + "\"", MessageLevel.SEVERE, false);
                 return;
@@ -82,20 +81,5 @@ public class RegionCurrent extends Action {
             return (context.player == null ? null : context.player.getName());
         
         return context.arguments.get(context.actionIndex + 1);
-    }
-    
-    /**
-     * Returns player only if it is a full and case insensitive name match.
-     *
-     * @param name name of player
-     * @return player that matches name
-     */
-    private static Player getExactPlayer(String name) {
-        Player player = Bukkit.getServer().getPlayer(name);
-        if (player == null) return null;
-        
-        if (!player.getName().equalsIgnoreCase(name)) return null;
-        
-        return player;
     }
 }

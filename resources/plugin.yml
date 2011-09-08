@@ -55,6 +55,11 @@ permissions:
         default: op
         children:
             simpleregions.region: true
+    simpleregions.region.access:
+        description: Can use access action of region command.
+        default: op
+        children:
+            simpleregions.region: true
     simpleregions.region.reload:
         description: Can use reload action of region command.
         default: op

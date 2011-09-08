@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 
 import edgruberman.bukkit.messagemanager.MessageLevel;
 import edgruberman.bukkit.simpleregions.Main;
+import edgruberman.java.CaseInsensitiveString;
 
 class Context {
     
@@ -19,7 +20,7 @@ class Context {
     String label;
     String line;
     Action action;
-    int actionIndex;
+    int actionIndex = -1;
     
     /**
      * Command line split using double quotes to distinguish single arguments.
@@ -39,27 +40,27 @@ class Context {
         this.label = label;
         this.line = Command.join(args);
         this.arguments = Context.parseArguments(args);
-        this.parseAction();
+        this.owner.parseAction(this);
         this.matches = this.parseMatches();
         
         Main.messageManager.log("Command Context for " + this.label + "; Arguments: " + this.arguments + "; Action: " + (this.action != null ? this.action.name : null) + "; Matches: " + this.matches, MessageLevel.FINEST);
     }
     
-    private void parseAction() {
-        // Check direct action name match in third, second, or first argument. (/<command>[ <World>[ <Region>]]<Action>)
-        if (this.arguments.size() >= 3 && this.owner.actions.containsKey(this.arguments.get(2))) {  
-            this.actionIndex = 2;
-        } else if (this.arguments.size() >= 2 && this.owner.actions.containsKey(this.arguments.get(1))) {  
-            this.actionIndex = 1;
-        } else if (this.arguments.size() >= 1 && this.owner.actions.containsKey(this.arguments.get(0))) {    
-            this.actionIndex = 0;
-        } else {
-            this.actionIndex = -1;
+    /**
+     * Parse arguments looking at last possible index first to find action name
+     * match (case insensitive).</br>
+     * /&lt;command&gt;[[ &lt;Parameters[0...last]&gt;] &lt;Action&gt;])
+     * 
+     * @param last last argument index that can contain action
+     */
+    void parseAction(final int last) {
+        for (this.actionIndex = Math.min(last, this.arguments.size() - 1); this.actionIndex >= 0; this.actionIndex--) {
+            this.action = this.owner.actions.get(new CaseInsensitiveString(this.arguments.get(this.actionIndex)));
+            if (this.action != null) break;
         }
         
-        if (this.actionIndex >= 0) {
-            this.action = this.owner.actions.get(this.arguments.get(this.actionIndex));
-        } else {  
+        if (this.action == null) {
+            this.actionIndex = -1;
             this.action = this.owner.defaultAction;
         }
     }

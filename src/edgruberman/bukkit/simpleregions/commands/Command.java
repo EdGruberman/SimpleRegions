@@ -14,10 +14,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 import edgruberman.bukkit.messagemanager.MessageLevel;
 import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Permission;
+import edgruberman.java.CaseInsensitiveString;
 
-class Command  {
+abstract class Command  {
     
-    Map<String, Action> actions = new HashMap<String, Action>();
+    Map<CaseInsensitiveString, Action> actions = new HashMap<CaseInsensitiveString, Action>();
     Action defaultAction = null;
     
     protected final JavaPlugin plugin;
@@ -60,7 +61,7 @@ class Command  {
         
         this.actions.put(action.name, action);
         for (String alias : action.aliases)
-            this.actions.put(alias, action);
+            this.actions.put(new CaseInsensitiveString(alias), action);
         
         if (isDefault) this.defaultAction = action;
     }
@@ -79,6 +80,8 @@ class Command  {
         
         this.command.setExecutor(executor);
     }
+    
+    abstract void parseAction(final Context context);
     
     /**
      * Concatenate all string elements of an array together with a space.

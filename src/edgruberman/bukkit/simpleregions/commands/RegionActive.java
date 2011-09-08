@@ -34,19 +34,19 @@ public class RegionActive extends Action {
         }
         
         Main.saveRegion(region, false);
+        Main.messageManager.respond(context.sender, (active ? "Activated " : "Deactivated ") + region.getDisplayName() + " region.", MessageLevel.STATUS, false);
         
+        // When deactivating, set working region if one not already set
         if (!active) {
-            Main.messageManager.respond(context.sender, "Deactivated " + region.getDisplayName() + " region.", MessageLevel.STATUS, false);
+            if (!Region.working.containsKey(context.sender))
+                RegionSet.setWorkingRegion(context.sender, region, true);
+                
             return;
         }
         
-        // Unset region if matches
-        boolean unset = false;
-        if (region.equals(Region.working.get(context.sender))) {
-            Region.working.remove(context.sender);
-            unset = true;
-        }
+        // When activating, unset working region if currently matches
+        if (region.equals(Region.working.get(context.sender)))
+            RegionSet.setWorkingRegion(context.sender, region, false);
         
-        Main.messageManager.respond(context.sender, (unset ? "Unset and activated " : "Activated ") + region.getDisplayName() + " region.", MessageLevel.STATUS, false);
     }
 }

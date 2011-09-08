@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.bukkit.command.CommandSender;
+
 import edgruberman.bukkit.messagemanager.MessageLevel;
 import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Permission;
@@ -27,15 +29,28 @@ public class RegionSet extends Action {
         }
         
         String operation = context.arguments.get(context.actionIndex).substring(0, 1);
-        if (operation.equals("+") || operation.equals("s")) {
-            // Set Operation
-            Region.working.put(context.sender, region);
-            String world = (region.getWorld() == null ? edgruberman.bukkit.simpleregions.Region.SERVER_DEFAULT : region.getWorld().getName());
-            Main.messageManager.respond(context.sender, "Working region set to: [" + world + "] " + region.getDisplayName(), MessageLevel.STATUS, false);
-        } else {
-            // Unset Operation ("-" or "u")
-            Region.working.remove(context.sender);
-            Main.messageManager.respond(context.sender, "Working region unset.", MessageLevel.STATUS, false);
+        boolean set = (operation.equals("+") || operation.equals("s"));
+        RegionSet.setWorkingRegion(context.sender, region, set);
+    }
+    
+    static boolean setWorkingRegion(final CommandSender sender, final edgruberman.bukkit.simpleregions.Region region, final boolean set) {
+        String world = (region.getWorld() == null ? edgruberman.bukkit.simpleregions.Region.SERVER_DEFAULT : region.getWorld().getName());
+        
+        // Set Operation
+        if (set) {
+            Region.working.put(sender, region);
+            Main.messageManager.respond(sender, "Working region set to: [" + world + "] " + region.getDisplayName(), MessageLevel.STATUS, false);
+            return true;
         }
+        
+        // Unset Operation
+        if (!Region.working.containsKey(sender)) {
+            Main.messageManager.respond(sender, "Working region not currently set.", MessageLevel.WARNING, false);
+            return false;
+        }
+        
+        Region.working.remove(sender);
+        Main.messageManager.respond(sender, "Working region unset from: [" + world + "] " + region.getDisplayName(), MessageLevel.STATUS, false);
+        return true;
     }
 }

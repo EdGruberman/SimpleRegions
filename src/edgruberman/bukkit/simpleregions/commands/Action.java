@@ -6,11 +6,12 @@ import java.util.Set;
 import org.bukkit.command.CommandSender;
 
 import edgruberman.bukkit.simpleregions.Permission;
+import edgruberman.java.CaseInsensitiveString;
 
 abstract class Action {
     
     Command command;
-    String name;
+    CaseInsensitiveString name;
     Permission required;
     String pattern;
     Set<String> aliases = new HashSet<String>();
@@ -21,7 +22,7 @@ abstract class Action {
     
     Action(final Command command, final String name, final Permission required, final String pattern) {
         this.command = command;
-        this.name = name;
+        this.name = new CaseInsensitiveString(name);
         this.required = required;
         this.pattern = pattern;
     }

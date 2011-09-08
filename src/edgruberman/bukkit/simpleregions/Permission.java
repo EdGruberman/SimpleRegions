@@ -4,6 +4,7 @@ import edgruberman.bukkit.simpleregions.commands.RegionAccess;
 import edgruberman.bukkit.simpleregions.commands.RegionActive;
 import edgruberman.bukkit.simpleregions.commands.RegionCurrent;
 import edgruberman.bukkit.simpleregions.commands.RegionDetail;
+import edgruberman.bukkit.simpleregions.commands.RegionOwner;
 import edgruberman.bukkit.simpleregions.commands.RegionReload;
 import edgruberman.bukkit.simpleregions.commands.RegionSet;
 import edgruberman.bukkit.simpleregions.commands.RegionSize;
@@ -23,6 +24,7 @@ public enum Permission {
     
     , REGION_ACTIVE(Permission.REGION.append(RegionActive.NAME))
     , REGION_ACCESS(Permission.REGION.append(RegionAccess.NAME))
+    , REGION_OWNER(Permission.REGION.append(RegionOwner.NAME))
     
     ;
     

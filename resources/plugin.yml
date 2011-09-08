@@ -11,10 +11,10 @@ commands:
         usage: |
             /<command> - Show your current region(s).
             /<command> info - Show region details.
+            /<command> (+|-|=)[access] <Player> - Add/remove access.
+            /<command> (+|-|=)owner <Player> - Add/remove owners.
             /<command> (+|-)active - Set region status.
-            /<command> (+|-)owner <Player> - Add/remove owners.
-            /<command> (+|-)helper <Player> - Add/remove helpers.
-            /<command> <Region>[ <Action>] - Remote management.
+            /<command> <Region> <Action> - Remote management.
 permissions:
     simpleregions.region.read:
         description: Can use all read related actions of region command.
@@ -57,6 +57,11 @@ permissions:
             simpleregions.region: true
     simpleregions.region.access:
         description: Can use access action of region command.
+        default: op
+        children:
+            simpleregions.region: true
+    simpleregions.region.owner:
+        description: Can use owner action of region command.
         default: op
         children:
             simpleregions.region: true

@@ -6,10 +6,7 @@ import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.World;
 
-import edgruberman.accesscontrol.AccessControlEntry;
-import edgruberman.accesscontrol.Principal;
 import edgruberman.bukkit.CachingRectangularCuboid;
-import edgruberman.bukkit.accesscontrol.AccountManager;
 import edgruberman.bukkit.accesscontrol.SimpleAccess;
 import edgruberman.java.CaseInsensitiveString;
 import edgruberman.java.FormattedString;
@@ -162,22 +159,6 @@ public final class Region extends CachingRectangularCuboid {
         this.exit.setArgs(this.name.toString());
         
         return Index.refresh(this);
-    }
-    
-    public boolean isDirectOwner(final String name) {
-        for (Principal owner : this.access.getAcl().getOwners())
-            if (AccountManager.formatName(owner).equalsIgnoreCase(name))
-                return true;
-        
-        return false;
-    }
-    
-    public boolean isDirectAccess(final String name) {
-        for (AccessControlEntry ace : this.access.getAcl().getEntries())
-            if (AccountManager.formatName(ace.getPrincipal()).equalsIgnoreCase(name))
-                return true;
-        
-        return false;
     }
     
     @Override

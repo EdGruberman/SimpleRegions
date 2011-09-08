@@ -21,7 +21,7 @@ import edgruberman.bukkit.simpleregions.Permission;
 public final class Region extends Command implements CommandExecutor {
     
     public static final String NAME = "region";
-    public static final Set<String> OWNER_ALLOWED = new HashSet<String>(Arrays.asList(RegionActive.NAME, RegionAccess.NAME));
+    public static final Set<String> OWNER_ALLOWED = new HashSet<String>(Arrays.asList(RegionActive.NAME, RegionAccess.NAME, RegionOwner.NAME));
     
     static Map<CommandSender, edgruberman.bukkit.simpleregions.Region> working = new HashMap<CommandSender, edgruberman.bukkit.simpleregions.Region>();
     
@@ -36,6 +36,7 @@ public final class Region extends Command implements CommandExecutor {
         this.registerAction(new RegionSize(this));
         this.registerAction(new RegionActive(this));
         this.registerAction(new RegionAccess(this));
+        this.registerAction(new RegionOwner(this));
         this.registerAction(new RegionReload(this));
     }
     
@@ -46,7 +47,7 @@ public final class Region extends Command implements CommandExecutor {
         
         boolean owner = false;
         edgruberman.bukkit.simpleregions.Region region = Region.parseRegion(context);
-        if (context.player != null && region.access.isOwner(context.player) && context.action != null) { 
+        if (context.player != null && context.action != null && region != null && region.access.isOwner(context.player)) { 
             // if region owner, then allow certain actions
             // TODO integrate this "better"
             if (Region.OWNER_ALLOWED.contains(context.action.name)) owner = true;
@@ -76,6 +77,12 @@ public final class Region extends Command implements CommandExecutor {
         return true;
     }
     
+    @Override
+    void parseAction(final Context context) {
+        // Check direct action name match in third, second, or first argument. (/<command>[ <World>[ <Region>]]<Action>)
+        context.parseAction(2);
+    }
+    
     // Command Syntax: /region[[ <World>] <Region>][ <Action>][ <Parameters>]
     static World parseWorld(final Context context) {
         // Assume player's world if not specified.
@@ -97,7 +104,7 @@ public final class Region extends Command implements CommandExecutor {
             // Use current working region if specified
             if (Region.working.containsKey(context.sender)) return Region.working.get(context.sender);
             
-            // Assume player's current region if not specified and player is in only one
+            // Assume player's current region if player is in only one
             if (context.player == null) return null;
             
             Set<edgruberman.bukkit.simpleregions.Region> regions = Index.getRegions(context.player.getLocation());

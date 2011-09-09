@@ -33,18 +33,8 @@ public class RegionDetail extends Action {
         if (context.actionIndex + 1 > context.arguments.size() - 1) return null;
         
         String format = context.arguments.get(context.actionIndex + 1);
-        if (!RegionDetail.isInteger(format)) return null;
+        if (!Region.isInteger(format)) return null;
         
         return Integer.parseInt(format);
-    }
-    
-    private static boolean isInteger(final String s) {   
-        try {   
-            Integer.parseInt(s);   
-            return true;   
-        }   
-        catch(Exception e) {   
-            return false;   
-        }   
     }
 }

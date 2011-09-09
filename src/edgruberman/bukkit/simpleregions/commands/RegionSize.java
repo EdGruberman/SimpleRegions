@@ -21,13 +21,8 @@ public class RegionSize extends Action {
     @Override
     void execute(final Context context) {
         edgruberman.bukkit.simpleregions.Region region = Region.parseRegion(context);
-        if (region == null) {
+        if (region == null || region.isDefault()) {
             Main.messageManager.respond(context.sender, "Unable to determine region.", MessageLevel.SEVERE, false);
-            return;
-        }
-        
-        if (region.isDefault()) {
-            Main.messageManager.respond(context.sender, "Default region size will not be calculated.", MessageLevel.WARNING, false);
             return;
         }
         

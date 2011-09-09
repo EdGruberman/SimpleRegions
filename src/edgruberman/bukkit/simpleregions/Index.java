@@ -90,7 +90,7 @@ public final class Index {
         }
         
         // Ensure the region can be uniquely identified
-        if (!Index.isUnique(region)) {
+        if (Index.exists(region)) {
             Main.messageManager.log("Unable to index region \"" + region.getName() + "\" in world [" + region.getWorld().getName() + "]; Name not unique.", MessageLevel.WARNING);
             return false;
         }
@@ -118,7 +118,7 @@ public final class Index {
         return Index.add(region);
     }
     
-    static boolean remove(final Region region) {
+    public static boolean remove(final Region region) {
         // Remove default regions only if they match the requested one.
         if (region.getName() == null) {
             if (region.getWorld() == null) {
@@ -156,11 +156,11 @@ public final class Index {
     /**
      * There can be only one! (name per world anyways)
      * 
-     * @param region region to check if unique
-     * @return true if the region name is unique for the world; otherwise false
+     * @param region region to check if already exists in index
+     * @return true if the region name exists for the world; otherwise false
      */
-    static boolean isUnique(final Region region) {
-        return !Index.worlds.get(region.getWorld()).regions.containsKey(region.getName());
+    static boolean exists(final Region region) {
+        return Index.worlds.get(region.getWorld()).regions.containsKey(region.getName());
     }
     
     /**

@@ -21,7 +21,7 @@ public class RegionName extends Action {
     @Override
     void execute(final Context context) {
         edgruberman.bukkit.simpleregions.Region region = Region.parseRegion(context);
-        if (region == null) {
+        if (region == null || region.isDefault()) {
             Main.messageManager.respond(context.sender, "Unable to determine region.", MessageLevel.SEVERE, false);
             return;
         }

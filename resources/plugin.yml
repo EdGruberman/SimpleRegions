@@ -75,6 +75,11 @@ permissions:
         default: op
         children:
             simpleregions.region: true
+    simpleregions.region.define:
+        description: Can use define action of region command.
+        default: op
+        children:
+            simpleregions.region: true
     simpleregions.region.delete:
         description: Can use delete action of region command.
         default: op

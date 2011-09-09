@@ -40,6 +40,7 @@ public final class Region extends Command implements CommandExecutor {
         this.registerAction(new RegionMessage(this));
         this.registerAction(new RegionName(this));
         this.registerAction(new RegionCreate(this));
+        this.registerAction(new RegionDefine(this));
         this.registerAction(new RegionDelete(this));
         this.registerAction(new RegionReload(this));
     }
@@ -150,5 +151,15 @@ public final class Region extends Command implements CommandExecutor {
         if (!player.getName().equalsIgnoreCase(name)) return null;
         
         return player;
+    }
+    
+    static boolean isInteger(final String s) {   
+        try {   
+            Integer.parseInt(s);   
+            return true;   
+        }   
+        catch(Exception e) {   
+            return false;   
+        }   
     }
 }

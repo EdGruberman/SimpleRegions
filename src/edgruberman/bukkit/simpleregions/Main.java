@@ -85,7 +85,7 @@ public final class Main extends JavaPlugin {
         
         Region region = new Region(entry.getBoolean("active", false), new HashSet<String>(entry.getStringList("access", null)));
         if (!Index.add(region)) {
-            Main.messageManager.log("Unable to add " + Region.SERVER_DEFAULT_DISPLAY + " " + Region.NAME_DEFAULT_DISLAY + " region.", MessageLevel.FINEST);
+            Main.messageManager.log("Unable to add " + Region.SERVER_DEFAULT_DISPLAY + " " + Region.NAME_DEFAULT_DISLAY + " region.", MessageLevel.WARNING);
             return false;
         }
         
@@ -123,8 +123,11 @@ public final class Main extends JavaPlugin {
                     , cfg.getNode(key).getString("enter", null)
                     , cfg.getNode(key).getString("exit", null)
             );
-            if (Index.add(region))
+            if (Index.add(region)) {
                 Main.messageManager.log(region.describe(3), MessageLevel.FINEST);
+            } else {
+                Main.messageManager.log("Unable to add [" + region.getWorld().getName() + "] " + region.getDisplayName() + " region.", MessageLevel.WARNING);
+            }
         }
         
         int count = Index.worlds.get(world).regions.size();

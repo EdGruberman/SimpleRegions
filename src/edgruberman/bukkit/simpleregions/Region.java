@@ -53,9 +53,7 @@ public final class Region extends CachingRectangularCuboid {
             for (String a : access)
                 this.access.grant(a);
         
-        this.enter = new FormattedString(Region.DEFAULT_ENTER_FORMAT, this.name);
         if (enterFormat != null) this.enter.setFormat(enterFormat);
-        this.exit = new FormattedString(Region.DEFAULT_EXIT_FORMAT, this.name);
         if (exitFormat != null) this.exit.setFormat(exitFormat);
     }
     
@@ -69,6 +67,9 @@ public final class Region extends CachingRectangularCuboid {
         
         this.world = world;
         this.name = new CaseInsensitiveString(name);
+        
+        this.enter = new FormattedString(Region.DEFAULT_ENTER_FORMAT, this.name);
+        this.exit = new FormattedString(Region.DEFAULT_EXIT_FORMAT, this.name);
     }
     
     /**
@@ -121,7 +122,12 @@ public final class Region extends CachingRectangularCuboid {
         if (this.active == active) return true;
         
         this.active = active;
-        Index.refresh(this);
+        
+        if (Index.exists(this)) {
+            Index.refresh(this);
+        } else {
+            Index.add(this);
+        }
         return true;
     }
     
@@ -152,7 +158,7 @@ public final class Region extends CachingRectangularCuboid {
     }
     
     public boolean setName(final String name) {
-        if (!Index.isUnique(new Region(this.world, name))) return false;
+        if (Index.exists(new Region(this.world, name))) return false;
         
         this.name = new CaseInsensitiveString(name);
         this.enter.setArgs(this.name.toString());

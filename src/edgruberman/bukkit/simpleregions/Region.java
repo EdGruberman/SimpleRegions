@@ -151,7 +151,7 @@ public final class Region extends CachingRectangularCuboid {
         return description;
     }
     
-    boolean setName(final String name) {
+    public boolean setName(final String name) {
         if (!Index.isUnique(new Region(this.world, name))) return false;
         
         this.name = new CaseInsensitiveString(name);

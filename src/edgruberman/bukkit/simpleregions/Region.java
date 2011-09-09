@@ -38,9 +38,9 @@ public final class Region extends CachingRectangularCuboid {
     ) {
         this(world, name);
         
-        this.setX1(x1); this.setX2(x2);
-        this.setY1(y1); this.setY2(y2);
-        this.setZ1(z1); this.setZ2(z2);
+        super.setX1(x1); super.setX2(x2);
+        super.setY1(y1); super.setY2(y2);
+        super.setZ1(z1); super.setZ2(z2);
         
         if (active && (this.isDefined() || this.getName() == null))
             this.active = active;
@@ -200,6 +200,42 @@ public final class Region extends CachingRectangularCuboid {
     @Override
     public void setW(final int z) {
         super.setW(z);
+        Index.refresh(this);
+    }
+    
+    @Override
+    public void setY1(final Integer y) {
+        super.setY1(y);
+        Index.refresh(this);
+    }
+    
+    @Override
+    public void setZ1(final Integer z) {
+        super.setZ1(z);
+        Index.refresh(this);
+    }
+    
+    @Override
+    public void setX1(final Integer x) {
+        super.setX1(x);
+        Index.refresh(this);
+    }
+    
+    @Override
+    public void setX2(final Integer x) {
+        super.setX2(x);
+        Index.refresh(this);
+    }
+    
+    @Override
+    public void setY2(final Integer y) {
+        super.setY2(y);
+        Index.refresh(this);
+    }
+    
+    @Override
+    public void setZ2(final Integer z) {
+        super.setZ2(z);
         Index.refresh(this);
     }
     

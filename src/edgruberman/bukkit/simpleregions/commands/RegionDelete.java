@@ -32,6 +32,7 @@ public class RegionDelete extends Action {
         boolean confirmed = false;
         if ((context.arguments.size() >= 2) && (context.arguments.get(context.arguments.size() - 1).equalsIgnoreCase("yes"))) confirmed = true;
         if (!confirmed) {
+            RegionDetail.describe(context, region);
             Main.messageManager.respond(context.sender
                 , "Are you sure you wish to delete the " + region.getDisplayName() + " region?\n"
                     + "To confirm: /" + context.owner.name + " " + region.getDisplayName() + " " + RegionDelete.NAME + " yes"

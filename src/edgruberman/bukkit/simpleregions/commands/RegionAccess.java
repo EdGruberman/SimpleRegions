@@ -53,6 +53,8 @@ public class RegionAccess extends Action {
             
             // Add new entries
             RegionAccess.edit(context, region, names, true);
+            
+            RegionDetail.describe(context, region);
         }
     }
     

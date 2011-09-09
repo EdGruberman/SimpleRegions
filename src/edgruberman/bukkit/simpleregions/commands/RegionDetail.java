@@ -26,7 +26,28 @@ public class RegionDetail extends Action {
             return;
         }
         
-        Main.messageManager.respond(context.sender, region.describe(RegionDetail.parseFormat(context)), MessageLevel.CONFIG, false);
+        RegionDetail.describe(context, region, RegionDetail.parseFormat(context));
+    }
+    
+    static void describe(final Context context, final edgruberman.bukkit.simpleregions.Region region) {
+        RegionDetail.describe(context, region, null);
+    }
+    
+    static void describe(final Context context, final edgruberman.bukkit.simpleregions.Region region, final Integer format) {
+        Main.messageManager.respond(context.sender, region.describe(format), MessageLevel.CONFIG, false);
+        
+        if (!(context.sender.hasPermission(Permission.REGION_DEFINE.toString()) || (context.player != null && region.access.isOwner(context.player))))
+            return;
+        
+        // Sender has permission, so instruct on how to alter as necessary
+        if (!region.isActive()) {
+            if (!region.isDefault() && !region.isDefined()) {
+                Main.messageManager.respond(context.sender, "Region is undefined. To define: /" + Region.NAME + " " + RegionDefine.NAME, MessageLevel.NOTICE, false);
+                return;
+            }
+            
+            Main.messageManager.respond(context.sender, "Region is inactive. To activate: /" + Region.NAME + " +" + RegionActive.NAME, MessageLevel.NOTICE, false);
+        }
     }
     
     private static Integer parseFormat(final Context context) {

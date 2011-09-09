@@ -89,7 +89,7 @@ abstract class Command  {
      * @param s string array
      * @return concatenated elements
      */
-    protected static String join(final String[] s) {
+    static String join(final String[] s) {
         return join(Arrays.asList(s), " ");
     }
     
@@ -100,7 +100,7 @@ abstract class Command  {
      * @param delim delimiter to place between each element
      * @return string combined with all elements and delimiters
      */
-    protected static String join(final List<String> list, final String delim) {
+    static String join(final List<String> list, final String delim) {
         if (list == null || list.isEmpty()) return "";
      
         StringBuilder sb = new StringBuilder();

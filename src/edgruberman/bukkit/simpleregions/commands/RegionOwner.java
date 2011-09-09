@@ -8,6 +8,7 @@ import java.util.Set;
 import edgruberman.bukkit.messagemanager.MessageLevel;
 import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Permission;
+import edgruberman.java.CaseInsensitiveString;
 
 public class RegionOwner extends Action {
     
@@ -33,7 +34,7 @@ public class RegionOwner extends Action {
             return;
         }
         
-        String operation = context.arguments.get(context.actionIndex).substring(0, 1);
+        CaseInsensitiveString operation = new CaseInsensitiveString(context.arguments.get(context.actionIndex).substring(0, 1));
         if (operation.equals("+") || operation.equals("o")) { 
             // Add owner
             RegionOwner.edit(context, region, names, true);

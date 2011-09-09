@@ -7,6 +7,7 @@ import java.util.Set;
 import edgruberman.bukkit.messagemanager.MessageLevel;
 import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Permission;
+import edgruberman.java.CaseInsensitiveString;
 
 public class RegionActive extends Action {
     
@@ -26,7 +27,7 @@ public class RegionActive extends Action {
             return;
         }
         
-        String operation = context.arguments.get(context.actionIndex).substring(0, 1);
+        CaseInsensitiveString operation = new CaseInsensitiveString(context.arguments.get(context.actionIndex).substring(0, 1));
         boolean active = (operation.equals("+") || operation.equals("a")); // false for "-" or "d"
         if (!region.setActive(active)) {
             Main.messageManager.respond(context.sender, "Unable to " + (active ? "activate " : "deactivate ") + region.getDisplayName() + " region.", MessageLevel.WARNING, false);

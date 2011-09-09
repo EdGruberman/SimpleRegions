@@ -9,6 +9,7 @@ import org.bukkit.command.CommandSender;
 import edgruberman.bukkit.messagemanager.MessageLevel;
 import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Permission;
+import edgruberman.java.CaseInsensitiveString;
 
 public class RegionSet extends Action {
     
@@ -28,7 +29,7 @@ public class RegionSet extends Action {
             return;
         }
         
-        String operation = context.arguments.get(context.actionIndex).substring(0, 1);
+        CaseInsensitiveString operation = new CaseInsensitiveString(context.arguments.get(context.actionIndex).substring(0, 1));
         boolean set = (operation.equals("+") || operation.equals("s"));
         RegionSet.setWorkingRegion(context.sender, region, set);
     }

@@ -26,7 +26,7 @@ public class RegionDetail extends Action {
             return;
         }
         
-        Main.messageManager.respond(context.sender, region.describe(RegionDetail.parseFormat(context)), MessageLevel.STATUS, false);
+        Main.messageManager.respond(context.sender, region.describe(RegionDetail.parseFormat(context)), MessageLevel.CONFIG, false);
     }
     
     private static Integer parseFormat(final Context context) {

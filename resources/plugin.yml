@@ -65,6 +65,11 @@ permissions:
         default: op
         children:
             simpleregions.region: true
+    simpleregions.region.message:
+        description: Can use enter and exit actions of region command.
+        default: op
+        children:
+            simpleregions.region: true
     simpleregions.region.reload:
         description: Can use reload action of region command.
         default: op

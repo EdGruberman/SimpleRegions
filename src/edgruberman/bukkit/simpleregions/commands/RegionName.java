@@ -14,7 +14,7 @@ public class RegionName extends Action {
     public static final Set<String> ALIASES = new HashSet<String>(Arrays.asList("=name"));
     
     RegionName(final Command owner) {
-        super(owner, RegionName.NAME, Permission.REGION_ACTIVE);
+        super(owner, RegionName.NAME, Permission.REGION_NAME);
         this.aliases.addAll(RegionName.ALIASES);
     }
     

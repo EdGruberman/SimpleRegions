@@ -64,7 +64,7 @@ public final class Region extends CachingRectangularCuboid {
      * 
      * @param name region name
      */
-    Region(final World world, final String name) {
+    public Region(final World world, final String name) {
         super();
         
         this.world = world;

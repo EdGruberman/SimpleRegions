@@ -16,7 +16,7 @@ public class RegionMessage extends Action {
     public static final Set<String> ALIASES = new HashSet<String>(Arrays.asList("enter", "exit", "=enter", "=exit"));
     
     RegionMessage(final Command owner) {
-        super(owner, RegionMessage.NAME, Permission.REGION_ACTIVE);
+        super(owner, RegionMessage.NAME, Permission.REGION_MESSAGE);
         this.aliases.addAll(RegionMessage.ALIASES);
     }
     

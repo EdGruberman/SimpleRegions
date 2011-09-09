@@ -16,7 +16,7 @@ public class RegionAccess extends Action {
     public static final Set<String> ALIASES = new HashSet<String>(Arrays.asList("+", "-", "=", "+access", "-access", "=access"));
     
     RegionAccess(final Command owner) {
-        super(owner, RegionAccess.NAME, Permission.REGION_ACTIVE);
+        super(owner, RegionAccess.NAME, Permission.REGION_ACCESS);
         this.aliases.addAll(RegionAccess.ALIASES);
     }
     

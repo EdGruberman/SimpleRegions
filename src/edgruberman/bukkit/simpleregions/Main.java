@@ -157,6 +157,17 @@ public final class Main extends JavaPlugin {
         file.save(immediate);
     }
     
+    public static void deleteRegion(final Region region, final boolean immediate) {
+        ConfigurationFile file = Main.configurationFile;
+        if (region.getWorld() != null)
+            file = Main.worldFiles.get(region.getWorld());
+        
+        String regionName = (region.getName() == null ? Region.NAME_DEFAULT : region.getName());
+        file.getConfiguration().removeProperty(regionName);
+        
+        file.save(immediate);
+    }
+    
     /**
      * Determine if player is allowed to manipulate the target location based
      * on region configuration.<br>

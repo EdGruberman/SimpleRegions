@@ -14,7 +14,7 @@ import edgruberman.java.CaseInsensitiveString;
 public class RegionSet extends Action {
     
     public static final String NAME = "set";
-    public static final Set<String> ALIASES = new HashSet<String>(Arrays.asList("+set", "unset", "-set"));
+    public static final Set<String> ALIASES = new HashSet<String>(Arrays.asList("+set", "unset", "-set", "working"));
     
     RegionSet(final Command owner) {
         super(owner, RegionSet.NAME, Permission.REGION_SET);
@@ -30,7 +30,7 @@ public class RegionSet extends Action {
         }
         
         CaseInsensitiveString operation = new CaseInsensitiveString(context.arguments.get(context.actionIndex).substring(0, 1));
-        boolean set = (operation.equals("+") || operation.equals("s"));
+        boolean set = (operation.equals("+") || operation.equals("s") || operation.equals("w"));
         RegionSet.setWorkingRegion(context.sender, region, set);
     }
     

@@ -1,6 +1,7 @@
 package edgruberman.bukkit.simpleregions.commands;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import org.bukkit.World;
@@ -28,7 +29,7 @@ public class RegionDefine extends Action {
         
         List<String> parameters = context.arguments.subList(context.actionIndex + 1, context.arguments.size());
         Block block = null;
-        if (context.player != null) block = context.player.getTargetBlock(null, 100);
+        if (context.player != null) block = context.player.getTargetBlock((HashSet<Byte>) null, 100);
         
         if (parameters.size() == 0) {
             if (block == null) {        

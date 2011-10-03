@@ -21,10 +21,10 @@ import edgruberman.bukkit.messagemanager.MessageLevel;
 final class InteractionGuard extends PlayerListener {
     
     /**
-     * Items who uses are cancelled if a player is interacting with
+     * Items whose uses are cancelled if a player is interacting with
      * a block in a region they do not have access to.
      */
-    static final Set<Material> MONITORED_ITEMS = new HashSet<Material>(Arrays.asList(new Material[] {
+    static final Set<Material> DENIED_ITEMS = new HashSet<Material>(Arrays.asList(new Material[] {
           Material.BUCKET
         , Material.WATER_BUCKET
         , Material.LAVA_BUCKET
@@ -49,7 +49,7 @@ final class InteractionGuard extends PlayerListener {
                         event.getAction().equals(Action.LEFT_CLICK_BLOCK)
                         && event.getClickedBlock().getRelative(event.getBlockFace()).getType().equals(Material.FIRE)
                 )
-                && !InteractionGuard.MONITORED_ITEMS.contains(event.getPlayer().getItemInHand().getType())
+                && !InteractionGuard.DENIED_ITEMS.contains(event.getPlayer().getItemInHand().getType())
         ) return;
         
         if (Main.isAllowed(event.getPlayer(), event.getClickedBlock().getLocation())) return;
@@ -73,7 +73,7 @@ final class InteractionGuard extends PlayerListener {
     public void onPlayerInteractEntity(final PlayerInteractEntityEvent event) {
         if (event.isCancelled()) return;
         
-        if (!InteractionGuard.MONITORED_ITEMS.contains(event.getPlayer().getItemInHand().getType())) return;
+        if (!InteractionGuard.DENIED_ITEMS.contains(event.getPlayer().getItemInHand().getType())) return;
         
         if (Main.isAllowed(event.getPlayer(), event.getRightClicked().getLocation())) return;
         
@@ -97,7 +97,7 @@ final class InteractionGuard extends PlayerListener {
     public void onPlayerBucketEmpty(final PlayerBucketEmptyEvent event) {
         if (event.isCancelled()) return;
         
-        if (!InteractionGuard.MONITORED_ITEMS.contains(event.getBucket())) return;
+        if (!InteractionGuard.DENIED_ITEMS.contains(event.getBucket())) return;
         
         Block target = event.getBlockClicked().getRelative(event.getBlockFace());
         if (Main.isAllowed(event.getPlayer(), target.getLocation())) return;
@@ -121,7 +121,7 @@ final class InteractionGuard extends PlayerListener {
     public void onPlayerBucketFill(final PlayerBucketFillEvent event) {
         if (event.isCancelled()) return;
         
-        if (!InteractionGuard.MONITORED_ITEMS.contains(event.getBucket())) return;
+        if (!InteractionGuard.DENIED_ITEMS.contains(event.getBucket())) return;
         
         Block target = event.getBlockClicked().getRelative(event.getBlockFace());
         if (Main.isAllowed(event.getPlayer(), target.getLocation())) return;

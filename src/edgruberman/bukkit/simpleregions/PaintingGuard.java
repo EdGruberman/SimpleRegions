@@ -24,7 +24,7 @@ final class PaintingGuard extends EntityListener {
     public void onPaintingBreak(final PaintingBreakEvent event) {
         if (event.isCancelled()) return;
         
-        if (event.getCause().equals(RemoveCause.WORLD)) return;
+        if (!event.getCause().equals(RemoveCause.ENTITY)) return;
         
         PaintingBreakByEntityEvent eventByEntity = (PaintingBreakByEntityEvent) event;
         if (!(eventByEntity.getRemover() instanceof Player)) return;

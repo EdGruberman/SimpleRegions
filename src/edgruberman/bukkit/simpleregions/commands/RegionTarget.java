@@ -1,5 +1,7 @@
 package edgruberman.bukkit.simpleregions.commands;
 
+import java.util.HashSet;
+
 import edgruberman.bukkit.messagemanager.MessageLevel;
 import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Permission;
@@ -19,6 +21,6 @@ public class RegionTarget extends Action {
             return;
         }
         
-        RegionCurrent.message(context, context.player.getTargetBlock(null, 50).getLocation());
+        RegionCurrent.message(context, context.player.getTargetBlock((HashSet<Byte>) null, 50).getLocation());
     }
 }

@@ -2,27 +2,27 @@ package edgruberman.bukkit.simpleregions;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.config.Configuration;
-import org.bukkit.util.config.ConfigurationNode;
 
 import edgruberman.bukkit.messagemanager.MessageLevel;
 import edgruberman.bukkit.messagemanager.MessageManager;
 
 public final class Main extends JavaPlugin {
-    
+
     /**
      * Prefix for all permissions used in this plugin.
      */
     public static final String PERMISSION_PREFIX = "simpleregions";
-    
+
     /**
      * Base path, relative to plugin data folder, to look for world specific
      * configuration overrides in. Sub-folder is used to avoid conflicts
@@ -30,98 +30,98 @@ public final class Main extends JavaPlugin {
      * config.)
      */
     private static final String WORLD_SPECIFICS = "Worlds";
-    
+
     public static MessageManager messageManager;
     public static ConfigurationFile configurationFile;
-    
+
     private static Plugin plugin;
     private static Map<World, ConfigurationFile> worldFiles = new HashMap<World, ConfigurationFile>();
-    
+
+    @Override
     public void onLoad() {
         Main.messageManager = new MessageManager(this);
-        Main.messageManager.log("Version " + this.getDescription().getVersion());
-        
         Main.configurationFile = new ConfigurationFile(this, 10);
         Main.plugin = this;
     }
-    
+
+    @Override
     public void onEnable() {
         Main.loadConfiguration(false);
-        
+
         new IndexPublisher(this);
         new BlockGuard(this);
         new InteractionGuard(this);
         new PaintingGuard(this);
         new BoundaryAlerter(this);
-        
+
         new edgruberman.bukkit.simpleregions.commands.Region(this);
-        
-        Main.messageManager.log("Plugin Enabled");
     }
-    
+
+    @Override
     public void onDisable() {
-        Main.messageManager.log("Plugin Disabled");
+        if (Main.configurationFile.isSaveQueued()) Main.configurationFile.save();
     }
-    
+
     public static void loadConfiguration(final boolean reload) {
-        if (reload) Main.configurationFile.load();
-        
-        Region.deniedMessage = Main.configurationFile.getConfiguration().getString("deniedMessage", null);
+        FileConfiguration config = Main.configurationFile.getConfig();
+        if (reload) config = Main.configurationFile.load();
+
+        Region.deniedMessage = config.getString("deniedMessage", null);
         Main.messageManager.log("Denied Message: " + Region.deniedMessage, MessageLevel.CONFIG);
-        
+
         Main.loadServerDefault();
-        
+
         Index.worlds.clear();
-        for (World world : plugin.getServer().getWorlds())
+        for (final World world : Main.plugin.getServer().getWorlds())
             new Index(world);
     }
-    
+
     public static boolean loadServerDefault() {
-        ConfigurationNode entry = Main.configurationFile.getConfiguration().getNode("DEFAULT");
+        final ConfigurationSection entry = Main.configurationFile.getConfig().getConfigurationSection("DEFAULT");
         if (entry == null) {
             Index.serverDefault = null;
             return true;
         }
-        
-        Region region = new Region(entry.getBoolean("active", false), new HashSet<String>(entry.getStringList("access", null)));
+
+        final Region region = new Region(entry.getBoolean("active", false), new HashSet<String>(entry.getStringList("access")));
         if (!Index.add(region)) {
             Main.messageManager.log("Unable to add " + Region.SERVER_DEFAULT_DISPLAY + " " + Region.NAME_DEFAULT_DISLAY + " region.", MessageLevel.WARNING);
             return false;
         }
-        
+
         Main.messageManager.log(region.describe(3), MessageLevel.FINEST);
         return true;
     }
-    
+
     public static int loadRegions(final World world) {
         if (!Main.worldFiles.containsKey(world)) {
-            Main.worldFiles.put(world, new ConfigurationFile(Main.plugin, WORLD_SPECIFICS + "/" + world.getName() + ".yml"));
+            Main.worldFiles.put(world, new ConfigurationFile(Main.plugin, Main.WORLD_SPECIFICS + "/" + world.getName() + ".yml"));
         } else {
             Main.worldFiles.get(world).load();
         }
-        
-        Configuration cfg = Main.worldFiles.get(world).getConfiguration();
-        List<String> regions = cfg.getKeys();
+
+        final FileConfiguration cfg = Main.worldFiles.get(world).getConfig();
+        final Set<String> regions = cfg.getKeys(false);
         if (regions == null || regions.size() == 0) {
             Main.messageManager.log("No regions defined for [" + world.getName() + "]", MessageLevel.CONFIG);
             return 0;
         }
-        
-        for (String key : regions) {
-            Region region = new Region(
+
+        for (final String key : regions) {
+            final Region region = new Region(
                       world
                     , (key.equals(Region.NAME_DEFAULT) ? null : key)
-                    , cfg.getNode(key).getBoolean("active", false)
-                    , cfg.getNode(key).getInt("x1", 0)
-                    , cfg.getNode(key).getInt("x2", 0)
-                    , cfg.getNode(key).getInt("y1", 0)
-                    , cfg.getNode(key).getInt("y2", 0)
-                    , cfg.getNode(key).getInt("z1", 0)
-                    , cfg.getNode(key).getInt("z2", 0)
-                    , new HashSet<String>(cfg.getNode(key).getStringList("owners", null))
-                    , new HashSet<String>(cfg.getNode(key).getStringList("access", null))
-                    , cfg.getNode(key).getString("enter", null)
-                    , cfg.getNode(key).getString("exit", null)
+                    , cfg.getConfigurationSection(key).getBoolean("active", false)
+                    , cfg.getConfigurationSection(key).getInt("x1", 0)
+                    , cfg.getConfigurationSection(key).getInt("x2", 0)
+                    , cfg.getConfigurationSection(key).getInt("y1", 0)
+                    , cfg.getConfigurationSection(key).getInt("y2", 0)
+                    , cfg.getConfigurationSection(key).getInt("z1", 0)
+                    , cfg.getConfigurationSection(key).getInt("z2", 0)
+                    , new HashSet<String>(cfg.getConfigurationSection(key).getStringList("owners"))
+                    , new HashSet<String>(cfg.getConfigurationSection(key).getStringList("access"))
+                    , cfg.getConfigurationSection(key).getString("enter", null)
+                    , cfg.getConfigurationSection(key).getString("exit", null)
             );
             if (Index.add(region)) {
                 Main.messageManager.log(region.describe(3), MessageLevel.FINEST);
@@ -129,48 +129,48 @@ public final class Main extends JavaPlugin {
                 Main.messageManager.log("Unable to add [" + region.getWorld().getName() + "] " + region.getDisplayName() + " region.", MessageLevel.WARNING);
             }
         }
-        
-        int count = Index.worlds.get(world).regions.size();
+
+        final int count = Index.worlds.get(world).regions.size();
         Main.messageManager.log("Loaded " + count + " regions for [" + world.getName() + "]", MessageLevel.CONFIG);
         return count;
     }
-    
+
     public static void saveRegion(final Region region, final boolean immediate) {
         ConfigurationFile file = Main.configurationFile;
         if (region.getWorld() != null)
             file = Main.worldFiles.get(region.getWorld());
-        
-        Configuration cfg = file.getConfiguration();
-        String regionName = (region.getName() == null ? Region.NAME_DEFAULT : region.getName());
-        
-        cfg.setProperty(regionName + ".active", region.isActive());
-        cfg.setProperty(regionName + ".access", region.access.formatAllowed());
+
+        final FileConfiguration cfg = file.getConfig();
+        final String regionName = (region.getName() == null ? Region.NAME_DEFAULT : region.getName());
+
+        cfg.set(regionName + ".active", region.isActive());
+        cfg.set(regionName + ".access", region.access.formatAllowed());
         if (!region.isDefault()) {
-            cfg.setProperty(regionName + ".owners", region.access.formatOwners());
-            cfg.setProperty(regionName + ".enter", (region.enter == null ? null : region.enter.getFormat()));
-            cfg.setProperty(regionName + ".exit", (region.exit == null ? null : region.exit.getFormat()));
-            cfg.setProperty(regionName + ".x1", region.getX1());
-            cfg.setProperty(regionName + ".x2", region.getX2());
-            cfg.setProperty(regionName + ".y1", region.getY1());
-            cfg.setProperty(regionName + ".y2", region.getY2());
-            cfg.setProperty(regionName + ".z1", region.getZ1());
-            cfg.setProperty(regionName + ".z2", region.getZ2());
+            cfg.set(regionName + ".owners", region.access.formatOwners());
+            cfg.set(regionName + ".enter", (region.enter == null ? null : region.enter.getFormat()));
+            cfg.set(regionName + ".exit", (region.exit == null ? null : region.exit.getFormat()));
+            cfg.set(regionName + ".x1", region.getX1());
+            cfg.set(regionName + ".x2", region.getX2());
+            cfg.set(regionName + ".y1", region.getY1());
+            cfg.set(regionName + ".y2", region.getY2());
+            cfg.set(regionName + ".z1", region.getZ1());
+            cfg.set(regionName + ".z2", region.getZ2());
         }
-        
+
         file.save(immediate);
     }
-    
+
     public static void deleteRegion(final Region region, final boolean immediate) {
         ConfigurationFile file = Main.configurationFile;
         if (region.getWorld() != null)
             file = Main.worldFiles.get(region.getWorld());
-        
-        String regionName = (region.getName() == null ? Region.NAME_DEFAULT : region.getName());
-        file.getConfiguration().removeProperty(regionName);
-        
+
+        final String regionName = (region.getName() == null ? Region.NAME_DEFAULT : region.getName());
+        file.getConfig().set(regionName, null);
+
         file.save(immediate);
     }
-    
+
     /**
      * Determine if player is allowed to manipulate the target location based
      * on region configuration.<br>
@@ -179,7 +179,7 @@ public final class Main extends JavaPlugin {
      *     = true if no active region applies and the world default region allows access to the player<br>
      *     = true if no active region applies and no world default region applies and the server default region allows access to the player<br>
      *     = false otherwise
-     * 
+     *
      * @param player player to check access for
      * @param target block to determine if player has access to
      * @return true if player has access, otherwise false
@@ -187,7 +187,7 @@ public final class Main extends JavaPlugin {
     public static boolean isAllowed(final Player player, final Location target) {
         return Main.isAllowed(player.getName(), target);
     }
-    
+
     /**
      * Determine if player is allowed to manipulate the target location based
      * on region configuration.<br>
@@ -196,46 +196,46 @@ public final class Main extends JavaPlugin {
      *     = true if no active region applies and the world default region allows access to the player<br>
      *     = true if no active region applies and no world default region applies and the server default region allows access to the player<br>
      *     = false otherwise
-     * 
+     *
      * @param name player name to check access for
      * @param target block to determine if player has access to
      * @return true if player has access, otherwise false
      */
     public static boolean isAllowed(final String name, final Location target) {
         boolean found = false;
-        
+
         // Check loaded regions.
-        for (Region region : Index.getChunkRegions(target))
+        for (final Region region : Index.getChunkRegions(target))
             if (region.contains(target)) {
                 if (region.access.isAllowed(name)) return true;
                 found = true;
             }
-        
+
         // If at least one loaded region was found, that indicates all applicable regions would have been found in loaded.
         if (found) return false;
-        
+
         // Check all regions only if chunk is not loaded at target.
         // Slightly redundant in checking loaded regions again, but this should be a rare edge case.
         if (!target.getWorld().isChunkLoaded(target.getBlockX() >> 4, target.getBlockZ() >> 4)) {
-            for (Region region : Index.worlds.get(target.getWorld()).regions.values())
+            for (final Region region : Index.worlds.get(target.getWorld()).regions.values())
                 if (region.isActive() && region.contains(target)) {
                     if (region.access.isAllowed(name)) return true;
                     found = true;
                 }
-            
+
             // If we found at least one applicable unloaded region, do not check default regions.
             if (found) return false;
         }
-        
+
         // Check world default region only if no other regions apply.
-        Region worldDefault = Index.worlds.get(target.getWorld()).worldDefault;
+        final Region worldDefault = Index.worlds.get(target.getWorld()).worldDefault;
         if (worldDefault != null && worldDefault.isActive())
             return Index.worlds.get(target.getWorld()).worldDefault.access.isAllowed(name);
-        
+
         // Check server default region only if no other regions apply and there is no world default region.
         if (Index.serverDefault != null && Index.serverDefault.isActive())
             return Index.serverDefault.access.isAllowed(name);
-        
+
         return false;
     }
 }

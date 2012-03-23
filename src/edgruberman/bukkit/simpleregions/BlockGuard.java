@@ -1,5 +1,7 @@
 package edgruberman.bukkit.simpleregions;
 
+import java.util.logging.Level;
+
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -10,7 +12,10 @@ import edgruberman.bukkit.messagemanager.MessageLevel;
 
 final class BlockGuard implements Listener {
 
+    private final Plugin plugin;
+
     BlockGuard(final Plugin plugin) {
+        this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
@@ -24,13 +29,12 @@ final class BlockGuard implements Listener {
         if (Region.deniedMessage != null)
             Main.messageManager.send(event.getPlayer(), Region.deniedMessage, MessageLevel.SEVERE);
 
-        Main.messageManager.log(
+        this.plugin.getLogger().log(Level.FINE,
                 "Cancelled " + event.getPlayer().getName() + " attempting to break a " + event.getBlock().getType().name()
                     + " in \"" + event.getPlayer().getWorld().getName() + "\""
                     + " at x:" + event.getBlock().getX()
                     + " y:" + event.getBlock().getY()
                     + " z:" + event.getBlock().getZ()
-                , MessageLevel.FINE
         );
     }
 
@@ -44,13 +48,12 @@ final class BlockGuard implements Listener {
         if (Region.deniedMessage != null)
             Main.messageManager.send(event.getPlayer(), Region.deniedMessage, MessageLevel.SEVERE);
 
-        Main.messageManager.log(
+        this.plugin.getLogger().log(Level.FINE,
                 "Cancelled " + event.getPlayer().getName() + " attempting to place a " + event.getBlock().getType().name()
                     + " in \"" + event.getPlayer().getWorld().getName() + "\""
                     + " at x:" + event.getBlock().getX()
                     + " y:" + event.getBlock().getY()
                     + " z:" + event.getBlock().getZ()
-                , MessageLevel.FINE
         );
     }
 

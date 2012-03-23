@@ -12,28 +12,28 @@ import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Permission;
 
 public class RegionDefine extends Action {
-    
+
     public static final String NAME = "define";
-    
+
     RegionDefine(final Command owner) {
         super(owner, RegionDefine.NAME, Permission.REGION_DEFINE);
     }
-    
+
     @Override
     void execute(final Context context) {
-        edgruberman.bukkit.simpleregions.Region region = Region.parseRegion(context);
+        final edgruberman.bukkit.simpleregions.Region region = Region.parseRegion(context);
         if (region == null || region.isDefault()) {
-            Main.messageManager.respond(context.sender, "Unable to determine region.", MessageLevel.SEVERE, false);
+            Main.messageManager.tell(context.sender, "Unable to determine region.", MessageLevel.SEVERE, false);
             return;
         }
-        
-        List<String> parameters = context.arguments.subList(context.actionIndex + 1, context.arguments.size());
+
+        final List<String> parameters = context.arguments.subList(context.actionIndex + 1, context.arguments.size());
         Block block = null;
         if (context.player != null) block = context.player.getTargetBlock((HashSet<Byte>) null, 100);
-        
+
         if (parameters.size() == 0) {
-            if (block == null) {        
-                Main.messageManager.respond(context.sender, "Unable to determine target block.", MessageLevel.WARNING, false);
+            if (block == null) {
+                Main.messageManager.tell(context.sender, "Unable to determine target block.", MessageLevel.WARNING, false);
                 return;
             }
 
@@ -53,9 +53,9 @@ public class RegionDefine extends Action {
                 region.setY2(block.getY());
                 region.setZ2(block.getZ());
             }
-            
+
         } else {
-            String type = parameters.get(0).toUpperCase();
+            final String type = parameters.get(0).toUpperCase();
             if (Arrays.asList("1", "2", "N", "E", "S", "W", "U", "D").contains(type)) {
                 if (type.equals("1")) {
                     region.setX1(block.getX());
@@ -72,20 +72,20 @@ public class RegionDefine extends Action {
                 } else if (type.equals("U")) { region.setU(block.getY());
                 } else if (type.equals("D")) { region.setD(block.getY());
                 }
-                
+
             } else {
                 if (!parameters.get(0).contains(":")) {
-                    Main.messageManager.respond(context.sender, "Parameters must be recognizable key:value pairs.", MessageLevel.SEVERE, false);
+                    Main.messageManager.tell(context.sender, "Parameters must be recognizable key:value pairs.", MessageLevel.SEVERE, false);
                     return;
                 }
-                
+
                 // First parameter contains a colon, so look through the rest for more coordinates also.
                 String key; int value;
-                for (String coord : parameters) {
+                for (final String coord : parameters) {
                     if (!coord.contains(":")) continue;
-                    
+
                     if (!Region.isInteger(coord.split(":")[1])) continue;
-                    
+
                     value = Integer.parseInt(coord.split(":")[1]);
                     key = coord.split(":")[0].toLowerCase();
                          if (key.equals("x1")) { region.setX1(value); }
@@ -103,29 +103,29 @@ public class RegionDefine extends Action {
                 }
             }
         }
-        
+
         Main.saveRegion(region, false);
-        
+
         // Show configuration of region after update.
         RegionDetail.describe(context, region);
-        Main.messageManager.respond(context.sender, region.describeArea() + "\n" + region.describeVolume(), MessageLevel.CONFIG, false);
-        Main.messageManager.respond(context.sender, "Region coordinate definition updated.", MessageLevel.STATUS, false);
-        
+        Main.messageManager.tell(context.sender, region.describeArea() + "\n" + region.describeVolume(), MessageLevel.CONFIG, false);
+        Main.messageManager.tell(context.sender, "Region coordinate definition updated.", MessageLevel.STATUS, false);
+
         return;
     }
-    
+
     // Command Syntax: /region create[ <World>] <Region>
     static World parseWorld(final Context context) {
         // Assume player's world if not specified.
         if (context.arguments.size() <= 2) {
             if (context.player == null) return null;
-            
+
             return context.player.getWorld();
         }
-        
-        String name = context.arguments.get(context.actionIndex + 1);
+
+        final String name = context.arguments.get(context.actionIndex + 1);
         if (name.equals(edgruberman.bukkit.simpleregions.Region.SERVER_DEFAULT)) return null;
-        
+
         return context.owner.plugin.getServer().getWorld(name);
     }
 }

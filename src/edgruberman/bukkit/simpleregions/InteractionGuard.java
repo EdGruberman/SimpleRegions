@@ -3,6 +3,7 @@ package edgruberman.bukkit.simpleregions;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -30,7 +31,10 @@ final class InteractionGuard implements Listener {
         , Material.FLINT_AND_STEEL
     }));
 
+    private final Plugin plugin;
+
     public InteractionGuard(final Plugin plugin) {
+        this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
@@ -52,14 +56,13 @@ final class InteractionGuard implements Listener {
         if (Region.deniedMessage != null)
             Main.messageManager.send(event.getPlayer(), Region.deniedMessage, MessageLevel.SEVERE);
 
-        Main.messageManager.log(
+        this.plugin.getLogger().log(Level.FINE,
                 "Cancelled " + event.getPlayer().getName() + " attempting to interact"
                     + " with a " + event.getPlayer().getItemInHand().getType().name()
                     + " in \"" + event.getPlayer().getWorld().getName() + "\""
                     + " at x:" + event.getClickedBlock().getX()
                     + " y:" + event.getClickedBlock().getY()
                     + " z:" + event.getClickedBlock().getZ()
-                , MessageLevel.FINE
         );
     }
 
@@ -75,7 +78,7 @@ final class InteractionGuard implements Listener {
         if (Region.deniedMessage != null)
             Main.messageManager.send(event.getPlayer(), Region.deniedMessage, MessageLevel.SEVERE);
 
-        Main.messageManager.log(
+        this.plugin.getLogger().log(Level.FINE,
                 "Cancelled " + event.getPlayer().getName() + " attempting to interact"
                     + " with a " + event.getRightClicked().getClass().getName() + " entity"
                     + " holding a " + event.getPlayer().getItemInHand().getType().name()
@@ -83,7 +86,6 @@ final class InteractionGuard implements Listener {
                     + " at x:" + event.getRightClicked().getLocation().getBlockX()
                     + " y:" + event.getRightClicked().getLocation().getBlockY()
                     + " z:" + event.getRightClicked().getLocation().getBlockZ()
-                , MessageLevel.FINE
         );
     }
 
@@ -100,14 +102,13 @@ final class InteractionGuard implements Listener {
         if (Region.deniedMessage != null)
             Main.messageManager.send(event.getPlayer(), Region.deniedMessage, MessageLevel.SEVERE);
 
-        Main.messageManager.log(
+        this.plugin.getLogger().log(Level.FINE,
                 "Cancelled " + event.getPlayer().getName() + " attempting to empty"
                     + " a " + event.getBucket().name()
                     + " in \"" + event.getPlayer().getWorld().getName() + "\""
                     + " at x:" + target.getX()
                     + " y:" + target.getY()
                     + " z:" + target.getZ()
-                , MessageLevel.FINE
         );
     }
 
@@ -124,14 +125,13 @@ final class InteractionGuard implements Listener {
         if (Region.deniedMessage != null)
             Main.messageManager.send(event.getPlayer(), Region.deniedMessage, MessageLevel.SEVERE);
 
-        Main.messageManager.log(
+        this.plugin.getLogger().log(Level.FINE,
                 "Cancelled " + event.getPlayer().getName() + " attempting to fill"
                     + " a " + event.getBucket().name()
                     + " in \"" + event.getPlayer().getWorld().getName() + "\""
                     + " at x:" + target.getX()
                     + " y:" + target.getY()
                     + " z:" + target.getZ()
-                , MessageLevel.FINE
         );
     }
 

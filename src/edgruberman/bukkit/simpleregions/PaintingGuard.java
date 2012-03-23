@@ -1,5 +1,7 @@
 package edgruberman.bukkit.simpleregions;
 
+import java.util.logging.Level;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,7 +15,10 @@ import edgruberman.bukkit.messagemanager.MessageLevel;
 
 final class PaintingGuard implements Listener {
 
+    private final Plugin plugin;
+
     PaintingGuard(final Plugin plugin) {
+        this.plugin = plugin;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
@@ -33,13 +38,12 @@ final class PaintingGuard implements Listener {
         if (Region.deniedMessage != null)
             Main.messageManager.send(player, Region.deniedMessage, MessageLevel.SEVERE);
 
-        Main.messageManager.log(
+        this.plugin.getLogger().log(Level.FINE,
                 "Cancelled " + player.getName() + " attempting to break a painting"
                     + " in \"" + player.getWorld().getName() + "\""
                     + " at x:" + event.getPainting().getLocation().getBlockX()
                     + " y:" + event.getPainting().getLocation().getBlockY()
                     + " z:" + event.getPainting().getLocation().getBlockZ()
-                , MessageLevel.FINE
         );
     }
 
@@ -53,13 +57,12 @@ final class PaintingGuard implements Listener {
         if (Region.deniedMessage != null)
             Main.messageManager.send(event.getPlayer(), Region.deniedMessage, MessageLevel.SEVERE);
 
-        Main.messageManager.log(
+        this.plugin.getLogger().log(Level.FINE,
                 "Cancelled " + event.getPlayer().getName() + " attempting to place a painting"
                     + " in \"" + event.getPlayer().getWorld().getName() + "\""
                     + " at x:" + event.getBlock().getX()
                     + " y:" + event.getBlock().getY()
                     + " z:" + event.getBlock().getZ()
-                , MessageLevel.FINE
         );
     }
 }

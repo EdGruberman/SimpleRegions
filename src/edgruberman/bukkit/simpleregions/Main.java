@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Handler;
+import java.util.logging.Level;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -34,19 +36,20 @@ public final class Main extends JavaPlugin {
     public static MessageManager messageManager;
     public static ConfigurationFile configurationFile;
 
-    private static Plugin plugin;
+    public static Plugin plugin;
+
     private static Map<World, ConfigurationFile> worldFiles = new HashMap<World, ConfigurationFile>();
 
     @Override
-    public void onLoad() {
-        Main.messageManager = new MessageManager(this);
-        Main.configurationFile = new ConfigurationFile(this, 10);
-        Main.plugin = this;
-    }
-
-    @Override
     public void onEnable() {
-        Main.loadConfiguration(false);
+        Main.configurationFile = new ConfigurationFile(this, 10);
+        Main.configurationFile.load();
+        this.setLoggingLevel();
+
+        Main.messageManager = new MessageManager(this);
+
+        Main.plugin = this;
+        Main.configure(false);
 
         new IndexPublisher(this);
         new BlockGuard(this);
@@ -62,12 +65,25 @@ public final class Main extends JavaPlugin {
         if (Main.configurationFile.isSaveQueued()) Main.configurationFile.save();
     }
 
-    public static void loadConfiguration(final boolean reload) {
+    private void setLoggingLevel() {
+        final String name = Main.configurationFile.getConfig().getString("logLevel", "INFO");
+        Level level = MessageLevel.parse(name);
+        if (level == null) level = Level.INFO;
+
+        // Only set the parent handler lower if necessary, otherwise leave it alone for other configurations that have set it.
+        for (final Handler h : this.getLogger().getParent().getHandlers())
+            if (h.getLevel().intValue() > level.intValue()) h.setLevel(level);
+
+        this.getLogger().setLevel(level);
+        this.getLogger().log(Level.CONFIG, "Logging level set to: " + this.getLogger().getLevel());
+    }
+
+    public static void configure(final boolean reload) {
         FileConfiguration config = Main.configurationFile.getConfig();
         if (reload) config = Main.configurationFile.load();
 
         Region.deniedMessage = config.getString("deniedMessage", null);
-        Main.messageManager.log("Denied Message: " + Region.deniedMessage, MessageLevel.CONFIG);
+        Main.plugin.getLogger().log(Level.CONFIG, "Denied Message: " + Region.deniedMessage);
 
         Main.loadServerDefault();
 
@@ -85,11 +101,11 @@ public final class Main extends JavaPlugin {
 
         final Region region = new Region(entry.getBoolean("active", false), new HashSet<String>(entry.getStringList("access")));
         if (!Index.add(region)) {
-            Main.messageManager.log("Unable to add " + Region.SERVER_DEFAULT_DISPLAY + " " + Region.NAME_DEFAULT_DISLAY + " region.", MessageLevel.WARNING);
+            Main.plugin.getLogger().log(Level.WARNING, "Unable to add " + Region.SERVER_DEFAULT_DISPLAY + " " + Region.NAME_DEFAULT_DISLAY + " region.");
             return false;
         }
 
-        Main.messageManager.log(region.describe(3), MessageLevel.FINEST);
+        Main.plugin.getLogger().log(Level.FINEST, region.describe(3));
         return true;
     }
 
@@ -103,7 +119,7 @@ public final class Main extends JavaPlugin {
         final FileConfiguration cfg = Main.worldFiles.get(world).getConfig();
         final Set<String> regions = cfg.getKeys(false);
         if (regions == null || regions.size() == 0) {
-            Main.messageManager.log("No regions defined for [" + world.getName() + "]", MessageLevel.CONFIG);
+            Main.plugin.getLogger().log(Level.CONFIG, "No regions defined for [" + world.getName() + "]");
             return 0;
         }
 
@@ -124,14 +140,14 @@ public final class Main extends JavaPlugin {
                     , cfg.getConfigurationSection(key).getString("exit", null)
             );
             if (Index.add(region)) {
-                Main.messageManager.log(region.describe(3), MessageLevel.FINEST);
+                Main.plugin.getLogger().log(Level.FINEST, region.describe(3));
             } else {
-                Main.messageManager.log("Unable to add [" + region.getWorld().getName() + "] " + region.getDisplayName() + " region.", MessageLevel.WARNING);
+                Main.plugin.getLogger().log(Level.WARNING, "Unable to add [" + region.getWorld().getName() + "] " + region.getDisplayName() + " region.");
             }
         }
 
         final int count = Index.worlds.get(world).regions.size();
-        Main.messageManager.log("Loaded " + count + " regions for [" + world.getName() + "]", MessageLevel.CONFIG);
+        Main.plugin.getLogger().log(Level.CONFIG, "Loaded " + count + " regions for [" + world.getName() + "]");
         return count;
     }
 

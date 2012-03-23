@@ -2,18 +2,17 @@ package edgruberman.bukkit.simpleregions.commands;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import edgruberman.bukkit.messagemanager.MessageLevel;
-import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.java.CaseInsensitiveString;
 
 class Context {
-    
+
     Command owner;
     CommandSender sender;
     Player player;
@@ -21,17 +20,17 @@ class Context {
     String line;
     Action action;
     int actionIndex = -1;
-    
+
     /**
      * Command line split using double quotes to distinguish single arguments.
      */
     List<String> arguments;
-    
+
     /**
      * Groupings found according to action's regular expression pattern.
      */
     List<String> matches;
-    
+
     Context(final Command owner, final CommandSender sender, final org.bukkit.command.Command command
             , final String label, final String[] args) {
         this.owner = owner;
@@ -42,15 +41,15 @@ class Context {
         this.arguments = Context.parseArguments(args);
         this.owner.parseAction(this);
         this.matches = this.parseMatches();
-        
-        Main.messageManager.log("Command Context for " + this.label + "; Arguments: " + this.arguments + "; Action: " + (this.action != null ? this.action.name : null) + "; Matches: " + this.matches, MessageLevel.FINEST);
+
+        this.owner.command.getPlugin().getLogger().log(Level.FINEST, "Command Context for " + this.label + "; Arguments: " + this.arguments + "; Action: " + (this.action != null ? this.action.name : null) + "; Matches: " + this.matches);
     }
-    
+
     /**
      * Parse arguments looking at last possible index first to find action name
      * match (case insensitive).</br>
      * /&lt;command&gt;[[ &lt;Parameters[0...last]&gt;] &lt;Action&gt;])
-     * 
+     *
      * @param last last argument index that can contain action
      */
     void parseAction(final int last) {
@@ -58,45 +57,45 @@ class Context {
             this.action = this.owner.actions.get(new CaseInsensitiveString(this.arguments.get(this.actionIndex)));
             if (this.action != null) break;
         }
-        
+
         if (this.action == null) {
             this.actionIndex = -1;
             this.action = this.owner.defaultAction;
         }
     }
-    
+
     private Player parsePlayer() {
         if (!(this.sender instanceof Player)) return null;
-        
+
         return (Player) this.sender;
     }
-    
+
     private List<String> parseMatches() {
-        List<String> matches = new ArrayList<String>();
+        final List<String> matches = new ArrayList<String>();
         if (this.action == null || this.action.pattern == null)
             return matches;
-        
-        Pattern p = Pattern.compile(this.action.pattern);
-        Matcher m = p.matcher(this.line);
+
+        final Pattern p = Pattern.compile(this.action.pattern);
+        final Matcher m = p.matcher(this.line);
         if (m.find())
             for (int i = 1; i <= m.groupCount(); i++)
                 matches.add(m.group(i));
-        
+
         return matches;
     }
-    
+
     /**
      * Concatenate arguments to compensate for double quotes indicating single
      * argument, removing any delimiting double quotes.
-     *  
+     *
      * @return arguments
      * @TODO use / for escaping double quote characters
      */
-    private static List<String> parseArguments(String[] args) {
-        List<String> arguments = new ArrayList<String>();
-        
+    private static List<String> parseArguments(final String[] args) {
+        final List<String> arguments = new ArrayList<String>();
+
         String previous = null;
-        for (String arg : args) {
+        for (final String arg : args) {
             if (previous != null) {
                 if (arg.endsWith("\"")) {
                     arguments.add(Context.stripDoubleQuotes(previous + " " + arg));
@@ -114,17 +113,17 @@ class Context {
             }
         }
         if (previous != null) arguments.add(Context.stripDoubleQuotes(previous));
-        
+
         return arguments;
     }
-    
+
     private static String stripDoubleQuotes(final String s) {
         return Context.stripDelimiters(s, "\"");
     }
-    
+
     private static String stripDelimiters(final String s, final String delim) {
         if (!s.startsWith(delim) || !s.endsWith(delim)) return s;
-        
+
         return s.substring(1, s.length() - 1);
     }
 }

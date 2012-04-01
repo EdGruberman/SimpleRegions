@@ -50,7 +50,11 @@ final class InteractionGuard implements Listener {
                 && !InteractionGuard.DENIED_ITEMS.contains(event.getPlayer().getItemInHand().getType())
         ) return;
 
-        if (Main.isAllowed(event.getPlayer(), event.getClickedBlock().getLocation())) return;
+        Block clicked = event.getClickedBlock();
+        if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_AIR)
+            clicked = event.getPlayer().getTargetBlock(new HashSet<Byte>(), 1);
+
+        if (Main.isAllowed(event.getPlayer(), clicked.getLocation())) return;
 
         event.setCancelled(true);
         if (Region.deniedMessage != null)
@@ -60,9 +64,9 @@ final class InteractionGuard implements Listener {
                 "Cancelled " + event.getPlayer().getName() + " attempting to interact"
                     + " with a " + event.getPlayer().getItemInHand().getType().name()
                     + " in \"" + event.getPlayer().getWorld().getName() + "\""
-                    + " at x:" + event.getClickedBlock().getX()
-                    + " y:" + event.getClickedBlock().getY()
-                    + " z:" + event.getClickedBlock().getZ()
+                    + " at x:" + clicked.getX()
+                    + " y:" + clicked.getY()
+                    + " z:" + clicked.getZ()
         );
     }
 

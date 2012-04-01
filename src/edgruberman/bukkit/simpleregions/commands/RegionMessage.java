@@ -44,7 +44,7 @@ public class RegionMessage extends Action {
             Main.messageManager.tell(context.sender, "Region " + operation + " format set.", MessageLevel.STATUS, false);
         }
 
-        Main.messageManager.tell(context.sender, "Region " + operation + " format: " + message.getFormat().replace("&", "&&")
-                + "\nRegion " + operation + " message: " + message.formatted, MessageLevel.CONFIG, false);
+        Main.messageManager.tell(context.sender, "Region " + operation + " format: " + message.getFormat().replace("&", "&&"), MessageLevel.CONFIG, false);
+        Main.messageManager.tell(context.sender, "Region " + operation + " message: " + message.formatted, MessageLevel.CONFIG, false);
     }
 }

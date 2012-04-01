@@ -108,7 +108,8 @@ public class RegionDefine extends Action {
 
         // Show configuration of region after update.
         RegionDetail.describe(context, region);
-        Main.messageManager.tell(context.sender, region.describeArea() + "\n" + region.describeVolume(), MessageLevel.CONFIG, false);
+        Main.messageManager.tell(context.sender, region.describeArea(), MessageLevel.CONFIG, false);
+        Main.messageManager.tell(context.sender, region.describeVolume(), MessageLevel.CONFIG, false);
         Main.messageManager.tell(context.sender, "Region coordinate definition updated.", MessageLevel.STATUS, false);
 
         return;

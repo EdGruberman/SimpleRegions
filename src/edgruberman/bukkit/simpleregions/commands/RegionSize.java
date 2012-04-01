@@ -26,6 +26,8 @@ public class RegionSize extends Action {
             return;
         }
 
-        Main.messageManager.tell(context.sender, "-- Region size for " + region.getDisplayName() + ":\n" + region.describeArea() + "\n" + region.describeVolume(), MessageLevel.CONFIG, false);
+        Main.messageManager.tell(context.sender, "-- Region size for " + region.getDisplayName() + ":", MessageLevel.CONFIG, false);
+        Main.messageManager.tell(context.sender, region.describeArea(), MessageLevel.CONFIG, false);
+        Main.messageManager.tell(context.sender, region.describeVolume(), MessageLevel.CONFIG, false);
     }
 }

@@ -34,7 +34,8 @@ public class RegionDetail extends Action {
     }
 
     static void describe(final Context context, final edgruberman.bukkit.simpleregions.Region region, final Integer format) {
-        Main.messageManager.tell(context.sender, region.describe(format), MessageLevel.CONFIG, false);
+        for (final String line : region.describe(format).split("\n"))
+            Main.messageManager.tell(context.sender, line, MessageLevel.CONFIG, false);
 
         if (!(context.sender.hasPermission(Permission.REGION_DEFINE.toString()) || (context.player != null && region.access.isOwner(context.player))))
             return;

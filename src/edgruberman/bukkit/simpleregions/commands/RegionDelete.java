@@ -34,11 +34,15 @@ public class RegionDelete extends Action {
         if (!confirmed) {
             RegionDetail.describe(context, region);
             Main.messageManager.tell(context.sender
-                , "Are you sure you wish to delete the " + region.getDisplayName() + " region?\n"
-                    + "To confirm: /" + context.owner.name + " " + region.getDisplayName() + " " + RegionDelete.NAME + " yes"
+                , "Are you sure you wish to delete the " + region.getDisplayName() + " region?"
                 , MessageLevel.WARNING
                 , false
             );
+            Main.messageManager.tell(context.sender
+                    , "To confirm: /" + context.owner.name + " " + region.getDisplayName() + " " + RegionDelete.NAME + " yes"
+                    , MessageLevel.WARNING
+                    , false
+                );
             return;
         }
 

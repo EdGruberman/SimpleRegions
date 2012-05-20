@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import edgruberman.bukkit.accesscontrol.AccountManager;
 import edgruberman.bukkit.messagemanager.MessageLevel;
 import edgruberman.bukkit.messagemanager.MessageManager;
 
@@ -38,6 +39,8 @@ public final class Main extends JavaPlugin {
 
     public static Plugin plugin;
 
+    static AccountManager security;
+
     private static Map<World, ConfigurationFile> worldFiles = new HashMap<World, ConfigurationFile>();
 
     @Override
@@ -49,6 +52,7 @@ public final class Main extends JavaPlugin {
         Main.messageManager = new MessageManager(this);
 
         Main.plugin = this;
+        Main.security = AccountManager.get();
         Main.configure(false);
 
         new IndexPublisher(this);
@@ -254,4 +258,5 @@ public final class Main extends JavaPlugin {
 
         return false;
     }
+
 }

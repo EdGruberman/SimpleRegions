@@ -1,4 +1,4 @@
-package edgruberman.java;
+package edgruberman.bukkit.simpleregions.util;
 
 /**
  * Avoid processing overhead of formatting a string on each reference

@@ -11,7 +11,7 @@ import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.plugin.Plugin;
 
-import edgruberman.bukkit.ChunkCoordinates;
+import edgruberman.bukkit.simpleregions.util.ChunkCoordinates;
 
 /**
  * Manages world region index updates.

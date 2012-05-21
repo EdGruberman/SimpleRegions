@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import edgruberman.java.CaseInsensitiveString;
+import edgruberman.bukkit.simpleregions.util.CaseInsensitiveString;
 
 class Context {
 

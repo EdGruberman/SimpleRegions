@@ -12,7 +12,7 @@ import java.util.logging.Level;
 import org.bukkit.Location;
 import org.bukkit.World;
 
-import edgruberman.bukkit.ChunkCoordinates;
+import edgruberman.bukkit.simpleregions.util.ChunkCoordinates;
 
 /**
  * Region to world reference which also correlates loaded chunks to active regions.

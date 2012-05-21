@@ -1,4 +1,4 @@
-package edgruberman.bukkit;
+package edgruberman.bukkit.simpleregions.util;
 
 import java.text.DecimalFormat;
 /**

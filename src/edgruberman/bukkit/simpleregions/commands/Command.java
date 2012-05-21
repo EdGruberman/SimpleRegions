@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import edgruberman.bukkit.simpleregions.Permission;
-import edgruberman.java.CaseInsensitiveString;
+import edgruberman.bukkit.simpleregions.util.CaseInsensitiveString;
 
 abstract class Command  {
 

@@ -1,4 +1,4 @@
-package edgruberman.java;
+package edgruberman.bukkit.simpleregions.util;
 
 import java.util.Locale;
 

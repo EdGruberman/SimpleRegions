@@ -6,7 +6,7 @@ import java.util.Set;
 import org.bukkit.command.CommandSender;
 
 import edgruberman.bukkit.simpleregions.Permission;
-import edgruberman.java.CaseInsensitiveString;
+import edgruberman.bukkit.simpleregions.util.CaseInsensitiveString;
 
 abstract class Action {
     

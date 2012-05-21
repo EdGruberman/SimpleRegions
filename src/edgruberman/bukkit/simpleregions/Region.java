@@ -6,10 +6,10 @@ import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.World;
 
-import edgruberman.bukkit.CachingRectangularCuboid;
 import edgruberman.bukkit.accesscontrol.securables.SimpleAccessControlList;
-import edgruberman.java.CaseInsensitiveString;
-import edgruberman.java.FormattedString;
+import edgruberman.bukkit.simpleregions.util.CachingRectangularCuboid;
+import edgruberman.bukkit.simpleregions.util.CaseInsensitiveString;
+import edgruberman.bukkit.simpleregions.util.FormattedString;
 
 public final class Region extends CachingRectangularCuboid {
 

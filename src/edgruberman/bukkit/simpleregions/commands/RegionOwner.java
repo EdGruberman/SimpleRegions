@@ -8,7 +8,7 @@ import java.util.Set;
 import edgruberman.bukkit.messagemanager.MessageLevel;
 import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Permission;
-import edgruberman.java.CaseInsensitiveString;
+import edgruberman.bukkit.simpleregions.util.CaseInsensitiveString;
 
 public class RegionOwner extends Action {
 

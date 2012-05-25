@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import edgruberman.bukkit.messagemanager.MessageLevel;
-import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Permission;
 
 public class RegionSize extends Action {
@@ -13,21 +12,25 @@ public class RegionSize extends Action {
     public static final String NAME = "size";
     public static final Set<String> ALIASES = new HashSet<String>(Arrays.asList("volume", "vol", "area", "blocks"));
 
-    RegionSize(final Command owner) {
+    private final Region base;
+
+    RegionSize(final Region owner) {
         super(owner, RegionSize.NAME, Permission.REGION_SIZE);
+        this.base = owner;
         this.aliases.addAll(RegionSize.ALIASES);
     }
 
     @Override
     void execute(final Context context) {
-        final edgruberman.bukkit.simpleregions.Region region = Region.parseRegion(context);
+        final edgruberman.bukkit.simpleregions.Region region = this.base.parseRegion(context);
         if (region == null || region.isDefault()) {
-            Main.messageManager.tell(context.sender, "Unable to determine region.", MessageLevel.SEVERE, false);
+            context.respond("Unable to determine region", MessageLevel.SEVERE);
             return;
         }
 
-        Main.messageManager.tell(context.sender, "-- Region size for " + region.getDisplayName() + ":", MessageLevel.CONFIG, false);
-        Main.messageManager.tell(context.sender, region.describeArea(), MessageLevel.CONFIG, false);
-        Main.messageManager.tell(context.sender, region.describeVolume(), MessageLevel.CONFIG, false);
+        context.respond("-- Region size for " + region.getDisplayName() + ":", MessageLevel.CONFIG);
+        context.respond(region.describeArea(), MessageLevel.CONFIG);
+        context.respond(region.describeVolume(), MessageLevel.CONFIG);
     }
+
 }

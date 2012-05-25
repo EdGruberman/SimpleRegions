@@ -1,93 +1,72 @@
 package edgruberman.bukkit.simpleregions;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.bukkit.Location;
 import org.bukkit.World;
 
+import edgruberman.bukkit.accesscontrol.AccountManager;
 import edgruberman.bukkit.accesscontrol.securables.SimpleAccessControlList;
 import edgruberman.bukkit.simpleregions.util.CachingRectangularCuboid;
 import edgruberman.bukkit.simpleregions.util.CaseInsensitiveString;
+import edgruberman.bukkit.simpleregions.util.ChunkCoordinates;
 import edgruberman.bukkit.simpleregions.util.FormattedString;
 
 public final class Region extends CachingRectangularCuboid {
 
     private static final String DEFAULT_ENTER_FORMAT = "Entered region: %1$s"; // 1 = Region Name
     private static final String DEFAULT_EXIT_FORMAT  = "Exited region: %1$s";  // 1 = Region Name
-    private static final String DEFAULT_DENIED_MESSAGE = "No regions grant you access here.";
 
     public static final String SERVER_DEFAULT = "SERVER";
     public static final String NAME_DEFAULT = "DEFAULT";
     public static final String SERVER_DEFAULT_DISPLAY = "(SERVER)";
     public static final String NAME_DEFAULT_DISLAY = "(DEFAULT)";
 
-    static String deniedMessage = Region.DEFAULT_DENIED_MESSAGE;
-
-    private World world;
-    private CaseInsensitiveString name;
-    private boolean active = false;
+    public final World world;
+    public Index worldIndex = null;
     public FormattedString enter = null;
     public FormattedString exit = null;
-    public SimpleAccessControlList access = new SimpleAccessControlList(Main.security);
+    public SimpleAccessControlList access;
 
-    Region(final World world, final String name, final boolean active
-            , final Integer x1, final Integer x2, final Integer y1, final Integer y2, final Integer z1, final Integer z2
-            , final Set<String> owners, final Set<String> access
-            , final String enterFormat, final String exitFormat
-    ) {
-        this(world, name);
+    private CaseInsensitiveString name;
+    private boolean active = false;
 
-        super.setX1(x1); super.setX2(x2);
-        super.setY1(y1); super.setY2(y2);
-        super.setZ1(z1); super.setZ2(z2);
-
-        if (active && (this.isDefined() || this.getName() == null))
-            this.active = active;
-
-        if (owners != null)
-            for (final String owner : owners)
-                this.access.addOwner(owner);
-
-        if (access != null)
-            for (final String a : access)
-                this.access.grant(a);
-
-        if (enterFormat != null) this.enter.setFormat(enterFormat);
-        if (exitFormat != null) this.exit.setFormat(exitFormat);
-    }
-
-    /**
-     * Create incomplete region instance. Used to define a new region.
-     *
-     * @param name region name
-     */
-    public Region(final World world, final String name) {
-        super();
-
+    public Region(final AccountManager accountManager, final World world, final String name) {
         this.world = world;
         this.name = new CaseInsensitiveString(name);
-
+        this.access = new SimpleAccessControlList(accountManager);
         this.enter = new FormattedString(Region.DEFAULT_ENTER_FORMAT, this.name);
         this.exit = new FormattedString(Region.DEFAULT_EXIT_FORMAT, this.name);
     }
 
+    public Region(final AccountManager accountManager, final World world, final String name, final Collection<String> owners, final Collection<String> access) {
+        this(accountManager, world, name);
+        if (owners != null) for (final String o : owners) this.access.addOwner(o);
+        if (access != null) for (final String a : access) this.access.grant(a);
+    }
+
     /**
-     * Create a server default region.
-     *
-     * @param active
-     * @param access
+     * Create a world default region
      */
-    Region(final boolean active, final Set<String> access) {
-        this(null, null, active, null, null, null, null, null, null, null, access, null, null);
+    public Region(final AccountManager accountManager, final Collection<String> access, final World world) {
+        this(accountManager, world, null, null, access);
     }
 
-    public World getWorld() {
-        return this.world;
+    /**
+     * Create a server default region
+     */
+    public Region(final AccountManager accountManager, final Collection<String> access) {
+        this(accountManager, access, null);
     }
 
-    public void setWorld(final World world) {
-        this.world = world;
+    public void setCoords(final Integer x1, final Integer x2, final Integer y1, final Integer y2, final Integer z1, final Integer z2) {
+        this.x1 = x1; this.x2 = x2;
+        this.y1 = y1; this.y2 = y2;
+        this.z1 = z1; this.z2 = z2;
+        this.update();
     }
 
     public String getName() {
@@ -95,7 +74,7 @@ public final class Region extends CachingRectangularCuboid {
     }
 
     public String getDisplayName() {
-        if (this.getName() == null) return Region.NAME_DEFAULT_DISLAY;
+        if (this.isDefault()) return Region.NAME_DEFAULT_DISLAY;
 
         String display = this.getName();
         if (display.contains(" ")) display = "\"" + display + "\"";
@@ -103,37 +82,76 @@ public final class Region extends CachingRectangularCuboid {
         return display;
     }
 
-    public boolean contains(final Location loc) {
-        return this.contains(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-    }
-
-    public boolean isDefault() {
-        return (this.getWorld() != null ? this.equals(Index.worlds.get(this.getWorld()).worldDefault) : this.equals(Index.serverDefault));
-    }
-
     public boolean isActive() {
         return this.active;
     }
 
+    public boolean isDefault() {
+        return this.getName() == null;
+    }
+
+    @Override
+    public boolean isDefined() {
+        return this.isDefault() || super.isDefined();
+    }
+
     public boolean setActive(final boolean active) {
-        // Only set active to true if all coordinates supplied or it is a default region
-        if (!this.isDefined() && this.getName() != null) return false;
+        if (!this.isDefined()) return false;
 
         if (this.active == active) return true;
 
         this.active = active;
-
-        if (Index.exists(this)) {
-            Index.refresh(this);
-        } else {
-            Index.add(this);
-        }
+        this.refreshIndex();
         return true;
+    }
+
+    public boolean setName(final String name) {
+        if (this.worldIndex.regions.containsKey(name.toLowerCase())) return false;
+
+        this.name = new CaseInsensitiveString(name);
+        this.enter.setArgs(this.name.toString());
+        this.exit.setArgs(this.name.toString());
+
+        this.refreshIndex();
+        return true;
+    }
+
+    private void refreshIndex() {
+        if (this.worldIndex == null) return;
+
+        this.worldIndex.refresh(this);
+    }
+
+    @Override
+    protected void update() {
+        super.update();
+        this.refreshIndex();
+    }
+
+    public boolean contains(final Location loc) {
+        return this.contains(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+    }
+
+    /**
+     * Calculate list of chunks that contain at least one block of the region
+     *
+     * @param region region to calculate chunks for
+     * @return all chunk coordinates that contain a part of region
+     */
+    public List<ChunkCoordinates> chunks() {
+        if (!this.isDefined()) return Collections.<ChunkCoordinates>emptyList();
+
+        final List<ChunkCoordinates> coords = new ArrayList<ChunkCoordinates>();
+        for (int x = this.getMinChunkX(); x <= this.getMaxChunkX(); x++)
+            for (int z = this.getMinChunkZ(); z <= this.getMaxChunkZ(); z++)
+                coords.add(new ChunkCoordinates(x, z));
+
+        return coords;
     }
 
     @Override
     public String toString() {
-        return "[" + this.getWorld().getName() + "] (x:" + this.getX1() + ",y:" + this.getY1() + ",z:" + this.getZ1() + ") - (x:" + this.getX2() + ",y:" + this.getY2() + ",z:" + this.getZ2() + ")";
+        return "[" + this.world.getName() + "] (x:" + this.getX1() + ",y:" + this.getY1() + ",z:" + this.getZ1() + ") - (x:" + this.getX2() + ",y:" + this.getY2() + ",z:" + this.getZ2() + ")";
     }
 
     public String describe() {
@@ -148,7 +166,7 @@ public final class Region extends CachingRectangularCuboid {
      */
     public String describe(final Integer format) {
         String description = "---- Region: " + this.getDisplayName() + " ----";
-        description += "\nWorld: " + (this.getWorld() == null ? Region.SERVER_DEFAULT_DISPLAY : this.getWorld().getName());
+        description += "\nWorld: " + (this.world == null ? Region.SERVER_DEFAULT_DISPLAY : this.world.getName());
         description += "\nActive: " + this.active;
         if (!this.isDefault()) description += "\nOwners: " + (this.access.getOwners().size() == 0 ? "" : Region.join(this.access.formatOwners(), " "));
         description += "\nAccess: " + (this.access.getEntries().size() == 0 ? "" : Region.join(this.access.formatAllowed(), " "));
@@ -157,93 +175,11 @@ public final class Region extends CachingRectangularCuboid {
         return description;
     }
 
-    public boolean setName(final String name) {
-        if (Index.exists(new Region(this.world, name))) return false;
-
-        this.name = new CaseInsensitiveString(name);
-        this.enter.setArgs(this.name.toString());
-        this.exit.setArgs(this.name.toString());
-
-        return Index.refresh(this);
-    }
-
-    @Override
-    public void setD(final int y) {
-        super.setD(y);
-        Index.refresh(this);
-    }
-
-    @Override
-    public void setE(final int z) {
-        super.setE(z);
-        Index.refresh(this);
-    }
-
-    @Override
-    public void setN(final int x) {
-        super.setN(x);
-        Index.refresh(this);
-    }
-
-    @Override
-    public void setS(final int x) {
-        super.setS(x);
-        Index.refresh(this);
-    }
-
-    @Override
-    public void setU(final int y) {
-        super.setU(y);
-        Index.refresh(this);
-    }
-
-    @Override
-    public void setW(final int z) {
-        super.setW(z);
-        Index.refresh(this);
-    }
-
-    @Override
-    public void setY1(final Integer y) {
-        super.setY1(y);
-        Index.refresh(this);
-    }
-
-    @Override
-    public void setZ1(final Integer z) {
-        super.setZ1(z);
-        Index.refresh(this);
-    }
-
-    @Override
-    public void setX1(final Integer x) {
-        super.setX1(x);
-        Index.refresh(this);
-    }
-
-    @Override
-    public void setX2(final Integer x) {
-        super.setX2(x);
-        Index.refresh(this);
-    }
-
-    @Override
-    public void setY2(final Integer y) {
-        super.setY2(y);
-        Index.refresh(this);
-    }
-
-    @Override
-    public void setZ2(final Integer z) {
-        super.setZ2(z);
-        Index.refresh(this);
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((this.getWorld() == null) ? 0 : this.getWorld().getName().hashCode());
+        result = prime * result + ((this.world == null) ? 0 : this.world.getName().hashCode());
         result = prime * result + ((this.name == null) ? 0 : this.name.hashCode());
         return result;
     }
@@ -257,9 +193,9 @@ public final class Region extends CachingRectangularCuboid {
         final Region that = (Region) other;
 
         // World must match.
-        if (this.getWorld() == null && that.getWorld() != null) {
+        if (this.world == null && that.world != null) {
             return false;
-        } else if (!this.getWorld().equals(that.getWorld())) {
+        } else if (!this.world.equals(that.world)) {
             return false;
         }
 
@@ -289,4 +225,5 @@ public final class Region extends CachingRectangularCuboid {
 
         return sb.toString();
     }
+
 }

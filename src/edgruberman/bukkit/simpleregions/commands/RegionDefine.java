@@ -8,22 +8,24 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 
 import edgruberman.bukkit.messagemanager.MessageLevel;
-import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Permission;
 
 public class RegionDefine extends Action {
 
     public static final String NAME = "define";
 
-    RegionDefine(final Command owner) {
+    private final Region base;
+
+    RegionDefine(final Region owner) {
         super(owner, RegionDefine.NAME, Permission.REGION_DEFINE);
+        this.base = owner;
     }
 
     @Override
     void execute(final Context context) {
-        final edgruberman.bukkit.simpleregions.Region region = Region.parseRegion(context);
+        final edgruberman.bukkit.simpleregions.Region region = this.base.parseRegion(context);
         if (region == null || region.isDefault()) {
-            Main.messageManager.tell(context.sender, "Unable to determine region.", MessageLevel.SEVERE, false);
+            context.respond("Unable to determine region", MessageLevel.SEVERE);
             return;
         }
 
@@ -33,10 +35,11 @@ public class RegionDefine extends Action {
 
         if (parameters.size() == 0) {
             if (block == null) {
-                Main.messageManager.tell(context.sender, "Unable to determine target block.", MessageLevel.WARNING, false);
+                context.respond("Unable to determine target block", MessageLevel.WARNING);
                 return;
             }
 
+            // TODO move this into Region class to avoid refreshing index three times when region is already defined
             if (region.getX1() == null) {
                 region.setX1(block.getX());
                 region.setY1(block.getY());
@@ -75,7 +78,7 @@ public class RegionDefine extends Action {
 
             } else {
                 if (!parameters.get(0).contains(":")) {
-                    Main.messageManager.tell(context.sender, "Parameters must be recognizable key:value pairs.", MessageLevel.SEVERE, false);
+                    context.respond("Parameters must be recognizable key:value pairs.", MessageLevel.SEVERE);
                     return;
                 }
 
@@ -104,13 +107,13 @@ public class RegionDefine extends Action {
             }
         }
 
-        Main.saveRegion(region, false);
+        this.base.catalog.repository.saveRegion(region, false);
 
         // Show configuration of region after update.
         RegionDetail.describe(context, region);
-        Main.messageManager.tell(context.sender, region.describeArea(), MessageLevel.CONFIG, false);
-        Main.messageManager.tell(context.sender, region.describeVolume(), MessageLevel.CONFIG, false);
-        Main.messageManager.tell(context.sender, "Region coordinate definition updated.", MessageLevel.STATUS, false);
+        context.respond(region.describeArea(), MessageLevel.CONFIG);
+        context.respond(region.describeVolume(), MessageLevel.CONFIG);
+        context.respond("Region coordinate definition updated.", MessageLevel.STATUS);
 
         return;
     }
@@ -129,4 +132,5 @@ public class RegionDefine extends Action {
 
         return context.owner.plugin.getServer().getWorld(name);
     }
+
 }

@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import edgruberman.bukkit.messagemanager.MessageLevel;
-import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Permission;
 import edgruberman.bukkit.simpleregions.util.CaseInsensitiveString;
 
@@ -14,40 +13,46 @@ public class RegionActive extends Action {
     public static final String NAME = "active";
     public static final Set<String> ALIASES = new HashSet<String>(Arrays.asList("activate", "+active", "+activate", "deactivate", "-active", "-activate"));
 
-    RegionActive(final Command owner) {
+    private final Region base;
+    private final RegionSet regionSet;
+
+    RegionActive(final Region owner, final RegionSet regionSet) {
         super(owner, RegionActive.NAME, Permission.REGION_ACTIVE);
+        this.base = owner;
+        this.regionSet = regionSet;
         this.aliases.addAll(RegionActive.ALIASES);
     }
 
     @Override
     void execute(final Context context) {
-        final edgruberman.bukkit.simpleregions.Region region = Region.parseRegion(context);
+        final edgruberman.bukkit.simpleregions.Region region = this.base.parseRegion(context);
         if (region == null) {
-            Main.messageManager.tell(context.sender, "Unable to determine region.", MessageLevel.SEVERE, false);
+            context.respond("Unable to determine region", MessageLevel.SEVERE);
             return;
         }
 
         final CaseInsensitiveString operation = new CaseInsensitiveString(context.arguments.get(context.actionIndex).substring(0, 1));
         final boolean active = (operation.equals("+") || operation.equals("a")); // false for "-" or "d"
         if (!region.setActive(active)) {
-            Main.messageManager.tell(context.sender, "Unable to " + (active ? "activate " : "deactivate ") + region.getDisplayName() + " region.", MessageLevel.WARNING, false);
+           context.respond("Unable to " + (active ? "activate" : "deactivate") + " region: " + region.getDisplayName(), MessageLevel.WARNING);
             return;
         }
 
-        Main.saveRegion(region, false);
-        Main.messageManager.tell(context.sender, (active ? "Activated " : "Deactivated ") + region.getDisplayName() + " region.", MessageLevel.STATUS, false);
+       this.base.catalog.repository.saveRegion(region, false);
+       context.respond((active ? "Activated " : "Deactivated ") + region.getDisplayName() + " region", MessageLevel.STATUS);
 
         // When deactivating, set working region if one not already set
         if (!active) {
-            if (!Region.working.containsKey(context.sender))
-                RegionSet.setWorkingRegion(context.sender, region, true);
+            if (!this.base.working.containsKey(context.sender))
+                this.regionSet.setWorkingRegion(context, region, true);
 
             return;
         }
 
         // When activating, unset working region if currently matches
-        if (region.equals(Region.working.get(context.sender)))
-            RegionSet.setWorkingRegion(context.sender, region, false);
+        if (region.equals(this.base.working.get(context.sender)))
+            this.regionSet.setWorkingRegion(context, region, false);
 
     }
+
 }

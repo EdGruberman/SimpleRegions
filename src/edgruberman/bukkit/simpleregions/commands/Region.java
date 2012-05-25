@@ -13,9 +13,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import edgruberman.bukkit.accesscontrol.AccountManager;
 import edgruberman.bukkit.messagemanager.MessageLevel;
-import edgruberman.bukkit.simpleregions.Index;
-import edgruberman.bukkit.simpleregions.Main;
+import edgruberman.bukkit.messagemanager.MessageManager;
+import edgruberman.bukkit.simpleregions.Catalog;
 import edgruberman.bukkit.simpleregions.Permission;
 
 public final class Region extends Command implements CommandExecutor {
@@ -23,25 +24,34 @@ public final class Region extends Command implements CommandExecutor {
     public static final String NAME = "region";
     public static final Set<String> OWNER_ALLOWED = new HashSet<String>(Arrays.asList(RegionActive.NAME, RegionAccess.NAME, RegionOwner.NAME));
 
-    static Map<CommandSender, edgruberman.bukkit.simpleregions.Region> working = new HashMap<CommandSender, edgruberman.bukkit.simpleregions.Region>();
+    Catalog catalog;
+    AccountManager accountManager;
+    Map<CommandSender, edgruberman.bukkit.simpleregions.Region> working = new HashMap<CommandSender, edgruberman.bukkit.simpleregions.Region>();
 
-    public Region(final JavaPlugin plugin) {
+    public Region(final JavaPlugin plugin, final Catalog catalog, final AccountManager accountManager) {
         super(plugin, Region.NAME, Permission.REGION);
+        this.catalog = catalog;
+        this.accountManager = accountManager;
+
         this.setExecutorOf(this);
 
-        this.registerAction(new RegionCurrent(this), true);
-        this.registerAction(new RegionTarget(this));
-        this.registerAction(new RegionSet(this));
+        final RegionCurrent regionCurrent = new RegionCurrent(this);
+        this.registerAction(new RegionTarget(this, regionCurrent));
+
+        final RegionSet regionSet = new RegionSet(this);
+        this.registerAction(regionSet);
+        this.registerAction(new RegionActive(this, regionSet));
+        this.registerAction(new RegionCreate(this, regionSet));
+        this.registerAction(new RegionDelete(this, regionSet));
+
+        this.registerAction(regionCurrent, true);
         this.registerAction(new RegionDetail(this));
         this.registerAction(new RegionSize(this));
-        this.registerAction(new RegionActive(this));
         this.registerAction(new RegionAccess(this));
         this.registerAction(new RegionOwner(this));
         this.registerAction(new RegionMessage(this));
         this.registerAction(new RegionName(this));
-        this.registerAction(new RegionCreate(this));
         this.registerAction(new RegionDefine(this));
-        this.registerAction(new RegionDelete(this));
         this.registerAction(new RegionReload(this));
     }
 
@@ -51,7 +61,7 @@ public final class Region extends Command implements CommandExecutor {
         final Context context = super.parse(this, sender, command, label, args);
 
         boolean owner = false;
-        final edgruberman.bukkit.simpleregions.Region region = Region.parseRegion(context);
+        final edgruberman.bukkit.simpleregions.Region region = this.parseRegion(context);
         if (context.player != null && context.action != null && region != null && region.access.isOwner(context.player)) {
             // if region owner, then allow certain actions
             // TODO integrate this "better"
@@ -61,17 +71,17 @@ public final class Region extends Command implements CommandExecutor {
         if (!owner) {
             // Standard access checks
             if (!this.isAllowed(context.sender)) {
-                Main.messageManager.tell(context.sender, "You are not allowed to use the " + context.label + " command.", MessageLevel.RIGHTS, false);
+                context.respond("You are not allowed to use the " + context.label + " command.", MessageLevel.RIGHTS);
                 return true;
             }
 
             if (context.action == null) {
-                Main.messageManager.tell(context.sender, "Unrecognized action for the " + context.label + " command.", MessageLevel.WARNING, false);
+                context.respond("Unrecognized action for the " + context.label + " command.", MessageLevel.WARNING);
                 return true;
             }
 
             if (!context.action.isAllowed(context.sender)) {
-                Main.messageManager.tell(context.sender, "You are not allowed to use the " + context.action.name + " action of the " + context.label + " command.", MessageLevel.RIGHTS, false);
+                context.respond("You are not allowed to use the " + context.action.name + " action of the " + context.label + " command.", MessageLevel.RIGHTS);
                 return true;
             }
 
@@ -104,15 +114,15 @@ public final class Region extends Command implements CommandExecutor {
     }
 
     // Command Syntax: /region[[ <World>] <Region>][ <Action>][ <Parameters>]
-    static edgruberman.bukkit.simpleregions.Region parseRegion(final Context context) {
+    edgruberman.bukkit.simpleregions.Region parseRegion(final Context context) {
         if (context.actionIndex <= 0) {
             // Use current working region if specified
-            if (Region.working.containsKey(context.sender)) return Region.working.get(context.sender);
+            if (this.working.containsKey(context.sender)) return this.working.get(context.sender);
 
             // Assume player's current region if player is in only one
             if (context.player == null) return null;
 
-            final Set<edgruberman.bukkit.simpleregions.Region> regions = Index.getRegions(context.player.getLocation());
+            final Set<edgruberman.bukkit.simpleregions.Region> regions = this.catalog.getRegions(context.player.getLocation());
             if (regions.size() != 1) return null;
 
             return regions.iterator().next();
@@ -121,21 +131,18 @@ public final class Region extends Command implements CommandExecutor {
         final World world = Region.parseWorld(context);
         final String name = context.arguments.get(context.actionIndex - 1);
 
-        if (name.equals(edgruberman.bukkit.simpleregions.Region.NAME_DEFAULT)) {
-            if (world == null) return Index.serverDefault;
-
-            return Index.worlds.get(world).worldDefault;
-        }
+        if (name.equals(edgruberman.bukkit.simpleregions.Region.NAME_DEFAULT))
+            return this.catalog.getDefault(world);
 
         if (world == null) return null;
 
-        return Index.worlds.get(world).getRegions().get(name);
+        return this.catalog.worlds.get(world.getName()).regions.get(name.toLowerCase());
     }
 
-    static void sendIfOnline(final String name, final MessageLevel level, final String message) {
+    void sendIfOnline(final String name, final MessageLevel level, final String message) {
         if (Region.getExactPlayer(name) == null) return;
 
-        Main.messageManager.send(Region.getExactPlayer(name), message, level);
+        MessageManager.of(this.plugin).send(Region.getExactPlayer(name), message, level);
     }
 
     /**
@@ -162,4 +169,5 @@ public final class Region extends Command implements CommandExecutor {
             return false;
         }
     }
+
 }

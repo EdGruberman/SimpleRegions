@@ -1,207 +1,105 @@
 package edgruberman.bukkit.simpleregions;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 
-import org.bukkit.Location;
+import org.bukkit.Chunk;
 import org.bukkit.World;
 
 import edgruberman.bukkit.simpleregions.util.ChunkCoordinates;
 
 /**
- * Region to world reference which also correlates loaded chunks to active regions.
+ * Relates a world to regions
  */
 public final class Index {
 
-    public static Map<World, Index> worlds = new HashMap<World, Index>();
-    public static Region serverDefault = null;
+    public final Catalog catalog;
+    public final World world;
 
+    /**
+     * Regions by name (lower case)
+     */
+    public final Map<String, Region> regions = new HashMap<String, Region>();
+
+    /**
+     * Regions by chunk (hash)
+     */
+    public final Map<Long, Set<Region>> loaded = new HashMap<Long, Set<Region>>();
+
+    /**
+     * Default region to use when no other world regions apply
+     */
     public Region worldDefault = null;
 
-    World world;
-    Map<String, Region> regions = new HashMap<String, Region>();
-    Map<Long, Set<Region>> loaded = new HashMap<Long, Set<Region>>();
-
-    /**
-     * Currently active and loaded regions that are inside the chunk of the
-     * specified location. (This should only be used to check actions being
-     * performed by players against loaded chunks.  Unloaded chunks will
-     * not have regions returned from this function.)
-     *
-     * @param target location to return loaded regions for
-     * @return loaded regions that contain location, empty list if none apply
-     */
-    public static Set<Region> getChunkRegions(final Location target) {
-        final Set<Region> possible = Index.worlds.get(target.getWorld()).loaded.get(ChunkCoordinates.hash(target.getBlockX() >> 4, target.getBlockZ() >> 4));
-        return (possible != null ? possible : Collections.<Region>emptySet());
+    Index(final Catalog catalog, final World world, final Collection<Region> regions) {
+        this.catalog = catalog;
+        this.world = world;
+        for (final Region region : regions) this.add(region);
     }
 
-    /**
-     * Currently active and loaded regions that contain the specified target.
-     * If no regions apply, world default is supplied.  If no world default
-     * server default is supplied.
-     *
-     * @param target contained by regions
-     * @return regions containing target
-     */
-    public static Set<Region> getRegions(final Location target) {
-        final Set<Region> regions = new HashSet<Region>();
-        for (final Region region : Index.getChunkRegions(target))
-            if (region.contains(target)) regions.add(region);
-
-        if (regions.size() == 0) {
-            final Region def = Index.getDefault(target.getWorld());
-            if (def != null) regions.add(def);
-        }
-
-        return regions;
-    }
-
-    /**
-     * Determines default applicable region for specified world. A world's
-     * default region (non-null) overrides the server default region.
-     *
-     * @param world world to return applicable default region for
-     * @return default region applicable for world
-     */
-    public static Region getDefault(final World world) {
-        final Region def = Index.worlds.get(world).worldDefault;
-        if (def != null) return def;
-
-        return Index.serverDefault;
-    }
-
-    static boolean add(final Region region) {
-        // Add as a default region
-        if (region.getName() == null) {
-            if (region.getWorld() == null) {
-                Index.serverDefault = region;
-                return true;
-            }
-
-            Index.worlds.get(region.getWorld()).worldDefault = region;
-            return true;
-        }
-
-        // Ensure the region can be uniquely identified
-        if (Index.exists(region)) {
-            Main.plugin.getLogger().log(Level.WARNING, "Unable to index region \"" + region.getName() + "\" in world [" + region.getWorld().getName() + "]; Name not unique.");
-            return false;
-        }
-
-        // Add as a world region
-        final Index index = Index.worlds.get(region.getWorld());
-        index.regions.put(region.getName(), region);
-
-        // Inactive regions have nothing left to do here
-        if (!region.isActive()) return true;
+    void add(final Region region) {
+        this.regions.put(region.getName().toLowerCase(), region);
+        region.worldIndex = this;
+        if (!region.isActive()) return;
 
         // Populate loaded chunk index for active regions
-        for (final ChunkCoordinates coords : Index.chunks(region))
-            if (region.getWorld().isChunkLoaded(coords.x, coords.z)) {
-                if (!index.loaded.containsKey(coords.getHash())) index.loaded.put(coords.getHash(), new HashSet<Region>());
-                index.loaded.get(coords.getHash()).add(region);
-            }
-
-        return true;
+        for (final ChunkCoordinates coords : region.chunks())
+            if (this.world.isChunkLoaded(coords.x, coords.z))
+                this.chunkLoaded(coords.x, coords.z);
     }
 
-    static boolean refresh(final Region region) {
-        if (!Index.remove(region)) return false;
+    void remove(final Region region) {
+        if (this.regions.remove(region.getName().toLowerCase()) == null) return;
 
-        return Index.add(region);
-    }
-
-    public static boolean remove(final Region region) {
-        // Remove default regions only if they match the requested one.
-        if (region.getName() == null) {
-            if (region.getWorld() == null) {
-                if (Index.serverDefault != null && !Index.serverDefault.equals(region)) return false;
-
-                Index.serverDefault = null;
-                return true;
-            }
-
-            if (Index.worlds.get(region.getWorld()).worldDefault != null && Index.worlds.get(region.getWorld()).worldDefault.equals(region)) return false;
-
-            Index.worlds.get(region.getWorld()).worldDefault = null;
-            return true;
-        }
-
-        // Remove the region itself
-        final Index index = Index.worlds.get(region.getWorld());
-        if (!index.regions.containsKey(region.getName())) return false;
-        index.regions.remove(region.getName());
+        region.worldIndex = null;
+        if (!region.isActive()) return;
 
         // Remove chunk references to region
-        for (final ChunkCoordinates coords : Index.chunks(region)) {
-            if (!index.loaded.containsKey(coords.getHash())) continue;
+        for (final ChunkCoordinates coords : region.chunks()) {
+            final Set<Region> loaded = this.loaded.get(coords.getHash());
+            if (loaded == null) continue;
 
-            index.loaded.get(coords.getHash()).remove(region);
-
-            // Remove the chunk from the index if it's no longer referencing any regions
-            if (index.loaded.get(coords.getHash()).size() == 0)
-                index.loaded.remove(coords.getHash());
+            loaded.remove(region);
+            if (loaded.size() == 0) this.loaded.remove(coords.getHash());
         }
+    }
 
-        return true;
+    void refresh(final Region region) {
+        this.remove(region);
+        this.add(region);
     }
 
     /**
-     * There can be only one! (name per world anyways)
-     *
-     * @param region region to check if already exists in index
-     * @return true if the region name exists for the world; otherwise false
+     * Store a pointer to any region containing the chunk
      */
-    static boolean exists(final Region region) {
-        return Index.worlds.get(region.getWorld()).regions.containsKey(region.getName());
+    void chunkLoaded(final Chunk chunk) {
+        this.chunkLoaded(chunk.getX(), chunk.getZ());
     }
 
     /**
-     * Calculate list of chunks that contain at least one block of the region.
-     *
-     * @param region region to calculate chunks for
-     * @return all chunk coordinates that contain a part of region
+     * Store a pointer to any region containing the chunk
      */
-    private static List<ChunkCoordinates> chunks(final Region region) {
-        if (!region.isDefined()) return Collections.<ChunkCoordinates>emptyList();
+    void chunkLoaded(final int chunkX, final int chunkZ) {
+        final long hash = ChunkCoordinates.hash(chunkX, chunkZ);
+        for (final Region region : this.regions.values()) {
+            if (!region.isActive() || !region.within(chunkX, chunkZ)) continue;
 
-        final List<ChunkCoordinates> coords = new ArrayList<ChunkCoordinates>();
-        for (int x = region.getMinChunkX(); x <= region.getMaxChunkX(); x++)
-            for (int z = region.getMinChunkZ(); z <= region.getMaxChunkZ(); z++)
-                coords.add(new ChunkCoordinates(x, z));
+            Set<Region> loaded = this.loaded.get(hash);
+            if (loaded == null) loaded = new HashSet<Region>();
+            if (!loaded.add(region)) continue;
 
-        return coords;
+            if (loaded.size() == 1) this.loaded.put(hash, loaded);
+        }
     }
 
     /**
-     * Create a new index and load all related regions.
-     *
-     * @param world world to index regions for
+     * Remove any pointer to any regions that contain the chunk
      */
-    Index(final World world) {
-        this.world = world;
-        Index.worlds.remove(world);
-        Index.worlds.put(world, this);
-        Main.loadRegions(world);
+    void chunkUnloaded(final Chunk chunk) {
+        this.loaded.remove(ChunkCoordinates.hash(chunk));
     }
 
-    public World getWorld() {
-        return this.world;
-    }
-
-    /**
-     * All regions for this index.
-     *
-     * @return unmodifiable set of regions
-     */
-    public Map<String, Region> getRegions() {
-        return Collections.unmodifiableMap(this.regions);
-    }
 }

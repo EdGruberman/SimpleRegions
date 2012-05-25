@@ -1,1 +1,1 @@
-deniedMessage: No regions grant you access here
+deniedMessage: 'Region access denied: %1$s' # 1 - region list

@@ -15,16 +15,18 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.plugin.Plugin;
 
 import edgruberman.bukkit.messagemanager.MessageLevel;
+import edgruberman.bukkit.messagemanager.MessageManager;
 
 final class BoundaryAlerter implements Listener {
 
+    private final Catalog catalog;
     private final Map<Player, Location> lastBlockChange = new HashMap<Player, Location>();
 
-    BoundaryAlerter(final Plugin plugin) {
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+    BoundaryAlerter(final Catalog catalog) {
+        this.catalog = catalog;
+        catalog.plugin.getServer().getPluginManager().registerEvents(this, catalog.plugin);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -32,19 +34,16 @@ final class BoundaryAlerter implements Listener {
         this.lastBlockChange.put(event.getPlayer(), event.getPlayer().getLocation());
     }
 
-    @EventHandler(priority = EventPriority.MONITOR)
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerMove(final PlayerMoveEvent event) {
-        if (event.isCancelled()) return;
-
         final Location last = this.lastBlockChange.get(event.getPlayer());
         final Location to = event.getTo();
 
-        // Only check further on block transitions.
+        // Only check further on block transitions
         if ((last.getBlockX() == to.getBlockX()) && (last.getBlockZ() == to.getBlockZ()) && (last.getBlockY() == to.getBlockY())) return;
 
         this.lastBlockChange.put(event.getPlayer(), to);
-
-        BoundaryAlerter.checkCrossings(event.getPlayer(), last, to);
+        this.checkCrossings(event.getPlayer(), last, to);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -60,14 +59,14 @@ final class BoundaryAlerter implements Listener {
      * @param from last block player was seen at before to
      * @param to block player has moved to
      */
-    private static void checkCrossings(final Player player, final Location from, final Location to) {
+    private void checkCrossings(final Player player, final Location from, final Location to) {
         List<String> exited = null, entered = null;
         List<MessageLevel> enteredLevel = null;
 
         // Determine applicable regions to check
         final Set<Region> regions = new HashSet<Region>();
-        regions.addAll(Index.getChunkRegions(from));
-        if (!BoundaryAlerter.isChunkEquals(from, to)) regions.addAll(Index.getChunkRegions(to));
+        regions.addAll(this.catalog.getChunkRegions(from));
+        if (!BoundaryAlerter.sameChunk(from, to)) regions.addAll(this.catalog.getChunkRegions(to));
 
         boolean isInFrom, isInTo;
         for (final Region region : regions) {
@@ -94,15 +93,15 @@ final class BoundaryAlerter implements Listener {
         // Show any exit messages first
         if (exited != null)
             for (final String message : exited)
-                Main.messageManager.send(player, message, MessageLevel.STATUS);
+                MessageManager.of(this.catalog.plugin).tell(player, message, MessageLevel.STATUS, false);
 
         // Show any enter messages next
         if (entered != null)
             for (int i = 0; i <= entered.size() - 1; i++)
-                Main.messageManager.send(player, entered.get(i), enteredLevel.get(i));
+                MessageManager.of(this.catalog.plugin).tell(player, entered.get(i), enteredLevel.get(i), false);
     }
 
-    private static boolean isChunkEquals(final Location i, final Location j) {
+    private static boolean sameChunk(final Location i, final Location j) {
         return ((i.getBlockX() >> 4) == (j.getBlockX() >> 4)) && ((i.getBlockZ() >> 4) == (j.getBlockZ() >> 4));
     }
 

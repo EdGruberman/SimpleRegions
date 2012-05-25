@@ -9,6 +9,8 @@ import java.util.regex.Pattern;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import edgruberman.bukkit.messagemanager.MessageLevel;
+import edgruberman.bukkit.messagemanager.MessageManager;
 import edgruberman.bukkit.simpleregions.util.CaseInsensitiveString;
 
 class Context {
@@ -43,6 +45,14 @@ class Context {
         this.matches = this.parseMatches();
 
         this.owner.command.getPlugin().getLogger().log(Level.FINEST, "Command Context for " + this.label + "; Arguments: " + this.arguments + "; Action: " + (this.action != null ? this.action.name : null) + "; Matches: " + this.matches);
+    }
+
+    public void respond(final String message, final MessageLevel level) {
+        this.respond(message, level, false);
+    }
+
+    public void respond(final String message, final MessageLevel level, final boolean applyTimestamp) {
+        MessageManager.of(this.owner.plugin).tell(this.sender, message, level, applyTimestamp);
     }
 
     /**

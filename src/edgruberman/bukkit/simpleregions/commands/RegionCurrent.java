@@ -6,8 +6,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import edgruberman.bukkit.messagemanager.MessageLevel;
-import edgruberman.bukkit.simpleregions.Index;
-import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Permission;
 
 // Syntax: /region[ current][ <Player>]
@@ -15,30 +13,33 @@ public class RegionCurrent extends Action {
 
     public static final String NAME = "current";
 
-    RegionCurrent(final Command owner) {
+    private final Region base;
+
+    RegionCurrent(final Region owner) {
         super(owner, RegionCurrent.NAME, Permission.REGION_CURRENT);
+        this.base = owner;
     }
 
     @Override
     void execute(final Context context) {
-        RegionCurrent.message(context, null);
+        this.message(context, null);
     }
 
-    static void message(final Context context, final Location location) {
+    void message(final Context context, final Location location) {
         final String name = RegionCurrent.parsePlayerName(context);
         if (name == null) {
-            Main.messageManager.tell(context.sender, "Unable to determine target player name.", MessageLevel.SEVERE, false);
+            context.respond("Unable to determine target player name.", MessageLevel.SEVERE);
             return;
         }
 
         Location target = location;
         String world = null;
 
-        // If a specific location is not specific, use target player's current location
+        // If a specific location is not specified, use target player's current location
         if (location == null) {
             final Player player = Region.getExactPlayer(name);
             if (player == null) {
-                Main.messageManager.tell(context.sender, "Unable to find target player \"" + name + "\"", MessageLevel.SEVERE, false);
+                context.respond("Unable to find target player \"" + name + "\"", MessageLevel.SEVERE);
                 return;
             }
 
@@ -47,7 +48,7 @@ public class RegionCurrent extends Action {
         }
 
         // Get applicable regions
-        final Set<edgruberman.bukkit.simpleregions.Region> regions = Index.getRegions(target);
+        final Set<edgruberman.bukkit.simpleregions.Region> regions = this.base.catalog.getRegions(target);
 
         // Compile region name list
         String names = "";
@@ -58,7 +59,7 @@ public class RegionCurrent extends Action {
 
         // Compile response message
         String message = "Current region" + (regions.size() > 1 ? "s" : "");
-        if (!name.equals(context.player.getName())) message += " for " + (world != null ? "[" + world + "] " : "") + name;
+        if (context.player == null || !name.equals(context.player.getName())) message += " for " + (world != null ? "[" + world + "] " : "") + name;
         if (location != null) message += " at (x:" + target.getBlockX() + " y:" + target.getBlockY() + " z:" + target.getBlockZ() + ")";
 
         message += ": ";
@@ -70,10 +71,10 @@ public class RegionCurrent extends Action {
 
         // Determine response level based on target access
         MessageLevel level = MessageLevel.STATUS;
-        if (!Main.isAllowed(name, target))
+        if (!this.base.catalog.isAllowed(name, target))
             level = MessageLevel.WARNING;
 
-        Main.messageManager.tell(context.sender, message, level, false);
+        context.respond(message, level);
     }
 
     private static String parsePlayerName(final Context context) {
@@ -82,4 +83,5 @@ public class RegionCurrent extends Action {
 
         return context.arguments.get(context.actionIndex + 1);
     }
+
 }

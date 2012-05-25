@@ -8,13 +8,19 @@ public class RegionReload extends Action {
 
     public static final String NAME = "reload";
 
-    RegionReload(final Command owner) {
+    private final Region base;
+
+    RegionReload(final Region owner) {
         super(owner, RegionReload.NAME, Permission.REGION_RELOAD);
+        this.base = owner;
     }
 
     @Override
     void execute(final Context context) {
-        Main.configure(true);
-        Main.messageManager.tell(context.sender, "Configuration reloaded.", MessageLevel.STATUS, false);
+        final Main main = (Main) this.base.plugin;
+        main.reloadConfig();
+        main.start(this.base.plugin);
+        context.respond("Configuration reloaded", MessageLevel.STATUS);
     }
+
 }

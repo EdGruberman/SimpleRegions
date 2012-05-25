@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import edgruberman.bukkit.messagemanager.MessageLevel;
-import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Permission;
 import edgruberman.bukkit.simpleregions.util.CaseInsensitiveString;
 
@@ -15,33 +14,36 @@ public class RegionOwner extends Action {
     public static final String NAME = "owner";
     public static final Set<String> ALIASES = new HashSet<String>(Arrays.asList("+owner", "-owner", "=owner", "+owners", "-owners", "=owners"));
 
-    RegionOwner(final Command owner) {
+    private final Region base;
+
+    RegionOwner(final Region owner) {
         super(owner, RegionOwner.NAME, Permission.REGION_OWNER);
+        this.base = owner;
         this.aliases.addAll(RegionOwner.ALIASES);
     }
 
     @Override
     void execute(final Context context) {
-        final edgruberman.bukkit.simpleregions.Region region = Region.parseRegion(context);
+        final edgruberman.bukkit.simpleregions.Region region = this.base.parseRegion(context);
         if (region == null || region.isDefault()) {
-            Main.messageManager.tell(context.sender, "Unable to determine region.", MessageLevel.SEVERE, false);
+            context.respond("Unable to determine region.", MessageLevel.SEVERE);
             return;
         }
 
         final List<String> names = context.arguments.subList(context.actionIndex + 1, context.arguments.size());
         if (names.size() == 0) {
-            Main.messageManager.tell(context.sender, "No names specified.", MessageLevel.WARNING, false);
+            context.respond("No names specified.", MessageLevel.WARNING);
             return;
         }
 
         final CaseInsensitiveString operation = new CaseInsensitiveString(context.arguments.get(context.actionIndex).substring(0, 1));
         if (operation.equals("+") || operation.equals("o")) {
             // Add owner
-            RegionOwner.edit(context, region, names, true);
+            this.edit(context, region, names, true);
 
         } else if (operation.equals("-")) {
             // Remove owner
-            RegionOwner.edit(context, region, names, false);
+            this.edit(context, region, names, false);
 
         } else if (operation.equals("=")) {
             // Set owners
@@ -49,33 +51,33 @@ public class RegionOwner extends Action {
             // Remove any existing entries not specified to be added
             final List<String> remove = region.access.formatOwners();
             remove.removeAll(names);
-            RegionOwner.edit(context, region, remove, false);
+            this.edit(context, region, remove, false);
 
             // Add new entries
-            RegionOwner.edit(context, region, names, true);
+            this.edit(context, region, names, true);
         }
     }
 
-    private static void edit(final Context context, final edgruberman.bukkit.simpleregions.Region region, final List<String> names, final boolean grant) {
+    private void edit(final Context context, final edgruberman.bukkit.simpleregions.Region region, final List<String> names, final boolean grant) {
         final String senderName = (context.player != null ? context.player.getDisplayName() : "CONSOLE");
         for (final String name : names) {
             if (!(grant ? region.access.addOwner(name) : region.access.removeOwner(name))) {
-                Main.messageManager.tell(context.sender, "Region ownership " + (grant ? "already contains " : "does not contain ") + name + " in " + region.getDisplayName(), MessageLevel.WARNING, false);
+                context.respond("Region ownership " + (grant ? "already contains " : "does not contain ") + name + " in " + region.getDisplayName(), MessageLevel.WARNING);
                 continue;
             }
 
             // Do not allow an owner to remove their own ownership accidentally if they can't add themselves back forcibly
             if (!grant && !context.sender.hasPermission(Permission.REGION_OWNER.toString()) && context.player != null && !region.access.isOwner(context.player)) {
                 region.access.addOwner(name);
-                Main.messageManager.tell(context.sender, "You can not remove your own ownership from " + region.getDisplayName(), MessageLevel.SEVERE, false);
+                context.respond("You can not remove your own ownership from " + region.getDisplayName(), MessageLevel.SEVERE);
                 continue;
             }
 
-            Main.messageManager.tell(context.sender, "Region ownership " + (grant ? "added to " : "removed from ") + name + " for " + region.getDisplayName(), MessageLevel.STATUS, false);
+            context.respond("Region ownership " + (grant ? "added to " : "removed from ") + name + " for " + region.getDisplayName(), MessageLevel.STATUS);
             if (region.isActive())
-                Region.sendIfOnline(name, MessageLevel.EVENT, (grant ? "You have been granted region ownership to " : "Your region ownership has been revoked from ") + region.getDisplayName() + " by " + senderName);
+                this.base.sendIfOnline(name, MessageLevel.EVENT, (grant ? "You have been granted region ownership to " : "Your region ownership has been revoked from ") + region.getDisplayName() + " by " + senderName);
 
-            Main.saveRegion(region, false);
+            this.base.catalog.repository.saveRegion(region, false);
         }
     }
 }

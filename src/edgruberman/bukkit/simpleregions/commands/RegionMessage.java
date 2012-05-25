@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import edgruberman.bukkit.messagemanager.MessageLevel;
-import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Permission;
 import edgruberman.bukkit.simpleregions.util.CaseInsensitiveString;
 import edgruberman.bukkit.simpleregions.util.FormattedString;
@@ -15,16 +14,19 @@ public class RegionMessage extends Action {
     public static final String NAME = "message";
     public static final Set<String> ALIASES = new HashSet<String>(Arrays.asList("enter", "exit", "=enter", "=exit"));
 
-    RegionMessage(final Command owner) {
+    private final Region base;
+
+    RegionMessage(final Region owner) {
         super(owner, RegionMessage.NAME, Permission.REGION_MESSAGE);
+        this.base = owner;
         this.aliases.addAll(RegionMessage.ALIASES);
     }
 
     @Override
     void execute(final Context context) {
-        final edgruberman.bukkit.simpleregions.Region region = Region.parseRegion(context);
+        final edgruberman.bukkit.simpleregions.Region region = this.base.parseRegion(context);
         if (region == null || region.isDefault()) {
-            Main.messageManager.tell(context.sender, "Unable to determine region.", MessageLevel.SEVERE, false);
+            context.respond("Unable to determine region.", MessageLevel.SEVERE);
             return;
         }
 
@@ -40,11 +42,11 @@ public class RegionMessage extends Action {
             final String format = Command.join(context.arguments.subList(context.actionIndex + 1, context.arguments.size()), " ");
             message.setFormat(format);
 
-            Main.saveRegion(region, false);
-            Main.messageManager.tell(context.sender, "Region " + operation + " format set.", MessageLevel.STATUS, false);
+            this.base.catalog.repository.saveRegion(region, false);
+            context.respond("Region " + operation + " format set.", MessageLevel.STATUS);
         }
 
-        Main.messageManager.tell(context.sender, "Region " + operation + " format: " + message.getFormat().replace("&", "&&"), MessageLevel.CONFIG, false);
-        Main.messageManager.tell(context.sender, "Region " + operation + " message: " + message.formatted, MessageLevel.CONFIG, false);
+        context.respond("Region " + operation + " format: " + message.getFormat().replace("&", "&&"), MessageLevel.CONFIG);
+        context.respond("Region " + operation + " message: " + message.formatted, MessageLevel.CONFIG);
     }
 }

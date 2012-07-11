@@ -7,14 +7,16 @@ import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 
-import edgruberman.bukkit.accesscontrol.AccountManager;
-import edgruberman.bukkit.accesscontrol.securables.SimpleAccessControlList;
 import edgruberman.bukkit.simpleregions.util.CachingRectangularCuboid;
 import edgruberman.bukkit.simpleregions.util.CaseInsensitiveString;
 import edgruberman.bukkit.simpleregions.util.ChunkCoordinates;
 import edgruberman.bukkit.simpleregions.util.FormattedString;
 
+/**
+ * Requires players to be granted a permission the same name as the player name
+ */
 public final class Region extends CachingRectangularCuboid {
 
     private static final String DEFAULT_ENTER_FORMAT = "Entered region: %1$s"; // 1 = Region Name
@@ -29,37 +31,37 @@ public final class Region extends CachingRectangularCuboid {
     public Index worldIndex = null;
     public FormattedString enter = null;
     public FormattedString exit = null;
-    public SimpleAccessControlList access;
+    public final List<String> owners = new ArrayList<String>();
+    public final List<String> access = new ArrayList<String>();
 
     private CaseInsensitiveString name;
     private boolean active = false;
 
-    public Region(final AccountManager accountManager, final World world, final String name) {
+    public Region(final World world, final String name) {
         this.world = world;
         this.name = new CaseInsensitiveString(name);
-        this.access = new SimpleAccessControlList(accountManager);
         this.enter = new FormattedString(Region.DEFAULT_ENTER_FORMAT, this.name);
         this.exit = new FormattedString(Region.DEFAULT_EXIT_FORMAT, this.name);
     }
 
-    public Region(final AccountManager accountManager, final World world, final String name, final Collection<String> owners, final Collection<String> access) {
-        this(accountManager, world, name);
-        if (owners != null) for (final String o : owners) this.access.addOwner(o);
-        if (access != null) for (final String a : access) this.access.grant(a);
+    public Region(final World world, final String name, final Collection<String> owners, final Collection<String> access) {
+        this(world, name);
+        if (owners != null) this.owners.addAll(owners);
+        if (access != null) this.access.addAll(access);
     }
 
     /**
      * Create a world default region
      */
-    public Region(final AccountManager accountManager, final Collection<String> access, final World world) {
-        this(accountManager, world, null, null, access);
+    public Region(final Collection<String> access, final World world) {
+        this(world, null, null, access);
     }
 
     /**
      * Create a server default region
      */
-    public Region(final AccountManager accountManager, final Collection<String> access) {
-        this(accountManager, access, null);
+    public Region(final Collection<String> access) {
+        this(access, null);
     }
 
     public void setCoords(final Integer x1, final Integer x2, final Integer y1, final Integer y2, final Integer z1, final Integer z2) {
@@ -80,6 +82,44 @@ public final class Region extends CachingRectangularCuboid {
         if (display.contains(" ")) display = "\"" + display + "\"";
 
         return display;
+    }
+
+    public boolean isDirectOwner(final String name) {
+        final String test = name.toLowerCase();
+        for (final String o : this.owners)
+            if (test.equals(o.toLowerCase()))
+                return true;
+
+        return false;
+    }
+
+    public boolean isOwner(final Player player) {
+        // Permission must be explicitly set (no defaulting of ops)
+        for (final String o : this.owners)
+            if (player.isPermissionSet(o) && player.hasPermission(o))
+                return true;
+
+        return false;
+    }
+
+    public boolean hasDirectAccess(final String name) {
+        final String test = name.toLowerCase();
+        for (final String o : this.access)
+            if (test.equals(o.toLowerCase()))
+                return true;
+
+        return false;
+    }
+
+    public boolean hasAccess(final Player player) {
+        if (this.isOwner(player)) return true;
+
+        // Permission must be explicitly set (no defaulting of ops)
+        for (final String a : this.access)
+            if (player.isPermissionSet(a) && player.hasPermission(a))
+                return true;
+
+        return false;
     }
 
     public boolean isActive() {
@@ -168,8 +208,8 @@ public final class Region extends CachingRectangularCuboid {
         String description = "---- Region: " + this.getDisplayName() + " ----";
         description += "\nWorld: " + (this.world == null ? Region.SERVER_DEFAULT_DISPLAY : this.world.getName());
         description += "\nActive: " + this.active;
-        if (!this.isDefault()) description += "\nOwners: " + (this.access.getOwners().size() == 0 ? "" : Region.join(this.access.formatOwners(), " "));
-        description += "\nAccess: " + (this.access.getEntries().size() == 0 ? "" : Region.join(this.access.formatAllowed(), " "));
+        if (!this.isDefault()) description += "\nOwners: " + Region.join(this.owners, " ");
+        description += "\nAccess: " + Region.join(this.access, " ");
         if (!this.isDefault()) description += "\n" + this.describeCoordinates(format);
 
         return description;
@@ -192,14 +232,14 @@ public final class Region extends CachingRectangularCuboid {
         if (this.getClass() != other.getClass()) return false;
         final Region that = (Region) other;
 
-        // World must match.
+        // World must match
         if (this.world == null && that.world != null) {
             return false;
         } else if (!this.world.equals(that.world)) {
             return false;
         }
 
-        // Name must match.
+        // Name must match
         if (this.name == null && that.name != null) {
             return false;
         } else if (!this.name.equals(that.name)) {

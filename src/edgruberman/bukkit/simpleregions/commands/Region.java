@@ -13,7 +13,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import edgruberman.bukkit.accesscontrol.AccountManager;
 import edgruberman.bukkit.messagemanager.MessageLevel;
 import edgruberman.bukkit.messagemanager.MessageManager;
 import edgruberman.bukkit.simpleregions.Catalog;
@@ -25,13 +24,11 @@ public final class Region extends Command implements CommandExecutor {
     public static final Set<String> OWNER_ALLOWED = new HashSet<String>(Arrays.asList(RegionActive.NAME, RegionAccess.NAME, RegionOwner.NAME));
 
     Catalog catalog;
-    AccountManager accountManager;
     Map<CommandSender, edgruberman.bukkit.simpleregions.Region> working = new HashMap<CommandSender, edgruberman.bukkit.simpleregions.Region>();
 
-    public Region(final JavaPlugin plugin, final Catalog catalog, final AccountManager accountManager) {
+    public Region(final JavaPlugin plugin, final Catalog catalog) {
         super(plugin, Region.NAME, Permission.REGION);
         this.catalog = catalog;
-        this.accountManager = accountManager;
 
         this.setExecutorOf(this);
 
@@ -62,7 +59,7 @@ public final class Region extends Command implements CommandExecutor {
 
         boolean owner = false;
         final edgruberman.bukkit.simpleregions.Region region = this.parseRegion(context);
-        if (context.player != null && context.action != null && region != null && region.access.isOwner(context.player)) {
+        if (context.player != null && context.action != null && region != null && region.isOwner(context.player)) {
             // if region owner, then allow certain actions
             // TODO integrate this "better"
             if (Region.OWNER_ALLOWED.contains(context.action.name)) owner = true;

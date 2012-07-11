@@ -1,6 +1,6 @@
 name: @NAME@
 description: Protect regions of the map so only selected players can edit them.
-depend: [MessageManager, AccessControl]
+depend: [MessageManager]
 version: @VERSION@
 author: @AUTHOR@
 main: @MAIN@

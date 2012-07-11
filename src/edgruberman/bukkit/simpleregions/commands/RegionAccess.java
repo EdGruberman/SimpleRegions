@@ -1,5 +1,6 @@
 package edgruberman.bukkit.simpleregions.commands;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -49,7 +50,7 @@ public class RegionAccess extends Action {
             // Set access
 
             // Remove any existing entries not specified to be added
-            final List<String> remove = region.access.formatAllowed();
+            final List<String> remove = new ArrayList<String>(region.access);
             remove.removeAll(names);
             this.edit(context, region, remove, false);
 
@@ -63,7 +64,7 @@ public class RegionAccess extends Action {
     private void edit(final Context context, final edgruberman.bukkit.simpleregions.Region region, final List<String> names, final boolean grant) {
         final String senderName = (context.player != null ? context.player.getDisplayName() : "CONSOLE");
         for (final String name : names) {
-            if (!(grant ? region.access.grant(name) : region.access.revoke(name))) {
+            if (!(grant ? region.access.add(name) : region.access.remove(name))) {
                 context.respond("Region access " + (grant ? "already contains " : "does not contain ") + name + " in " + region.getDisplayName(), MessageLevel.WARNING);
                 continue;
             }
@@ -75,4 +76,5 @@ public class RegionAccess extends Action {
             this.base.catalog.repository.saveRegion(region, false);
         }
     }
+
 }

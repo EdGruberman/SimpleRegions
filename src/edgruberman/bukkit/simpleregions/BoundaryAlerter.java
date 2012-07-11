@@ -86,7 +86,7 @@ final class BoundaryAlerter implements Listener {
                 if (entered == null) entered = new ArrayList<String>();
                 if (enteredLevel == null) enteredLevel = new ArrayList<MessageLevel>();
                 entered.add(region.enter.formatted);
-                enteredLevel.add((region.access.isAllowed(player.getName()) ? MessageLevel.STATUS : MessageLevel.WARNING));
+                enteredLevel.add((region.hasAccess(player) ? MessageLevel.STATUS : MessageLevel.WARNING));
             }
         }
 

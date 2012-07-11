@@ -126,29 +126,12 @@ public final class Catalog implements Listener {
      * @return true if player has access, otherwise false
      */
     public boolean isAllowed(final Player player, final Location target) {
-        return this.isAllowed(player.getName(), target);
-    }
-
-    /**
-     * Determine if player is allowed to manipulate the target location based
-     * on region configuration.<br>
-     * Access is determined by:<br>
-     *     = true if any active region applies and allows access to the player<br>
-     *     = true if no active region applies and the world default region allows access to the player<br>
-     *     = true if no active region applies and no world default region applies and the server default region allows access to the player<br>
-     *     = false otherwise
-     *
-     * @param name player name to check access for
-     * @param target block to determine if player has access to
-     * @return true if player has access, otherwise false
-     */
-    public boolean isAllowed(final String name, final Location target) {
         boolean found = false;
 
         // Check loaded regions.
         for (final Region region : this.getChunkRegions(target))
             if (region.contains(target)) {
-                if (region.access.isAllowed(name)) return true;
+                if (region.hasAccess(player)) return true;
                 found = true;
             }
 
@@ -160,7 +143,7 @@ public final class Catalog implements Listener {
         if (!target.getWorld().isChunkLoaded(target.getBlockX() >> 4, target.getBlockZ() >> 4)) {
             for (final Region region : this.worlds.get(target.getWorld().getName()).regions.values())
                 if (region.isActive() && region.contains(target)) {
-                    if (region.access.isAllowed(name)) return true;
+                    if (region.hasAccess(player)) return true;
                     found = true;
                 }
 
@@ -171,11 +154,11 @@ public final class Catalog implements Listener {
         // Check world default region only if no other regions apply.
         final Region worldDefault = this.worlds.get(target.getWorld().getName()).worldDefault;
         if (worldDefault != null && worldDefault.isActive())
-            return this.worlds.get(target.getWorld()).worldDefault.access.isAllowed(name);
+            return this.worlds.get(target.getWorld()).worldDefault.hasAccess(player);
 
         // Check server default region only if no other regions apply and there is no world default region.
         if (this.serverDefault != null && this.serverDefault.isActive())
-            return this.serverDefault.access.isAllowed(name);
+            return this.serverDefault.hasAccess(player);
 
         return false;
     }

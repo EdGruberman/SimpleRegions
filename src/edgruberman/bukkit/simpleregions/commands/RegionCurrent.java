@@ -28,7 +28,7 @@ public class RegionCurrent extends Action {
     void message(final Context context, final Location location) {
         final String name = RegionCurrent.parsePlayerName(context);
         if (name == null) {
-            context.respond("Unable to determine target player name.", MessageLevel.SEVERE);
+            context.respond("Unable to determine target player name", MessageLevel.SEVERE);
             return;
         }
 
@@ -71,7 +71,7 @@ public class RegionCurrent extends Action {
 
         // Determine response level based on target access
         MessageLevel level = MessageLevel.STATUS;
-        if (!this.base.catalog.isAllowed(name, target))
+        if (!this.base.catalog.isAllowed(Region.getExactPlayer(name), target))
             level = MessageLevel.WARNING;
 
         context.respond(message, level);

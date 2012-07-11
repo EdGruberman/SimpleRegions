@@ -39,7 +39,7 @@ public class RegionDetail extends Action {
         for (final String line : region.describe(format).split("\n"))
             context.respond(line, MessageLevel.CONFIG);
 
-        if (!(context.sender.hasPermission(Permission.REGION_DEFINE.toString()) || (context.player != null && region.access.isOwner(context.player))))
+        if (!(context.sender.hasPermission(Permission.REGION_DEFINE.toString()) || (context.player != null && region.isOwner(context.player))))
             return;
 
         // Sender has permission, so instruct on how to alter as necessary

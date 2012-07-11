@@ -39,7 +39,7 @@ public class RegionCreate extends Action {
             return;
         }
 
-        final edgruberman.bukkit.simpleregions.Region region = new edgruberman.bukkit.simpleregions.Region(this.base.accountManager, world, name);
+        final edgruberman.bukkit.simpleregions.Region region = new edgruberman.bukkit.simpleregions.Region(world, name);
         this.base.catalog.addRegion(region);
         this.base.catalog.repository.saveRegion(region, false);
         this.regionSet.setWorkingRegion(context, region, true);

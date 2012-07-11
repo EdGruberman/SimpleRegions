@@ -1,5 +1,6 @@
 package edgruberman.bukkit.simpleregions.commands;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -49,7 +50,7 @@ public class RegionOwner extends Action {
             // Set owners
 
             // Remove any existing entries not specified to be added
-            final List<String> remove = region.access.formatOwners();
+            final List<String> remove = new ArrayList<String>(region.owners);
             remove.removeAll(names);
             this.edit(context, region, remove, false);
 
@@ -61,14 +62,14 @@ public class RegionOwner extends Action {
     private void edit(final Context context, final edgruberman.bukkit.simpleregions.Region region, final List<String> names, final boolean grant) {
         final String senderName = (context.player != null ? context.player.getDisplayName() : "CONSOLE");
         for (final String name : names) {
-            if (!(grant ? region.access.addOwner(name) : region.access.removeOwner(name))) {
+            if (!(grant ? region.owners.add(name) : region.owners.remove(name))) {
                 context.respond("Region ownership " + (grant ? "already contains " : "does not contain ") + name + " in " + region.getDisplayName(), MessageLevel.WARNING);
                 continue;
             }
 
             // Do not allow an owner to remove their own ownership accidentally if they can't add themselves back forcibly
-            if (!grant && !context.sender.hasPermission(Permission.REGION_OWNER.toString()) && context.player != null && !region.access.isOwner(context.player)) {
-                region.access.addOwner(name);
+            if (!grant && !context.sender.hasPermission(Permission.REGION_OWNER.toString()) && context.player != null && !region.isOwner(context.player)) {
+                region.owners.add(name);
                 context.respond("You can not remove your own ownership from " + region.getDisplayName(), MessageLevel.SEVERE);
                 continue;
             }

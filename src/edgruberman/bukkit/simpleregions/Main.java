@@ -14,8 +14,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import edgruberman.bukkit.accesscontrol.AccountManager;
-
 public final class Main extends JavaPlugin implements RegionRepository {
 
     /**
@@ -38,7 +36,7 @@ public final class Main extends JavaPlugin implements RegionRepository {
     public void onEnable() {
         this.setLoggingLevel(this.getConfig().getString("logLevel", "INFO"));
         this.start(this);
-        new edgruberman.bukkit.simpleregions.commands.Region(this, this.catalog, AccountManager.get());
+        new edgruberman.bukkit.simpleregions.commands.Region(this, this.catalog);
     }
 
     @Override
@@ -71,7 +69,7 @@ public final class Main extends JavaPlugin implements RegionRepository {
             return;
         }
 
-        final Region region = new Region(AccountManager.get(), new HashSet<String>(definition.getStringList("access")));
+        final Region region = new Region(new HashSet<String>(definition.getStringList("access")));
         region.setActive(definition.getBoolean("active"));
         catalog.serverDefault = region;
         catalog.plugin.getLogger().finest(region.describe(3));
@@ -107,8 +105,7 @@ public final class Main extends JavaPlugin implements RegionRepository {
             final ConfigurationSection config = worldConfig.getConfigurationSection(name);
 
             final Region region = new Region(
-                      AccountManager.get()
-                    , world
+                      world
                     , (name.equals(Region.NAME_DEFAULT) ? null : name)
                     , new HashSet<String>(config.getStringList("owners"))
                     , new HashSet<String>(config.getStringList("access"))
@@ -141,9 +138,9 @@ public final class Main extends JavaPlugin implements RegionRepository {
         final ConfigurationSection config = file.getConfig().createSection(regionName);
 
         config.set("active", region.isActive());
-        config.set("access", region.access.formatAllowed());
+        config.set("access", region.access);
         if (!region.isDefault()) {
-            config.set("owners", region.access.formatOwners());
+            config.set("owners", region.owners);
             config.set("enter", (region.enter == null ? null : region.enter.getFormat()));
             config.set("exit", (region.exit == null ? null : region.exit.getFormat()));
             config.set("x1", region.getX1());

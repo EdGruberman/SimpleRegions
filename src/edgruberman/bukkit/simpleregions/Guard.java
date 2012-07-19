@@ -90,7 +90,7 @@ final class Guard implements Listener {
         if (!this.leftClickFire(event) && !Guard.DENIED_ITEMS.contains(inHand.getTypeId())) return;
 
         final Location target = event.getClickedBlock().getLocation();
-        if (Guard.BUCKETS.contains(inHand.getTypeId()))
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && Guard.BUCKETS.contains(inHand.getTypeId()))
             target.add(event.getBlockFace().getModX(), event.getBlockFace().getModY(), event.getBlockFace().getModZ());
 
         if (this.catalog.isAllowed(event.getPlayer(), target)) return;

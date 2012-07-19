@@ -14,6 +14,26 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import edgruberman.bukkit.simpleregions.commands.RegionAccessGrant;
+import edgruberman.bukkit.simpleregions.commands.RegionAccessReset;
+import edgruberman.bukkit.simpleregions.commands.RegionAccessRevoke;
+import edgruberman.bukkit.simpleregions.commands.RegionActivate;
+import edgruberman.bukkit.simpleregions.commands.RegionCreate;
+import edgruberman.bukkit.simpleregions.commands.RegionCurrent;
+import edgruberman.bukkit.simpleregions.commands.RegionDeactivate;
+import edgruberman.bukkit.simpleregions.commands.RegionDefine;
+import edgruberman.bukkit.simpleregions.commands.RegionDelete;
+import edgruberman.bukkit.simpleregions.commands.RegionEnter;
+import edgruberman.bukkit.simpleregions.commands.RegionExit;
+import edgruberman.bukkit.simpleregions.commands.RegionInfo;
+import edgruberman.bukkit.simpleregions.commands.RegionOwnersGrant;
+import edgruberman.bukkit.simpleregions.commands.RegionOwnersReset;
+import edgruberman.bukkit.simpleregions.commands.RegionOwnersRevoke;
+import edgruberman.bukkit.simpleregions.commands.RegionSet;
+import edgruberman.bukkit.simpleregions.commands.RegionTarget;
+import edgruberman.bukkit.simpleregions.commands.RegionUnset;
+import edgruberman.bukkit.simpleregions.commands.Reload;
+
 public final class Main extends JavaPlugin implements RegionRepository {
 
     /**
@@ -35,8 +55,28 @@ public final class Main extends JavaPlugin implements RegionRepository {
     @Override
     public void onEnable() {
         this.setLoggingLevel(this.getConfig().getString("logLevel", "INFO"));
+
         this.start(this);
-        new edgruberman.bukkit.simpleregions.commands.Region(this, this.catalog);
+
+        this.getCommand("simpleregions:reload").setExecutor(new Reload(this));
+        this.getCommand("simpleregions:region.current").setExecutor(new RegionCurrent(this, this.catalog));
+        this.getCommand("simpleregions:region.target").setExecutor(new RegionTarget(this, this.catalog));
+        this.getCommand("simpleregions:region.set").setExecutor(new RegionSet(this, this.catalog));
+        this.getCommand("simpleregions:region.unset").setExecutor(new RegionUnset(this, this.catalog));
+        this.getCommand("simpleregions:region.info").setExecutor(new RegionInfo(this, this.catalog));
+        this.getCommand("simpleregions:region.activate").setExecutor(new RegionActivate(this, this.catalog));
+        this.getCommand("simpleregions:region.deactivate").setExecutor(new RegionDeactivate(this, this.catalog));
+        this.getCommand("simpleregions:region.owners.grant").setExecutor(new RegionOwnersGrant(this, this.catalog));
+        this.getCommand("simpleregions:region.owners.revoke").setExecutor(new RegionOwnersRevoke(this, this.catalog));
+        this.getCommand("simpleregions:region.owners.reset").setExecutor(new RegionOwnersReset(this, this.catalog));
+        this.getCommand("simpleregions:region.access.grant").setExecutor(new RegionAccessGrant(this, this.catalog));
+        this.getCommand("simpleregions:region.access.revoke").setExecutor(new RegionAccessRevoke(this, this.catalog));
+        this.getCommand("simpleregions:region.access.reset").setExecutor(new RegionAccessReset(this, this.catalog));
+        this.getCommand("simpleregions:region.enter").setExecutor(new RegionEnter(this, this.catalog));
+        this.getCommand("simpleregions:region.exit").setExecutor(new RegionExit(this, this.catalog));
+        this.getCommand("simpleregions:region.create").setExecutor(new RegionCreate(this, this.catalog));
+        this.getCommand("simpleregions:region.define").setExecutor(new RegionDefine(this, this.catalog));
+        this.getCommand("simpleregions:region.delete").setExecutor(new RegionDelete(this, this.catalog));
     }
 
     @Override
@@ -72,7 +112,6 @@ public final class Main extends JavaPlugin implements RegionRepository {
         final Region region = new Region(new HashSet<String>(definition.getStringList("access")));
         region.setActive(definition.getBoolean("active"));
         catalog.serverDefault = region;
-        catalog.plugin.getLogger().finest(region.describe(3));
     }
 
     private void setLoggingLevel(final String name) {

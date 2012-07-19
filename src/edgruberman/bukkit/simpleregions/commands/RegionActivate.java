@@ -11,12 +11,12 @@ import edgruberman.bukkit.messagemanager.MessageManager;
 import edgruberman.bukkit.simpleregions.Catalog;
 import edgruberman.bukkit.simpleregions.Region;
 
-public class RegionSet implements CommandExecutor {
+public class RegionActivate implements CommandExecutor {
 
     private final Plugin plugin;
     private final Catalog catalog;
 
-    public RegionSet(final Plugin plugin, final Catalog catalog) {
+    public RegionActivate(final Plugin plugin, final Catalog catalog) {
         this.plugin = plugin;
         this.catalog = catalog;
     }
@@ -24,7 +24,7 @@ public class RegionSet implements CommandExecutor {
     // usage: /<command>[ <Region>[ <World>]]
     @Override
     public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
-        if (args.length < 1) {
+        if (!(sender instanceof Player) && args.length < 1) {
             MessageManager.of(this.plugin).tell(sender, String.format("§cMissing §o%1$s§r parameter", "<Region>"), MessageLevel.SEVERE, false);
             return false;
         }
@@ -34,11 +34,16 @@ public class RegionSet implements CommandExecutor {
             return false;
         }
 
-        final Region region = Utility.parseRegion(this.plugin, this.catalog, sender, args, 0);
+        final Region region = Utility.parseRegion(this.plugin, this.catalog, sender, args, 1);
         if (region == null) return false;
 
-        this.catalog.setWorkingRegion(sender, region);
-        MessageManager.of(this.plugin).tell(sender, String.format("§2Set working region§r to: %1$s in %2$s", region.getDisplayName(), region.world.getName()), MessageLevel.STATUS, false);
+        if (!Utility.canUseOwnerCommands(region, sender)) {
+            MessageManager.of(this.plugin).tell(sender, "Command cancelled when §cnot region owner§r", MessageLevel.SEVERE, false);
+            return true;
+        }
+
+        region.setActive(true);
+        MessageManager.of(this.plugin).tell(sender, String.format("§2Activated§r region %1$s in %2$s", region.getDisplayName(), region.world.getName()), MessageLevel.STATUS);
         return true;
     }
 

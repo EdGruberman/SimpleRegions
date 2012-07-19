@@ -62,28 +62,28 @@ public class CachingRectangularCuboid {
      *
      * @return minimum X axis value
      */
-    public Integer getN() { return this.minX; }
+    public Integer getN() { return this.minZ; }
 
     /**
      * Eastern most coordinate.
      *
      * @return minimum Z axis value
      */
-    public Integer getE() { return this.minZ; }
+    public Integer getE() { return this.maxX; }
 
     /**
      * Southern most coordinate.
      *
      * @return maximum X axis value
      */
-    public Integer getS() { return this.maxX; }
+    public Integer getS() { return this.maxZ; }
 
     /**
      * Western most coordinate.
      *
      * @return maximum Z axis value
      */
-    public Integer getW() { return this.maxZ; }
+    public Integer getW() { return this.minX; }
 
     /**
      * Upwards most coordinate.
@@ -125,6 +125,20 @@ public class CachingRectangularCuboid {
     }
 
     public void setZ2(final Integer z) {
+        this.z2 = z;
+        this.update();
+    }
+
+    public void set1(final Integer x, final Integer y, final Integer z) {
+        this.x1 = x;
+        this.y1 = y;
+        this.z1 = z;
+        this.update();
+    }
+
+    public void set2(final Integer x, final Integer y, final Integer z) {
+        this.x2 = x;
+        this.y2 = y;
         this.z2 = z;
         this.update();
     }

@@ -1,64 +1,54 @@
 package edgruberman.bukkit.simpleregions.commands;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
+import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 import edgruberman.bukkit.messagemanager.MessageLevel;
-import edgruberman.bukkit.simpleregions.Permission;
+import edgruberman.bukkit.messagemanager.MessageManager;
+import edgruberman.bukkit.simpleregions.Catalog;
 
-public class RegionCreate extends Action {
+public class RegionCreate implements CommandExecutor {
 
-    public static final String NAME = "create";
-    public static final Set<String> ALIASES = new HashSet<String>(Arrays.asList("new", "add"));
+    private final Plugin plugin;
+    private final Catalog catalog;
 
-    private final Region base;
-    private final RegionSet regionSet;
-
-    RegionCreate(final Region owner, final RegionSet regionSet) {
-        super(owner, RegionCreate.NAME, Permission.REGION_CREATE);
-        this.base = owner;
-        this.regionSet = regionSet;
-        this.aliases.addAll(RegionCreate.ALIASES);
+    public RegionCreate(final Plugin plugin, final Catalog catalog) {
+        this.plugin = plugin;
+        this.catalog = catalog;
     }
 
+    // usage: /<command> <Region>[ <World>]
     @Override
-    void execute(final Context context) {
-        String name = null;
-        if (context.arguments.size() > 1) name = context.arguments.get(context.arguments.size() - 1);
-        if (name == null) {
-            context.respond("No region name specified.", MessageLevel.WARNING);
-            return;
+    public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
+        if (args.length < 1) {
+            MessageManager.of(this.plugin).tell(sender, String.format("§cMissing §o%1$s§r parameter", "<Region>"), MessageLevel.SEVERE, false);
+            return false;
         }
 
-        final World world = RegionCreate.parseWorld(context);
+        if (!(sender instanceof Player) && args.length < 2) {
+            MessageManager.of(this.plugin).tell(sender, String.format("§cMissing §o%1$s§r parameter", "<World>"), MessageLevel.SEVERE, false);
+            return false;
+        }
+
+        final String name = args[0];
+        final String worldName = (args.length >= 2 ? args[1] : ((Player) sender).getWorld().getName());
+        final World world = Bukkit.getWorld(worldName);
         if (world == null) {
-            context.respond("World unable to be determined.", MessageLevel.WARNING);
-            return;
+            MessageManager.of(this.plugin).tell(sender, "World §enot found§r", MessageLevel.SEVERE, false);
+            return true;
         }
 
         final edgruberman.bukkit.simpleregions.Region region = new edgruberman.bukkit.simpleregions.Region(world, name);
-        this.base.catalog.addRegion(region);
-        this.base.catalog.repository.saveRegion(region, false);
-        this.regionSet.setWorkingRegion(context, region, true);
-        context.respond("Region created: " + region.getDisplayName(), MessageLevel.STATUS);
-    }
-
-    // Command Syntax: /region create[ <World>] <Region>
-    static World parseWorld(final Context context) {
-        // Assume player's world if not specified.
-        if (context.arguments.size() <= 2) {
-            if (context.player == null) return null;
-
-            return context.player.getWorld();
-        }
-
-        final String name = context.arguments.get(context.actionIndex + 1);
-        if (name.equals(edgruberman.bukkit.simpleregions.Region.SERVER_DEFAULT)) return null;
-
-        return context.owner.plugin.getServer().getWorld(name);
+        this.catalog.addRegion(region);
+        this.catalog.repository.saveRegion(region, false);
+        MessageManager.of(this.plugin).tell(sender, String.format("§2Region created:§r %1$s in %2$s", region.getDisplayName(), region.world.getName()), MessageLevel.STATUS, false);
+        Bukkit.getServer().dispatchCommand(sender, "simpleregions:region.set " + region.getDisplayName() + " " + region.world.getName());
+        return true;
     }
 
 }

@@ -11,12 +11,12 @@ import edgruberman.bukkit.messagemanager.MessageManager;
 import edgruberman.bukkit.simpleregions.Catalog;
 import edgruberman.bukkit.simpleregions.Region;
 
-public class RegionSet implements CommandExecutor {
+public class RegionInfo implements CommandExecutor {
 
     private final Plugin plugin;
     private final Catalog catalog;
 
-    public RegionSet(final Plugin plugin, final Catalog catalog) {
+    public RegionInfo(final Plugin plugin, final Catalog catalog) {
         this.plugin = plugin;
         this.catalog = catalog;
     }
@@ -24,7 +24,7 @@ public class RegionSet implements CommandExecutor {
     // usage: /<command>[ <Region>[ <World>]]
     @Override
     public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
-        if (args.length < 1) {
+        if (!(sender instanceof Player) && args.length < 1) {
             MessageManager.of(this.plugin).tell(sender, String.format("§cMissing §o%1$s§r parameter", "<Region>"), MessageLevel.SEVERE, false);
             return false;
         }
@@ -37,8 +37,23 @@ public class RegionSet implements CommandExecutor {
         final Region region = Utility.parseRegion(this.plugin, this.catalog, sender, args, 0);
         if (region == null) return false;
 
-        this.catalog.setWorkingRegion(sender, region);
-        MessageManager.of(this.plugin).tell(sender, String.format("§2Set working region§r to: %1$s in %2$s", region.getDisplayName(), region.world.getName()), MessageLevel.STATUS, false);
+        Utility.describeRegion(this.plugin, region, sender);
+        if (!region.isDefault()) {
+            MessageManager.of(this.plugin).tell(sender, Utility.describeRegionArea(region, "Area: %1$sx * %2$sz = %3$s blocks squared"), MessageLevel.CONFIG, false);
+            MessageManager.of(this.plugin).tell(sender, Utility.describeRegionVolume(region, "Volume: %1$sx * %2$sy * %3$sz = %4$s blocks cubed"), MessageLevel.CONFIG, false);
+        }
+
+        if (!Utility.canUseOwnerCommands(region, sender)) return true;
+
+        // Instruct owners on how to define/activate
+        if (!region.isActive()) {
+            if (!region.isDefault() && !region.isDefined() && sender.hasPermission("simpleregions.region.define")) {
+                MessageManager.of(this.plugin).tell(sender, "Undefined region; To define: /define", MessageLevel.NOTICE, false);
+                return true;
+            }
+
+            MessageManager.of(this.plugin).tell(sender, "Inactive region; To activate: /region_on", MessageLevel.NOTICE, false);
+        }
         return true;
     }
 

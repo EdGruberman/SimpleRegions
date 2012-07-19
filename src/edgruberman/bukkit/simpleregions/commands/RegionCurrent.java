@@ -2,86 +2,50 @@ package edgruberman.bukkit.simpleregions.commands;
 
 import java.util.Set;
 
-import org.bukkit.Location;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 import edgruberman.bukkit.messagemanager.MessageLevel;
-import edgruberman.bukkit.simpleregions.Permission;
+import edgruberman.bukkit.messagemanager.MessageManager;
+import edgruberman.bukkit.simpleregions.Catalog;
+import edgruberman.bukkit.simpleregions.Region;
 
-// Syntax: /region[ current][ <Player>]
-public class RegionCurrent extends Action {
+public class RegionCurrent implements CommandExecutor {
 
-    public static final String NAME = "current";
+    private final Plugin plugin;
+    private final Catalog catalog;
 
-    private final Region base;
-
-    RegionCurrent(final Region owner) {
-        super(owner, RegionCurrent.NAME, Permission.REGION_CURRENT);
-        this.base = owner;
+    public RegionCurrent(final Plugin plugin, final Catalog catalog) {
+        this.plugin = plugin;
+        this.catalog = catalog;
     }
 
     @Override
-    void execute(final Context context) {
-        this.message(context, null);
-    }
-
-    void message(final Context context, final Location location) {
-        final String name = RegionCurrent.parsePlayerName(context);
-        if (name == null) {
-            context.respond("Unable to determine target player name", MessageLevel.SEVERE);
-            return;
+    public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
+        if (!(sender instanceof Player)) {
+            MessageManager.of(this.plugin).tell(sender, "Command cancelled when §cnot in-game player", MessageLevel.SEVERE, false);
+            return true;
         }
 
-        Location target = location;
-        String world = null;
+        final Player player = (Player) sender;
+        final Set<Region> regions = this.catalog.getRegions(player.getLocation());
 
-        // If a specific location is not specified, use target player's current location
-        if (location == null) {
-            final Player player = Region.getExactPlayer(name);
-            if (player == null) {
-                context.respond("Unable to find target player \"" + name + "\"", MessageLevel.SEVERE);
-                return;
-            }
-
-            target = player.getLocation();
-            world = player.getWorld().getName();
-        }
-
-        // Get applicable regions
-        final Set<edgruberman.bukkit.simpleregions.Region> regions = this.base.catalog.getRegions(target);
-
-        // Compile region name list
         String names = "";
-        for (final edgruberman.bukkit.simpleregions.Region region : regions) {
+        for (final Region region : regions) {
             if (names.length() != 0) names += ", ";
-            names += region.getDisplayName();
+            names += String.format((region.hasAccess(player) ? "§2%1$s§r" : "§e%1$s§r"), region.getDisplayName());
         }
+        final String message = String.format("Current regions: %1$s §8(%2$d)", names, regions.size());
 
-        // Compile response message
-        String message = "Current region" + (regions.size() > 1 ? "s" : "");
-        if (context.player == null || !name.equals(context.player.getName())) message += " for " + (world != null ? "[" + world + "] " : "") + name;
-        if (location != null) message += " at (x:" + target.getBlockX() + " y:" + target.getBlockY() + " z:" + target.getBlockZ() + ")";
-
-        message += ": ";
-        if (regions.size() == 0) {
-            message += "(none)";
-        } else {
-            message += names;
-        }
-
-        // Determine response level based on target access
         MessageLevel level = MessageLevel.STATUS;
-        if (!this.base.catalog.isAllowed(Region.getExactPlayer(name), target))
+        if (!this.catalog.isAllowed(player, player.getLocation()))
             level = MessageLevel.WARNING;
 
-        context.respond(message, level);
-    }
-
-    private static String parsePlayerName(final Context context) {
-        if (context.arguments.size() <= (context.actionIndex + 1))
-            return (context.player == null ? null : context.player.getName());
-
-        return context.arguments.get(context.actionIndex + 1);
+        MessageManager.of(this.plugin).tell(sender, message, level, false);
+        return true;
     }
 
 }

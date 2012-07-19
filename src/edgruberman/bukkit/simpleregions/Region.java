@@ -35,7 +35,7 @@ public final class Region extends CachingRectangularCuboid {
     public final List<String> access = new ArrayList<String>();
 
     private CaseInsensitiveString name;
-    private boolean active = false;
+    public boolean active = false;
 
     public Region(final World world, final String name) {
         this.world = world;
@@ -194,27 +194,6 @@ public final class Region extends CachingRectangularCuboid {
         return "[" + this.world.getName() + "] (x:" + this.getX1() + ",y:" + this.getY1() + ",z:" + this.getZ1() + ") - (x:" + this.getX2() + ",y:" + this.getY2() + ",z:" + this.getZ2() + ")";
     }
 
-    public String describe() {
-        return this.describe(null);
-    }
-
-    /**
-     * Generates a human readable representation of a region.
-     *
-     * @param format Specifies the visual format to use.
-     * @return Pertinent details.
-     */
-    public String describe(final Integer format) {
-        String description = "---- Region: " + this.getDisplayName() + " ----";
-        description += "\nWorld: " + (this.world == null ? Region.SERVER_DEFAULT_DISPLAY : this.world.getName());
-        description += "\nActive: " + this.active;
-        if (!this.isDefault()) description += "\nOwners: " + Region.join(this.owners, " ");
-        description += "\nAccess: " + Region.join(this.access, " ");
-        if (!this.isDefault()) description += "\n" + this.describeCoordinates(format);
-
-        return description;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -247,23 +226,6 @@ public final class Region extends CachingRectangularCuboid {
         }
 
         return true;
-    }
-
-    /**
-     * Combine all the elements of a list together with a delimiter between each.
-     *
-     * @param list List of elements to join.
-     * @param delim Delimiter to place between each element.
-     * @return String combined with all elements and delimiters.
-     */
-    private static String join(final List<String> list, final String delim) {
-        if (list.isEmpty()) return "";
-
-        final StringBuilder sb = new StringBuilder();
-        for (final String s : list) sb.append(s + delim);
-        sb.delete(sb.length() - delim.length(), sb.length());
-
-        return sb.toString();
     }
 
 }

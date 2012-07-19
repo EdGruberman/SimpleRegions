@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -29,6 +30,9 @@ public final class Catalog implements Listener {
     public final RegionRepository repository;
     public final Map<String, Index> worlds = new HashMap<String, Index>();
     public Region serverDefault = null;
+
+    /** CommandSender ("SimpleClassName.Name") to working Region reference for commands */
+    private final Map<String, Region> working = new HashMap<String, Region>();
 
     public Catalog(final Plugin plugin, final RegionRepository repository) {
         this.plugin = plugin;
@@ -89,7 +93,7 @@ public final class Catalog implements Listener {
             if (region.contains(location)) regions.add(region);
 
         if (regions.size() == 0) {
-            final Region def = this.getDefault(location.getWorld());
+            final Region def = this.getDefault(location.getWorld().getName());
             if (def != null) regions.add(def);
         }
 
@@ -100,16 +104,27 @@ public final class Catalog implements Listener {
      * Determines default applicable region for specified world. A world's
      * default region (non-null) overrides the server default region.
      *
-     * @param world world to return applicable default region for
+     * @param world world name to return applicable default region for
      * @return default region applicable for world
      * TODO defaultRegion
      */
-    public Region getDefault(final World world) {
-        final String name = (world == null ? null : world.getName());
-        final Region def = this.worlds.get(name).worldDefault;
-        if (def != null) return def;
+    public Region getDefault(final String world) {
+        final Index index = this.worlds.get(world);
+        if (index == null) return this.serverDefault;
 
-        return this.serverDefault;
+        final Region def = index.worldDefault;
+        if (def == null) return this.serverDefault;
+
+        return def;
+    }
+
+    public Region getRegion(final String region, final String world) {
+        if (region.equalsIgnoreCase(Region.NAME_DEFAULT))
+            return this.getDefault(world);
+
+        if (world == null) return null;
+
+        return this.worlds.get(world).regions.get(region.toLowerCase());
     }
 
     /**
@@ -172,6 +187,26 @@ public final class Catalog implements Listener {
         if (index == null) throw new IllegalArgumentException("Unable to remove region; region world index not found: " + region.world.getName());
 
         index.remove(region);
+    }
+
+    public void setWorkingRegion(final CommandSender sender, final Region region) {
+        this.working.put(sender.getClass().getSimpleName() + "." + sender.getName(), region);
+    }
+
+    public void unsetWorkingRegion(final CommandSender sender) {
+        this.working.remove(sender.getClass().getSimpleName() + "." + sender.getName());
+    }
+
+    public Region getWorkingRegion(final CommandSender sender) {
+        final Region region = this.working.get(sender.getClass().getSimpleName() + "." + sender.getName());
+        if (region != null) return region;
+
+        if (!(sender instanceof Player)) return null;
+
+        final Set<edgruberman.bukkit.simpleregions.Region> regions = this.getRegions(((Player) sender).getLocation());
+        if (regions.size() != 1) return null;
+
+        return regions.iterator().next();
     }
 
 }

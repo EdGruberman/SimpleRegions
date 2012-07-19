@@ -1,95 +1,170 @@
 name: @NAME@
-description: Protect regions of the map so only selected players can edit them.
-depend: [MessageManager]
+description: Protect regions of blocks so only configured players can modify
+softdepend: [MessageManager]
 version: @VERSION@
 author: @AUTHOR@
 main: @MAIN@
 commands:
-    region:
-        description: Describe, modify, create, and remove regions.
-        permission: simpleregions.region
-        usage: |
-            /<command> - Show your current region(s).
-            /<command> info - Show region details.
-            /<command> (+|-|=)[access] <Player> - Add/remove access.
-            /<command> (+|-|=)owner <Player> - Add/remove owners.
-            /<command> (+|-)active - Set region status.
-            /<command> <Region> <Action> - Remote management.
+    'simpleregions:region.current':
+        description: Show your current region
+        permission: simpleregions.region.current
+    'simpleregions:region.target':
+        description: Show region where you are looking
+        permission: simpleregions.region.target
+    'simpleregions:region.set':
+        description: Set your working region
+        permission: simpleregions.region.set
+        usage: /<command> <Region>[ <World>]
+    'simpleregions:region.unset':
+        description: Unset your working region
+        permission: simpleregions.region.unset
+        usage: /<command>
+    'simpleregions:region.info':
+        description: Show region information
+        permission: simpleregions.region.info
+        usage: /<command>[ <Region>[ <World>]]
+    'simpleregions:region.activate':
+        description: Enable region protection (* Owners Only)
+        permission: simpleregions.region.activate
+        usage: /<command>[ <Region>[ <World>]]
+    'simpleregions:region.deactivate':
+        description: Disable region protection (* Owners Only)
+        permission: simpleregions.region.deactive
+        usage: /<command>[ <Region>[ <World>]]
+    'simpleregions:region.owners.grant':
+        description: Add explicit region owner (* Owners Only)
+        permission: simpleregions.region.owners.grant
+        usage: /<command> <Owner>[ <Region>[ <World>]]
+    'simpleregions:region.owners.revoke':
+        description: Remove explicit region owner (* Owners Only)
+        permission: simpleregions.region.owners.revoke
+        usage: /<command> <Owner>[ <Region>[ <World>]]
+    'simpleregions:region.owners.reset':
+        description: Reset explicit region owners (* Owners Only)
+        permission: simpleregions.region.owners.reset
+        usage: /<command> <Owner>[ <Region>[ <World>]]
+    'simpleregions:region.access.grant':
+        description: Add explicit region access (* Owners Only)
+        permission: simpleregions.region.access.grant
+        usage: /<command> <Access>[ <Region>[ <World>]]
+    'simpleregions:region.access.revoke':
+        description: Remove explicit region access (* Owners Only)
+        permission: simpleregions.region.access.revoke
+        usage: /<command> <Access>[ <Region>[ <World>]]
+    'simpleregions:region.access.reset':
+        description: Reset explicit region access (* Owners Only)
+        permission: simpleregions.region.access.reset
+        usage: /<command> <Access>[ <Region>[ <World>]]
+    'simpleregions:region.enter':
+        description: View/set region enter message format (* Owners Only)
+        permission: simpleregions.region.enter
+        usage: /<command>[ <Message>]
+    'simpleregions:region.exit':
+        description: View/set region exit message format (* Owners Only)
+        permission: simpleregions.region.exit
+        usage: /<command>[ <Message>]
+    'simpleregions:region.create':
+        description: Create new region
+        permission: simpleregions.region.create
+        usage: /<command> <Region>[ <World>]
+    'simpleregions:region.define':
+        description: Define working region coordinates
+        permission: simpleregions.region.define
+        usage: /<command>[ (n|e|s|w|u|d|1|2) <Coordinate>[ <Region>[ <World>]]]
+    'simpleregions:region.delete':
+        description: Delete region
+        permission: simpleregions.region.delete
+        usage: /<command> <Region> <World>
+    'simpleregions:reload':
+        description: Reload region configuration
+        permission: simpleregions.reload
 permissions:
-    simpleregions.region.read:
-        description: Can use all read related actions of region command.
+    simpleregions.region:
+        description: Can use common actions of region command
         default: true
         children:
             simpleregions.region.current: true
             simpleregions.region.target: true
             simpleregions.region.set: true
-            simpleregions.region.detail: true
-            simpleregions.region.size: true
+            simpleregions.region.unset: true
+            simpleregions.region.info: true
+            simpleregions.region.access.grant: true
+            simpleregions.region.access.revoke: true
+            simpleregions.region.access.reset: true
+            simpleregions.region.owners.grant: true
+            simpleregions.region.owners.revoke: true
+            simpleregions.region.owners.reset: true
+            simpleregions.region.activate: true
+            simpleregions.region.deactivate: true
+    simpleregions.admin:
+        description: Can use administrative features of SimpleRegions plugin
+        default: op
+        children:
+            simpleregions.region.owner.override: true
+            simpleregions.region.read: true
+            simpleregions.region.enter: true
+            simpleregions.region.exit: true
+            simpleregions.region.create: true
+            simpleregions.region.define: true
+            simpleregions.region.delete: true
+            simpleregions.reload: true
+    simpleregions.region.owner.override:
+        description: Perform region commands that require owner even if not owner
+        default: false
     simpleregions.region.current:
-        description: Can use current action of region command.
+        description: Can use region.current command
         default: false
-        children:
-            simpleregions.region: true
     simpleregions.region.target:
-        description: Can use target action of region command.
+        description: Can use region.target command
         default: false
-        children:
-            simpleregions.region: true
     simpleregions.region.set:
-        description: Can use set and unset actions of region command.
+        description: Can use region.set command
         default: false
-        children:
-            simpleregions.region: true
-    simpleregions.region.detail:
-        description: Can use detail action of region command.
+    simpleregions.region.unset:
+        description: Can use region.unset command
         default: false
-        children:
-            simpleregions.region: true
-    simpleregions.region.size:
-        description: Can use detail action of region command.
+    simpleregions.region.info:
+        description: Can use region.info command
         default: false
-        children:
-            simpleregions.region: true
-    simpleregions.region.active:
-        description: Can use the active action of region command.
-        default: op
-        children:
-            simpleregions.region: true
-    simpleregions.region.access:
-        description: Can use access action of region command.
-        default: op
-        children:
-            simpleregions.region: true
-    simpleregions.region.owner:
-        description: Can use owner action of region command.
-        default: op
-        children:
-            simpleregions.region: true
-    simpleregions.region.message:
-        description: Can use enter and exit actions of region command.
-        default: op
-        children:
-            simpleregions.region: true
+    simpleregions.region.activate:
+        description: Can use region.activate command (* Owners Only)
+        default: false
+    simpleregions.region.deactivate:
+        description: Can use region.deactivate command (* Owners Only)
+        default: false
+    simpleregions.region.access.grant:
+        description: Can use region.access.grant command (* Owners Only)
+        default: false
+    simpleregions.region.access.revoke:
+        description: Can use region.access.revoke command (* Owners Only)
+        default: false
+    simpleregions.region.access.reset:
+        description: Can use region.access.reset command (* Owners Only)
+        default: false
+    simpleregions.region.owners.grant:
+        description: Can use region.owners.grant command (* Owners Only)
+        default: false
+    simpleregions.region.owners.revoke:
+        description: Can use region.owners.revoke command (* Owners Only)
+        default: false
+    simpleregions.region.owners.reset:
+        description: Can use region.owners.revoke command (* Owners Only)
+        default: false
+    simpleregions.region.enter:
+        description: Can use region.enter command
+        default: false
+    simpleregions.region.exit:
+        description: Can use region.exit command
+        default: false
     simpleregions.region.create:
-        description: Can use create action of region command.
-        default: op
-        children:
-            simpleregions.region: true
+        description: Can use region.create command
+        default: false
     simpleregions.region.define:
-        description: Can use define action of region command.
-        default: op
-        children:
-            simpleregions.region: true
+        description: Can use region.define command
+        default: false
     simpleregions.region.delete:
-        description: Can use delete action of region command.
-        default: op
-        children:
-            simpleregions.region: true
-    simpleregions.region.reload:
-        description: Can use reload action of region command.
-        default: op
-        children:
-            simpleregions.region: true
-    simpleregions.region:
-        description: Can use region command.
+        description: Can use region.delete command
+        default: false
+    simpleregions.reload:
+        description: Can use reload command
         default: false

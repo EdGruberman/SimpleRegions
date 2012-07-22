@@ -207,7 +207,7 @@ public final class Main extends JavaPlugin implements RegionRepository {
         String formatted = "";
         for (final Region region : regions) {
             if (formatted.length() > 0) formatted += Messenger.getFormat("regionName.delimiter");
-            formatted += String.format((region.hasAccess(access) ? Messenger.getFormat("regionName.hasAccess") : Messenger.getFormat("regionName.noAccess")), region.getDisplayName());
+            formatted += String.format((region.hasAccess(access) ? Messenger.getFormat("regionName.hasAccess") : Messenger.getFormat("regionName.noAccess")), region.formatName());
         }
         return formatted;
     }

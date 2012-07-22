@@ -29,7 +29,7 @@ public class RegionOwnersRevoke implements CommandExecutor {
         if (owner == null) return false;
 
         if (!region.isDirectOwner(owner)) {
-            Messenger.tell(sender, "ownerRevokeMissing", owner, region.getDisplayName(), (region.world != null ? region.world.getName() : Region.SERVER_DEFAULT_DISPLAY));
+            Messenger.tell(sender, "ownerRevokeMissing", owner, region.formatName(), region.formatWorld());
             return true;
         }
 
@@ -48,7 +48,7 @@ public class RegionOwnersRevoke implements CommandExecutor {
         }
 
         this.catalog.repository.saveRegion(region, false);
-        Messenger.tell(sender, "ownerRevokeSuccess", owner, region.getDisplayName(), (region.world != null ? region.world.getName() : Region.SERVER_DEFAULT_DISPLAY));
+        Messenger.tell(sender, "ownerRevokeSuccess", owner, region.formatName(), region.formatWorld());
         return true;
     }
 

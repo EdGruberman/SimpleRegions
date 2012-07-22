@@ -30,7 +30,7 @@ public class RegionAccessReset implements CommandExecutor {
         region.access.clear();
         region.access.add(access);
         this.catalog.repository.saveRegion(region, false);
-        Messenger.tell(sender, "accessReset", access, region.getDisplayName(), region.world.getName());
+        Messenger.tell(sender, "accessReset", access, region.formatName(), region.formatWorld());
         return true;
     }
 

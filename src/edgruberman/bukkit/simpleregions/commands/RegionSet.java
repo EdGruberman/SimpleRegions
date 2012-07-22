@@ -23,7 +23,7 @@ public class RegionSet implements CommandExecutor {
         if (region == null) return false;
 
         this.catalog.setWorkingRegion(sender, region);
-        Messenger.tell(sender, "set", region.getDisplayName(), region.world.getName());
+        Messenger.tell(sender, "set", region.formatName(), region.formatWorld());
         return true;
     }
 

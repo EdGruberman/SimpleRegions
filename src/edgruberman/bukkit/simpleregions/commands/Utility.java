@@ -17,8 +17,8 @@ public class Utility {
         // # 2 = Region, 3 = World, 4 = Active, 5 = Owners, 6 = Access, 7 = North, 8 = East, 9 = South, 10 = West, 11 = Down, 12 = Up
         for (final String format : Messenger.get().formats.getStringList((region.isDefault() ? "describeDefault" : "describe")))
             Messenger.get().sendMessage(sender, format
-                    , region.getDisplayName()
-                    , (region.world == null ? Region.SERVER_DEFAULT_DISPLAY : region.world.getName())
+                    , region.formatName()
+                    , region.formatWorld()
                     , region.isActive()
                     , region.owners.toString().replaceAll("^\\[|\\]$", "")
                     , region.access.toString().replaceAll("^\\[|\\]$", "")

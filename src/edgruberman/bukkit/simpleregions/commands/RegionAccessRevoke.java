@@ -28,7 +28,7 @@ public class RegionAccessRevoke implements CommandExecutor {
         if (access == null) return false;
 
         if (!region.hasDirectAccess(access)) {
-            Messenger.tell(sender, "accessRevokeMissing", access, region.getDisplayName(), region.world.getName());
+            Messenger.tell(sender, "accessRevokeMissing", access, region.formatName(), region.formatWorld());
             return true;
         }
 
@@ -39,7 +39,7 @@ public class RegionAccessRevoke implements CommandExecutor {
             }
 
         this.catalog.repository.saveRegion(region, false);
-        Messenger.tell(sender, "accessRevokeSuccess", access, region.getDisplayName(), region.world.getName());
+        Messenger.tell(sender, "accessRevokeSuccess", access, region.formatName(), region.formatWorld());
         return true;
     }
 

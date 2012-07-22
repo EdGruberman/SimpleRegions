@@ -30,17 +30,17 @@ public class RegionOwnersGrant implements CommandExecutor {
         if (owner == null) return false;
 
         if (region.isDirectOwner(owner)) {
-            Messenger.tell(sender, "ownerGrantAlready", owner, region.getDisplayName(), region.world.getName());
+            Messenger.tell(sender, "ownerGrantAlready", owner, region.formatName(), region.formatWorld());
             return true;
         }
 
         region.owners.add(owner);
         this.catalog.repository.saveRegion(region, false);
-        Messenger.tell(sender, "ownerGrantSuccess", owner, region.getDisplayName(), (region.world != null ? region.world.getName() : Region.SERVER_DEFAULT_DISPLAY));
+        Messenger.tell(sender, "ownerGrantSuccess", owner, region.formatName(), region.formatWorld());
 
         final Player added = Bukkit.getServer().getPlayerExact(owner);
         if (region.isActive() && added != null)
-            Messenger.tell(added, String.format("ownerGrantNotify", sender.getName(), region.getDisplayName(), (region.world != null ? region.world.getName() : Region.SERVER_DEFAULT_DISPLAY)));
+            Messenger.tell(added, String.format("ownerGrantNotify", sender.getName(), region.formatName(), region.formatWorld()));
 
         return true;
     }

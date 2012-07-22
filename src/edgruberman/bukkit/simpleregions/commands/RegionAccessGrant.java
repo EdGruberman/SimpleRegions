@@ -30,17 +30,17 @@ public class RegionAccessGrant implements CommandExecutor {
         if (access == null) return false;
 
         if (region.hasDirectAccess(access)) {
-            Messenger.tell(sender, "accessGrantAlready", access, region.getDisplayName(), region.world.getName());
+            Messenger.tell(sender, "accessGrantAlready", access, region.formatName(), region.formatWorld());
             return true;
         }
 
         region.access.add(access);
         this.catalog.repository.saveRegion(region, false);
-        Messenger.tell(sender, "accessGrantSuccess", access, region.getDisplayName(), region.world.getName());
+        Messenger.tell(sender, "accessGrantSuccess", access, region.formatName(), region.formatWorld());
 
         final Player added = Bukkit.getServer().getPlayerExact(access);
         if (region.isActive() && added != null)
-            Messenger.tell(added, "accessGrantNotify", sender.getName(), region.getDisplayName(), region.world.getName());
+            Messenger.tell(added, "accessGrantNotify", sender.getName(), region.formatName(), region.formatWorld());
 
         return true;
     }

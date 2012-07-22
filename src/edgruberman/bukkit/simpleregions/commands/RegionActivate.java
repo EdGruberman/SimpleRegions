@@ -25,7 +25,7 @@ public class RegionActivate implements CommandExecutor {
         if (!Utility.checkOwner(region, sender)) return true;
 
         region.setActive(true);
-        Messenger.tell(sender, "activated", region.getDisplayName(), (region.world != null ? region.world.getName() : Region.SERVER_DEFAULT_DISPLAY));
+        Messenger.tell(sender, "activated", region.formatName(), region.formatWorld());
         return true;
     }
 

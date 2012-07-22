@@ -39,8 +39,8 @@ public class RegionCreate implements CommandExecutor {
         final edgruberman.bukkit.simpleregions.Region region = new edgruberman.bukkit.simpleregions.Region(world, name);
         this.catalog.addRegion(region);
         this.catalog.repository.saveRegion(region, false);
-        Messenger.tell(sender, "regionCreated", region.getDisplayName(), region.world.getName());
-        Bukkit.getServer().dispatchCommand(sender, "simpleregions:region.set " + region.getDisplayName() + " " + region.world.getName());
+        Messenger.tell(sender, "regionCreated", region.formatName(), region.formatWorld());
+        Bukkit.getServer().dispatchCommand(sender, "simpleregions:region.set " + region.formatName() + " " + region.formatWorld());
         return true;
     }
 

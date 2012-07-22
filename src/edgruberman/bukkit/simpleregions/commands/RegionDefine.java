@@ -92,7 +92,7 @@ public class RegionDefine implements CommandExecutor {
         }
 
         this.catalog.repository.saveRegion(region, false);
-        Bukkit.getServer().dispatchCommand(sender, "simpleregions:region.info " + region.getDisplayName() + " " + region.world.getName());
+        Bukkit.getServer().dispatchCommand(sender, "simpleregions:region.info " + region.formatName() + " " + region.formatWorld());
         Messenger.tell(sender, "coordinateUpdated");
         return true;
     }

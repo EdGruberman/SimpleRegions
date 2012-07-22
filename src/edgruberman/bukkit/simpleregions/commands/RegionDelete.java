@@ -25,11 +25,11 @@ public class RegionDelete implements CommandExecutor {
 
         if (!Utility.checkOwner(region, sender)) return true;
 
-        Bukkit.getServer().dispatchCommand(sender, "simpleregions:region.info " + region.getDisplayName() + " " + region.world.getName());
+        Bukkit.getServer().dispatchCommand(sender, "simpleregions:region.info " + region.formatName() + " " + region.formatWorld());
         Bukkit.getServer().dispatchCommand(sender, "simpleregions:region.unset");
         this.catalog.removeRegion(region);
         this.catalog.repository.deleteRegion(region, false);
-        Messenger.tell(sender, "regionDeleted", region.getDisplayName(), region.world.getName());
+        Messenger.tell(sender, "regionDeleted", region.formatName(), region.formatWorld());
         return true;
     }
 

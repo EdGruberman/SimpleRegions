@@ -25,7 +25,7 @@ public class RegionDeactivate implements CommandExecutor {
         if (!Utility.checkOwner(region, sender)) return true;
 
         region.setActive(false);
-        Messenger.tell(sender, "deactivated", region.getDisplayName(), (region.world != null ? region.world.getName() : Region.SERVER_DEFAULT_DISPLAY));
+        Messenger.tell(sender, "deactivated", region.formatName(), region.formatWorld());
         return true;
     }
 

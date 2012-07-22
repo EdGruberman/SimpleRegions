@@ -24,8 +24,6 @@ public final class Region extends CachingRectangularCuboid {
 
     public static final String SERVER_DEFAULT = "SERVER";
     public static final String NAME_DEFAULT = "DEFAULT";
-    public static final String SERVER_DEFAULT_DISPLAY = "(SERVER)";
-    public static final String NAME_DEFAULT_DISLAY = "(DEFAULT)";
 
     public final World world;
     public Index worldIndex = null;
@@ -75,10 +73,19 @@ public final class Region extends CachingRectangularCuboid {
         return this.name.toString();
     }
 
-    public String getDisplayName() {
-        if (this.isDefault()) return Region.NAME_DEFAULT_DISLAY;
+    public String formatName() {
+        if (this.isDefault()) return "(" + Region.NAME_DEFAULT + ")";
 
         String display = this.getName();
+        if (display.contains(" ")) display = "\"" + display + "\"";
+
+        return display;
+    }
+
+    public String formatWorld() {
+        if (this.world == null) return "(" + Region.SERVER_DEFAULT + ")";
+
+        String display = this.world.getName();
         if (display.contains(" ")) display = "\"" + display + "\"";
 
         return display;

@@ -6,36 +6,36 @@ import java.util.List;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
-import edgruberman.bukkit.messagemanager.MessageLevel;
-import edgruberman.bukkit.messagemanager.MessageManager;
 import edgruberman.bukkit.simpleregions.Catalog;
+import edgruberman.bukkit.simpleregions.Messenger;
 import edgruberman.bukkit.simpleregions.Region;
 
 public class Utility {
 
-    static void describeRegion(final Plugin plugin, final Region region, final CommandSender sender) {
-        MessageManager.of(plugin).tell(sender, String.format("-- Region: %1$s in %2$s"
-                , region.getDisplayName()
-                , (region.world == null ? Region.SERVER_DEFAULT_DISPLAY : region.world.getName()))
-                , MessageLevel.CONFIG, false);
-        MessageManager.of(plugin).tell(sender, String.format("Active: %1$s", region.isActive()), MessageLevel.CONFIG, false);
-        if (!region.isDefault()) MessageManager.of(plugin).tell(sender, String.format("Owners: %1$s", region.owners.toString().replaceAll("^\\[|\\]$", "")), MessageLevel.CONFIG, false);
-        MessageManager.of(plugin).tell(sender, String.format("Access: %1$s", region.access.toString().replaceAll("^\\[|\\]$", "")), MessageLevel.CONFIG, false);
+    static void describeRegion(final Region region, final CommandSender sender) {
+        // # 2 = Region, 3 = World, 4 = Active, 5 = Owners, 6 = Access, 7 = North, 8 = East, 9 = South, 10 = West, 11 = Down, 12 = Up
+        for (final String format : Messenger.get().formats.getStringList((region.isDefault() ? "describeDefault" : "describe")))
+            Messenger.get().sendMessage(sender, format
+                    , region.getDisplayName()
+                    , (region.world == null ? Region.SERVER_DEFAULT_DISPLAY : region.world.getName())
+                    , region.isActive()
+                    , region.owners.toString().replaceAll("^\\[|\\]$", "")
+                    , region.access.toString().replaceAll("^\\[|\\]$", "")
+                    , region.getN(), region.getE(), region.getS(), region.getW(), region.getD(), region.getU()
+            );
 
-        if (!region.isDefault()) {
-            MessageManager.of(plugin).tell(sender, String.format("x:  [West] %1$d  to  %2$d [East]", region.getW(), region.getE()), MessageLevel.CONFIG, false);
-            MessageManager.of(plugin).tell(sender, String.format("y:  [North] %1$d  to  %2$d [South]", region.getN(), region.getS()), MessageLevel.CONFIG, false);
-            MessageManager.of(plugin).tell(sender, String.format("z:  [Down] %1$d  to  %2$d [Up]", region.getD(), region.getU()), MessageLevel.CONFIG, false);
-        }
+        if (region.isDefault()) return;
+
+        Utility.describeRegionArea(region, sender);
+        Utility.describeRegionVolume(region, sender);
     }
 
     /**
      * Generates a textual representation of the volumetric size
      * Example: 100x * 50y * 128z = 640,000 blocks
      */
-    static String describeRegionVolume(final Region region, final String format) {
+    static void describeRegionVolume(final Region region, final CommandSender sender) {
         Integer sizeX = null;
         if (region.getN() != null && region.getS() != null)
             sizeX = Math.abs(region.getS() - region.getN()) + 1;
@@ -48,13 +48,10 @@ public class Utility {
         if (region.getE() != null && region.getW() != null)
             sizeZ = Math.abs(region.getW() - region.getE()) + 1;
 
-        final String size = String.format(
-            format
+        Messenger.get().sendMessage(sender, Messenger.getFormat("volume")
             , (sizeX == null ? "?" : sizeX), (sizeY == null ? "?" : sizeY), (sizeZ == null ? "?" : sizeZ)
             , (sizeX != null && sizeY != null && sizeZ != null ? new DecimalFormat().format(sizeX * sizeY * sizeZ) : "?")
         );
-
-        return size;
     }
 
     /**
@@ -62,7 +59,7 @@ public class Utility {
      * across the x and z axes
      * Example: 100x * 128z = 12,800 square meters
      */
-    static String describeRegionArea(final Region region, final String format) {
+    static void describeRegionArea(final Region region, final CommandSender sender) {
         Integer sizeX = null;
         if (region.getN() != null && region.getS() != null)
             sizeX = Math.abs(region.getS() - region.getN()) + 1;
@@ -71,39 +68,56 @@ public class Utility {
         if (region.getE() != null && region.getW() != null)
             sizeZ = Math.abs(region.getW() - region.getE()) + 1;
 
-        final String area = String.format(
-                format
+        Messenger.get().sendMessage(sender, Messenger.getFormat("area")
                 , (sizeX == null ? "?" : sizeX), (sizeZ == null ? "?" : sizeZ)
                 , (sizeX != null && sizeZ != null ? new DecimalFormat().format(sizeX * sizeZ) : "?")
         );
-
-        return area;
     }
 
-    static Region parseRegion(final Plugin plugin, final Catalog catalog, final CommandSender sender, final String[] args, final Integer index) {
+    static Region parseRegion(final String[] args, final Integer index, final Catalog catalog, final CommandSender sender) {
+        if (!(sender instanceof Player)) {
+            if (args.length < (index + 1)) {
+                Messenger.tell(sender, "requiresParameter", "<Region>");
+                return null;
+            }
+
+            if (args.length < (index + 2)) {
+                Messenger.tell(sender, "requiresParameter", "<World>");
+                return null;
+            }
+        }
+
         Region found;
-        if (index <= -1 || args.length <= index) {
+        if (args.length <= index) {
             found = catalog.getWorkingRegion(sender);
-            if (found == null)
-                MessageManager.of(plugin).tell(sender, "Region §enot identified§r", MessageLevel.WARNING, false);
+            if (found == null) Messenger.tell(sender, "regionNotIdentified");
 
         } else {
             final String region = args[index];
             final String world = (args.length <= index + 1 ? ((Player) sender).getWorld().getName() : args[index + 1]);
             found = catalog.getRegion(region, world);
-            if (found == null)
-                MessageManager.of(plugin).tell(sender, String.format("Region §o%1$s§r §enot found§r in world §o%2$s", region, world), MessageLevel.WARNING, false);
+            if (found == null) Messenger.tell(sender, "regionNotFound", region, world);
         }
 
         return found;
     }
 
-    static boolean canUseOwnerCommands(final Region region, final CommandSender sender) {
+    static boolean checkOwner(final Region region, final CommandSender sender) {
         if (sender.hasPermission("simpleregions.region.owner.override")) return true;
 
-        if (!(sender instanceof Player)) return false;
+        if ((sender instanceof Player) && region.isOwner((Player) sender)) return true;
 
-        return region.isOwner((Player) sender);
+        Messenger.tell(sender, "requiresOwner", region.owners.toString().replaceAll("^\\[|\\]$", ""));
+        return false;
+    }
+
+    static String parse(final String[] args, final int index, final String parameter, final CommandSender sender) {
+        if (args.length < (index + 1)) {
+            Messenger.tell(sender, "requiresParameter", parameter);
+            return null;
+        }
+
+        return args[index];
     }
 
     /**

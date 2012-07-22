@@ -16,9 +16,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import edgruberman.bukkit.messagemanager.MessageLevel;
-import edgruberman.bukkit.messagemanager.MessageManager;
-
 final class BoundaryAlerter implements Listener {
 
     private final Catalog catalog;
@@ -60,8 +57,7 @@ final class BoundaryAlerter implements Listener {
      * @param to block player has moved to
      */
     private void checkCrossings(final Player player, final Location from, final Location to) {
-        List<String> exited = null, entered = null;
-        List<MessageLevel> enteredLevel = null;
+        List<String> exited = null, enteredFormat = null, enteredMessage = null;
 
         // Determine applicable regions to check
         final Set<Region> regions = new HashSet<Region>();
@@ -83,22 +79,24 @@ final class BoundaryAlerter implements Listener {
 
             // Entering this region
             if (isInTo && region.enter.formatted.length() != 0) {
-                if (entered == null) entered = new ArrayList<String>();
-                if (enteredLevel == null) enteredLevel = new ArrayList<MessageLevel>();
-                entered.add(region.enter.formatted);
-                enteredLevel.add((region.hasAccess(player) ? MessageLevel.STATUS : MessageLevel.WARNING));
+                if (enteredFormat == null) {
+                    enteredFormat = new ArrayList<String>();
+                    enteredMessage = new ArrayList<String>();
+                }
+                enteredFormat.add(region.hasAccess(player) ? Messenger.getFormat("enterHasAccess") : Messenger.getFormat("enterNoAccess"));
+                enteredMessage.add(region.enter.formatted);
             }
         }
 
         // Show any exit messages first
         if (exited != null)
             for (final String message : exited)
-                MessageManager.of(this.catalog.plugin).tell(player, message, MessageLevel.STATUS, false);
+                Messenger.tell(player, "exit", message);
 
         // Show any enter messages next
-        if (entered != null)
-            for (int i = 0; i <= entered.size() - 1; i++)
-                MessageManager.of(this.catalog.plugin).tell(player, entered.get(i), enteredLevel.get(i), false);
+        if (enteredFormat != null)
+            for (int i = 0; i <= enteredFormat.size() - 1; i++)
+                Messenger.get().sendMessage(player, enteredFormat.get(i), enteredMessage.get(i));
     }
 
     private static boolean sameChunk(final Location i, final Location j) {

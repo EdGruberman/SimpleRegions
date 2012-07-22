@@ -124,7 +124,10 @@ public final class Catalog implements Listener {
 
         if (world == null) return null;
 
-        return this.worlds.get(world).regions.get(region.toLowerCase());
+        final Index index = this.worlds.get(world);
+        if (index == null) return null;
+
+        return index.regions.get(region.toLowerCase());
     }
 
     /**

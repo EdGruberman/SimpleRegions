@@ -18,9 +18,6 @@ import org.bukkit.event.painting.PaintingPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
-import edgruberman.bukkit.messagemanager.MessageLevel;
-import edgruberman.bukkit.messagemanager.MessageManager;
-
 final class Guard implements Listener {
 
     /**
@@ -40,26 +37,16 @@ final class Guard implements Listener {
             , Material.LAVA_BUCKET.getId()
     ));
 
-    private final String denied;
     private final Catalog catalog;
 
-    public Guard(final Catalog catalog, final String denied) {
+    public Guard(final Catalog catalog) {
         this.catalog = catalog;
-        this.denied = denied;
         catalog.plugin.getServer().getPluginManager().registerEvents(this, catalog.plugin);
     }
 
     private void tellDenied(final Player player, final Location target) {
-        if (this.denied == null || this.denied.length() == 0) return;
-
-        String current = "";
-        for (final Region region : this.catalog.getRegions(target)) {
-            if (current.length() > 0) current += ", ";
-            current += region.getDisplayName();
-        }
-
-        final String denied = String.format(this.denied, current);
-        MessageManager.of(this.catalog.plugin).tell(player, denied, MessageLevel.SEVERE, false);
+        final String current = Main.formatNames(this.catalog.getRegions(target), player);
+        Messenger.tell(player, "denied", current);
     }
 
     @EventHandler(ignoreCancelled = true)

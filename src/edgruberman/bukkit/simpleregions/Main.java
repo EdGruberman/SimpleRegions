@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -59,24 +60,24 @@ public final class Main extends JavaPlugin implements RegionRepository {
         this.start(this);
 
         this.getCommand("simpleregions:reload").setExecutor(new Reload(this));
-        this.getCommand("simpleregions:region.current").setExecutor(new RegionCurrent(this, this.catalog));
-        this.getCommand("simpleregions:region.target").setExecutor(new RegionTarget(this, this.catalog));
-        this.getCommand("simpleregions:region.set").setExecutor(new RegionSet(this, this.catalog));
-        this.getCommand("simpleregions:region.unset").setExecutor(new RegionUnset(this, this.catalog));
-        this.getCommand("simpleregions:region.info").setExecutor(new RegionInfo(this, this.catalog));
-        this.getCommand("simpleregions:region.activate").setExecutor(new RegionActivate(this, this.catalog));
-        this.getCommand("simpleregions:region.deactivate").setExecutor(new RegionDeactivate(this, this.catalog));
-        this.getCommand("simpleregions:region.owners.grant").setExecutor(new RegionOwnersGrant(this, this.catalog));
-        this.getCommand("simpleregions:region.owners.revoke").setExecutor(new RegionOwnersRevoke(this, this.catalog));
-        this.getCommand("simpleregions:region.owners.reset").setExecutor(new RegionOwnersReset(this, this.catalog));
-        this.getCommand("simpleregions:region.access.grant").setExecutor(new RegionAccessGrant(this, this.catalog));
-        this.getCommand("simpleregions:region.access.revoke").setExecutor(new RegionAccessRevoke(this, this.catalog));
-        this.getCommand("simpleregions:region.access.reset").setExecutor(new RegionAccessReset(this, this.catalog));
-        this.getCommand("simpleregions:region.enter").setExecutor(new RegionEnter(this, this.catalog));
-        this.getCommand("simpleregions:region.exit").setExecutor(new RegionExit(this, this.catalog));
-        this.getCommand("simpleregions:region.create").setExecutor(new RegionCreate(this, this.catalog));
-        this.getCommand("simpleregions:region.define").setExecutor(new RegionDefine(this, this.catalog));
-        this.getCommand("simpleregions:region.delete").setExecutor(new RegionDelete(this, this.catalog));
+        this.getCommand("simpleregions:region.current").setExecutor(new RegionCurrent(this.catalog));
+        this.getCommand("simpleregions:region.target").setExecutor(new RegionTarget(this.catalog));
+        this.getCommand("simpleregions:region.set").setExecutor(new RegionSet(this.catalog));
+        this.getCommand("simpleregions:region.unset").setExecutor(new RegionUnset(this.catalog));
+        this.getCommand("simpleregions:region.info").setExecutor(new RegionInfo(this.catalog));
+        this.getCommand("simpleregions:region.activate").setExecutor(new RegionActivate(this.catalog));
+        this.getCommand("simpleregions:region.deactivate").setExecutor(new RegionDeactivate(this.catalog));
+        this.getCommand("simpleregions:region.owners.grant").setExecutor(new RegionOwnersGrant(this.catalog));
+        this.getCommand("simpleregions:region.owners.revoke").setExecutor(new RegionOwnersRevoke(this.catalog));
+        this.getCommand("simpleregions:region.owners.reset").setExecutor(new RegionOwnersReset(this.catalog));
+        this.getCommand("simpleregions:region.access.grant").setExecutor(new RegionAccessGrant(this.catalog));
+        this.getCommand("simpleregions:region.access.revoke").setExecutor(new RegionAccessRevoke(this.catalog));
+        this.getCommand("simpleregions:region.access.reset").setExecutor(new RegionAccessReset(this.catalog));
+        this.getCommand("simpleregions:region.enter").setExecutor(new RegionEnter(this.catalog));
+        this.getCommand("simpleregions:region.exit").setExecutor(new RegionExit(this.catalog));
+        this.getCommand("simpleregions:region.create").setExecutor(new RegionCreate(this.catalog));
+        this.getCommand("simpleregions:region.define").setExecutor(new RegionDefine(this.catalog));
+        this.getCommand("simpleregions:region.delete").setExecutor(new RegionDelete(this.catalog));
     }
 
     @Override
@@ -97,9 +98,10 @@ public final class Main extends JavaPlugin implements RegionRepository {
     }
 
     public void start(final Plugin context) {
+        Messenger.load(this);
         this.catalog = new Catalog(context, this);
         this.loadServerDefault(this.catalog, this.getConfig().getConfigurationSection("DEFAULT"));
-        new Guard(this.catalog, this.getConfig().getString("deniedMessage"));
+        new Guard(this.catalog);
         new BoundaryAlerter(this.catalog);
     }
 
@@ -199,6 +201,15 @@ public final class Main extends JavaPlugin implements RegionRepository {
         final String regionName = (region.getName() == null ? Region.NAME_DEFAULT : region.getName());
         file.getConfig().set(regionName, null);
         file.save(immediate);
+    }
+
+    public static String formatNames(final Collection<Region> regions, final Player access) {
+        String formatted = "";
+        for (final Region region : regions) {
+            if (formatted.length() > 0) formatted += Messenger.getFormat("regionName.delimiter");
+            formatted += String.format((region.hasAccess(access) ? Messenger.getFormat("regionName.hasAccess") : Messenger.getFormat("regionName.noAccess")), region.getDisplayName());
+        }
+        return formatted;
     }
 
 }

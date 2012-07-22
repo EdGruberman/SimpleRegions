@@ -5,9 +5,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
-import edgruberman.bukkit.messagemanager.MessageLevel;
-import edgruberman.bukkit.messagemanager.MessageManager;
 import edgruberman.bukkit.simpleregions.Main;
+import edgruberman.bukkit.simpleregions.Messenger;
 
 public class Reload implements CommandExecutor {
 
@@ -22,7 +21,7 @@ public class Reload implements CommandExecutor {
         final Main main = (Main) this.plugin;
         main.reloadConfig();
         main.start(this.plugin);
-        MessageManager.of(this.plugin).tell(sender, "SimpleRegions configuration reloaded", MessageLevel.STATUS, false);
+        Messenger.tell(sender, "reload");
         return true;
     }
 

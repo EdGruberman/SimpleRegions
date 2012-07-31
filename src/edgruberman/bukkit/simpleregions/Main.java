@@ -1,5 +1,14 @@
 package edgruberman.bukkit.simpleregions;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,7 +21,6 @@ import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import edgruberman.bukkit.simpleregions.commands.RegionAccessGrant;
@@ -38,11 +46,6 @@ import edgruberman.bukkit.simpleregions.commands.Reload;
 public final class Main extends JavaPlugin implements RegionRepository {
 
     /**
-     * Prefix for all permissions used in this plugin.
-     */
-    public static final String PERMISSION_PREFIX = "simpleregions";
-
-    /**
      * Base path, relative to plugin data folder, to look for world specific
      * configuration overrides in. Sub-folder is used to avoid conflicts
      * between world names and configuration file names. (e.g. a world named
@@ -50,14 +53,20 @@ public final class Main extends JavaPlugin implements RegionRepository {
      */
     private static final String WORLD_SPECIFICS = "Worlds";
 
+    public static Messenger messenger;
+
     private final Map<World, ConfigurationFile> configuration = new HashMap<World, ConfigurationFile>();
     private Catalog catalog = null;
 
     @Override
     public void onEnable() {
-        this.setLoggingLevel(this.getConfig().getString("logLevel", "INFO"));
+        this.reloadConfig();
 
-        this.start(this);
+        Main.messenger = Messenger.load(this, "messages");
+        this.catalog = new Catalog(this, this);
+        this.loadServerDefault(this.catalog, this.getConfig().getConfigurationSection("DEFAULT"));
+        new Guard(this.catalog);
+        new BoundaryAlerter(this.catalog);
 
         this.getCommand("simpleregions:reload").setExecutor(new Reload(this));
         this.getCommand("simpleregions:region.current").setExecutor(new RegionCurrent(this.catalog));
@@ -84,6 +93,8 @@ public final class Main extends JavaPlugin implements RegionRepository {
     public void onDisable() {
         for (final ConfigurationFile config : this.configuration.values())
             if (config.isSaveQueued()) config.save();
+
+        Main.messenger = null;
     }
 
     @Override
@@ -94,15 +105,9 @@ public final class Main extends JavaPlugin implements RegionRepository {
 
     @Override
     public void reloadConfig() {
-        this.configuration.get(null).load();
-    }
-
-    public void start(final Plugin context) {
-        Messenger.load(this);
-        this.catalog = new Catalog(context, this);
-        this.loadServerDefault(this.catalog, this.getConfig().getConfigurationSection("DEFAULT"));
-        new Guard(this.catalog);
-        new BoundaryAlerter(this.catalog);
+        this.saveDefaultConfig();
+        if (this.configuration.get(null) != null) this.configuration.get(null).load();
+        this.setLogLevel(this.getConfig().getString("logLevel"));
     }
 
     public void loadServerDefault(final Catalog catalog, final ConfigurationSection definition) {
@@ -116,19 +121,47 @@ public final class Main extends JavaPlugin implements RegionRepository {
         catalog.serverDefault = region;
     }
 
-    private void setLoggingLevel(final String name) {
+    @Override
+    public void saveDefaultConfig() {
+        this.extractConfig("config.yml", false);
+    }
+
+    private void extractConfig(final String resource, final boolean replace) {
+        final Charset source = Charset.forName("UTF-8");
+        final Charset target = Charset.defaultCharset();
+        if (target.equals(source)) {
+            super.saveResource(resource, replace);
+            return;
+        }
+
+        final File config = new File(this.getDataFolder(), resource);
+        if (config.exists()) return;
+
+        final char[] cbuf = new char[1024]; int read;
+        try {
+            final Reader in = new BufferedReader(new InputStreamReader(this.getResource(resource), source));
+            final Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(config), target));
+            while((read = in.read(cbuf)) > 0) out.write(cbuf, 0, read);
+            out.close(); in.close();
+
+        } catch (final Exception e) {
+            throw new IllegalArgumentException("Could not extract configuration file \"" + resource + "\" to " + config.getPath() + "\";" + e.getClass().getName() + ": " + e.getMessage());
+        }
+    }
+
+    private void setLogLevel(final String name) {
         Level level;
         try { level = Level.parse(name); } catch (final Exception e) {
             level = Level.INFO;
-            this.getLogger().warning("Defaulting to " + level.getName() + "; Unrecognized java.util.logging.Level: " + name);
+            this.getLogger().warning("Log level defaulted to " + level.getName() + "; Unrecognized java.util.logging.Level: " + name);
         }
 
-        // Only set the parent handler lower if necessary, otherwise leave it alone for other configurations that have set it.
+        // Only set the parent handler lower if necessary, otherwise leave it alone for other configurations that have set it
         for (final Handler h : this.getLogger().getParent().getHandlers())
             if (h.getLevel().intValue() > level.intValue()) h.setLevel(level);
 
         this.getLogger().setLevel(level);
-        this.getLogger().config("Logging level set to: " + this.getLogger().getLevel());
+        this.getLogger().config("Log level set to: " + this.getLogger().getLevel());
     }
 
     @Override
@@ -206,8 +239,8 @@ public final class Main extends JavaPlugin implements RegionRepository {
     public static String formatNames(final Collection<Region> regions, final Player access) {
         String formatted = "";
         for (final Region region : regions) {
-            if (formatted.length() > 0) formatted += Messenger.getFormat("regionName.delimiter");
-            formatted += String.format((region.hasAccess(access) ? Messenger.getFormat("regionName.hasAccess") : Messenger.getFormat("regionName.noAccess")), region.formatName());
+            if (formatted.length() > 0) formatted += Main.messenger.getFormat("regionName.+delimiter");
+            formatted += String.format((region.hasAccess(access) ? Main.messenger.getFormat("regionName.+hasAccess") : Main.messenger.getFormat("regionName.+noAccess")), region.formatName());
         }
         return formatted;
     }

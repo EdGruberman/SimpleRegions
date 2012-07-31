@@ -6,77 +6,96 @@ author: @AUTHOR@
 main: @MAIN@
 commands:
     'simpleregions:region.current':
+        aliases: [region, current]
         description: Show your current region
         permission: simpleregions.region.current
     'simpleregions:region.target':
+        aliases: [target, region.target]
         description: Show region where you are looking
         permission: simpleregions.region.target
     'simpleregions:region.set':
+        aliases: [set, region.set]
         description: Set your working region
         permission: simpleregions.region.set
         usage: /<command> <Region>[ <World>]
     'simpleregions:region.unset':
+        aliases: [unset, region.unset]
         description: Unset your working region
         permission: simpleregions.region.unset
         usage: /<command>
     'simpleregions:region.info':
+        aliases: [info, region.info]
         description: Show region information
         permission: simpleregions.region.info
         usage: /<command>[ <Region>[ <World>]]
     'simpleregions:region.activate':
+        aliases: [region.on, region.activate]
         description: Enable region protection (* Owners Only)
         permission: simpleregions.region.activate
         usage: /<command>[ <Region>[ <World>]]
     'simpleregions:region.deactivate':
+        aliases: [region.off, region.deactivate]
         description: Disable region protection (* Owners Only)
         permission: simpleregions.region.deactive
         usage: /<command>[ <Region>[ <World>]]
     'simpleregions:region.owners.grant':
+        aliases: [owners+, owners.grant, region.owners.grant]
         description: Add explicit region owner (* Owners Only)
         permission: simpleregions.region.owners.grant
         usage: /<command> <Owner>[ <Region>[ <World>]]
     'simpleregions:region.owners.revoke':
+        aliases: [owners-, owners.revoke, region.owners.revoke]
         description: Remove explicit region owner (* Owners Only)
         permission: simpleregions.region.owners.revoke
         usage: /<command> <Owner>[ <Region>[ <World>]]
     'simpleregions:region.owners.reset':
+        aliases: [owners=, owners.reset, region.owners.reset]
         description: Reset explicit region owners (* Owners Only)
         permission: simpleregions.region.owners.reset
         usage: /<command> <Owner>[ <Region>[ <World>]]
     'simpleregions:region.access.grant':
+        aliases: [access+, access.grant, region.access.grant]
         description: Add explicit region access (* Owners Only)
         permission: simpleregions.region.access.grant
         usage: /<command> <Access>[ <Region>[ <World>]]
     'simpleregions:region.access.revoke':
+        aliases: [access-, access.revoke, region.access.revoke]
         description: Remove explicit region access (* Owners Only)
         permission: simpleregions.region.access.revoke
         usage: /<command> <Access>[ <Region>[ <World>]]
     'simpleregions:region.access.reset':
+        aliases: [access=, access.reset, region.access.reset]
         description: Reset explicit region access (* Owners Only)
         permission: simpleregions.region.access.reset
         usage: /<command> <Access>[ <Region>[ <World>]]
     'simpleregions:region.enter':
+        aliases: region.enter
         description: View/set region enter message format (* Owners Only)
         permission: simpleregions.region.enter
         usage: /<command>[ <Message>]
     'simpleregions:region.exit':
+        aliases: region.exit
         description: View/set region exit message format (* Owners Only)
         permission: simpleregions.region.exit
         usage: /<command>[ <Message>]
     'simpleregions:region.create':
+        aliases: region.create
         description: Create new region
         permission: simpleregions.region.create
         usage: /<command> <Region>[ <World>]
     'simpleregions:region.define':
+        aliases: region.define
         description: Define working region coordinates
         permission: simpleregions.region.define
         usage: /<command>[ (n|e|s|w|u|d|1|2) <Coordinate>[ <Region>[ <World>]]]
     'simpleregions:region.delete':
+        aliases: region.delete
         description: Delete region
         permission: simpleregions.region.delete
         usage: /<command> <Region> <World>
     'simpleregions:reload':
-        description: Reload region configuration
+        aliases: simpleregions.reload
+        description: Reload configuration
         permission: simpleregions.reload
 permissions:
     simpleregions.region:
@@ -165,6 +184,6 @@ permissions:
     simpleregions.region.delete:
         description: Can use region.delete command
         default: false
-    simpleregions.reload:
+    simpleregions.region.reload:
         description: Can use reload command
         default: false

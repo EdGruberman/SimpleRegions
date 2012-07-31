@@ -83,7 +83,7 @@ final class BoundaryAlerter implements Listener {
                     enteredFormat = new ArrayList<String>();
                     enteredMessage = new ArrayList<String>();
                 }
-                enteredFormat.add(region.hasAccess(player) ? Messenger.getFormat("enterHasAccess") : Messenger.getFormat("enterNoAccess"));
+                enteredFormat.add(Main.messenger.getFormat(region.hasAccess(player) ? "enterHasAccess" : "enterNoAccess"));
                 enteredMessage.add(region.enter.formatted);
             }
         }
@@ -91,12 +91,14 @@ final class BoundaryAlerter implements Listener {
         // Show any exit messages first
         if (exited != null)
             for (final String message : exited)
-                Messenger.tell(player, "exit", message);
+                Main.messenger.tell(player, "exit", message);
 
         // Show any enter messages next
         if (enteredFormat != null)
-            for (int i = 0; i <= enteredFormat.size() - 1; i++)
-                Messenger.get().sendMessage(player, enteredFormat.get(i), enteredMessage.get(i));
+            for (int i = 0; i <= enteredFormat.size() - 1; i++) {
+                final String message = Main.messenger.tellMessage(player, enteredFormat.get(i), enteredMessage.get(i));
+                this.catalog.plugin.getLogger().finer("#TELL@" + player.getName() + "# " + message);
+            }
     }
 
     private static boolean sameChunk(final Location i, final Location j) {

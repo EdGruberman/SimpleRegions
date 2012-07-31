@@ -8,7 +8,6 @@ import java.util.Set;
 
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -30,9 +29,6 @@ public final class Catalog implements Listener {
     public final RegionRepository repository;
     public final Map<String, Index> worlds = new HashMap<String, Index>();
     public Region serverDefault = null;
-
-    /** CommandSender ("SimpleClassName.Name") to working Region reference for commands */
-    private final Map<String, Region> working = new HashMap<String, Region>();
 
     public Catalog(final Plugin plugin, final RegionRepository repository) {
         this.plugin = plugin;
@@ -190,26 +186,6 @@ public final class Catalog implements Listener {
         if (index == null) throw new IllegalArgumentException("Unable to remove region; region world index not found: " + region.world.getName());
 
         index.remove(region);
-    }
-
-    public void setWorkingRegion(final CommandSender sender, final Region region) {
-        this.working.put(sender.getClass().getSimpleName() + "." + sender.getName(), region);
-    }
-
-    public void unsetWorkingRegion(final CommandSender sender) {
-        this.working.remove(sender.getClass().getSimpleName() + "." + sender.getName());
-    }
-
-    public Region getWorkingRegion(final CommandSender sender) {
-        final Region region = this.working.get(sender.getClass().getSimpleName() + "." + sender.getName());
-        if (region != null) return region;
-
-        if (!(sender instanceof Player)) return null;
-
-        final Set<edgruberman.bukkit.simpleregions.Region> regions = this.getRegions(((Player) sender).getLocation());
-        if (regions.size() != 1) return null;
-
-        return regions.iterator().next();
     }
 
 }

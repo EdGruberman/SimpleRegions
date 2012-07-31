@@ -1,26 +1,26 @@
 logLevel: INFO
 messages:
     regionName:
-        hasAccess: '§2%1$s§r' # 1 = Name
-        noAccess: '§e%1$s§r' # 1 = Name
-        delimiter: ', '
+        +hasAccess: '§2%1$s§r' # 1 = Region Name
+        +noAccess: '§e%1$s§r' # 1 = Region Name
+        +delimiter: ', '
     denied: '-> Region §caccess denied§r: %2$s' # 2 = Formatted Region Names
     currentHasAccess: '-> §2Current regions§r: %2$s §8(%3$d)' # 2 = Formatted Region Names, 3 = Count
     currentNoAccess: '-> §eCurrent regions§r: %2$s §8(%3$d)' # 2 = Formatted Region Names, 3 = Count
     targetHasAccess: '-> §2Target regions§r: %2$s §8(%3$d at x:%4$d y:%5$d z:%6$d)' # 2 = Formatted Region Names, 3 = Count, 4 = X, 5 = Y, 6 = Z
     targetNoAccess: '-> §eTarget regions§r: %2$s §8(%3$d at x:%4$d y:%5$d z:%6$d)' # 2 = Formatted Region Names, 3 = Count, 4 = X, 5 = Y, 6 = Z
-    enterHasAccess: '§2-> %2$s' # 2 = Enter Message
-    enterNoAccess: '§e-> %2$s' # 2 = Enter Message
-    exit: '§2-> %2$s' # 2 = Exit Message
+    enterHasAccess: '-> §2%2$s' # 2 = Enter Message
+    enterNoAccess: '-> §e%2$s' # 2 = Enter Message
+    exit: '-> §2%2$s' # 2 = Exit Message
     accessGrantAlready: '-> Region access §ealready contains§r %2$s for %3$s in %4$s' # 2 = <Access>, 3 = Region, 4 = World
     accessGrantSuccess: '-> Region §2access added§r to %2$s for %3$s in %4$s' # 2 = <Access>, 3 = Region, 4 = World
-    accessGrantNotify: 'TIMESTAMP -> Region §2access granted§r to you by %2$s for %3$s in %4$s' # 2 = Grantor, 3 = Region, 4 = World
+    accessGrantNotify: '§8%1$tH:%1$tM:%1$tS§r -> Region §2access granted§r to you by %2$s for %3$s in %4$s' # 2 = Grantor, 3 = Region, 4 = World
     accessReset: '-> Region §2access reset§r to %2$s for %3$s in %4$s' # 2 = <Access>, 3 = Region, 4 = World
     accessRevokeMissing: '-> Region access does §enot explicitly grant access§r to %2$s for %3$s in %4$s' # 2 = <Access>, 3 = Region, 4 = World
     accessRevokeSuccess: '-> Region §2access revoked§r from %2$s for %3$s in %4$s' # 2 = <Access>, 3 = Region, 4 = World
     ownerGrantAlready: '-> Region owners §ealready contains§r %2$s for %3$s in %4$s' # 2 = <Owner>, 3 = Region, 4 = World
     ownerGrantSuccess: '-> Region §2ownership added§r to %2$s for %3$s in %4$s' # 2 = <Owner>, 3 = Region, 4 = World
-    ownerGrantNotify: 'TIMESTAMP -> Region §2ownership granted§r to you by %2$s for %3$s in %4$s' # 2 = Grantor, 3 = Region, 4 = World
+    ownerGrantNotify: '§8%1$tH:%1$tM:%1$tS§r -> Region §2ownership granted§r to you by %2$s for %3$s in %4$s' # 2 = Grantor, 3 = Region, 4 = World
     ownerReset: '-> Region §2owners reset§r to %2$s for %3$s in %4$s' # 2 = <Owner>, 3 = Region, 4 = World
     ownerRevokePrevent: '-> You can §cnot remove yourself§r as a region owner'
     ownerRevokeMissing: '-> Region owners §edoes not explicitly contain§r %2$s for %3$s in %4$s' # 2 = <Owner>, 3 = Region, 4 = World
@@ -34,15 +34,13 @@ messages:
     requiresParameter: '-> Required §cparameter missing§r: %2$s' # 2 = Parameter
     requiresOwner: '-> Command cancelled when §cnot region owner§r: %2$s' # 2 = Owner
     requiresPlayer: '-> Command cancelled when §cnot in-game player'
-    regionNotIdentified: '-> Region §enot identified'
-    regionNotFound: '-> Region §o%2$s§r §enot found§r in world §o%3$s' # 2 = Region, 3 = World
+    regionNotFound: '-> Region §enot found'
     worldNotFound: '-> World §enot found' # 2 = World
     regionCreated: '-> §2Region created§r: %2$s in %3$s' # 2 = Region, 3 = World
     blockNotIdentifed: '-> Target block §enot identified'
     coordinateNotIdentified: '-> Coordinate type %2$s §enot recognized' # 2 = Type
     coordinateUpdated: '-> Region §2coordinates updated'
     unsupportedParameter: '-> §eUnsupported parameter§r: %2$s §8(%3$s)' # 2 = Parameter, 3 = Reason
-    workingRegionNotSet: '-> Working §eregion not set§r; To set: /region_set <Region>'
     enterPrevious: '-> Previous region enter format: %2$s' # 2 = Enter Format
     enterSet: '-> Region §2enter format set'
     enterExisting: '-> Region enter format: %2$s' # 2 = Enter Format
@@ -67,3 +65,4 @@ messages:
         - '-> -- Region: %2$s in %3$s'
         - '-> Active: %4$s'
         - '-> Access: %6$s'
+version: @VERSION@

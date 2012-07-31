@@ -1,39 +1,35 @@
 package edgruberman.bukkit.simpleregions.commands;
 
+import java.util.List;
+
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
 import edgruberman.bukkit.simpleregions.Catalog;
-import edgruberman.bukkit.simpleregions.Messenger;
+import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Region;
 
-public class RegionInfo implements CommandExecutor {
-
-    private final Catalog catalog;
+public class RegionInfo extends RegionExecutor {
 
     public RegionInfo(final Catalog catalog) {
-        this.catalog = catalog;
+        super(catalog, 0, false);
     }
 
     // usage: /<command>[ <Region>[ <World>]]
     @Override
-    public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
-        final Region region = Utility.parseRegion(args, 0, this.catalog, sender);
-        if (region == null) return false;
+    protected boolean execute(final CommandSender sender, final Command command, final String label, final List<String> args, final Region region) {
+        RegionExecutor.describeRegion(region, sender);
 
-        Utility.describeRegion(region, sender);
-
-        if (!Utility.checkOwner(region, sender)) return true;
+        if (!RegionExecutor.isOwner(sender, region)) return true;
 
         // Instruct owners on how to define/activate
         if (!region.isActive()) {
             if (!region.isDefault() && !region.isDefined() && sender.hasPermission("simpleregions.region.define")) {
-                Messenger.tell(sender, "undefined");
+                Main.messenger.tell(sender, "undefined");
                 return true;
             }
 
-            Messenger.tell(sender, "inactive");
+            Main.messenger.tell(sender, "inactive");
         }
         return true;
     }

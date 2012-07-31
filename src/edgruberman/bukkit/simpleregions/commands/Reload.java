@@ -6,7 +6,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 
 import edgruberman.bukkit.simpleregions.Main;
-import edgruberman.bukkit.simpleregions.Messenger;
 
 public class Reload implements CommandExecutor {
 
@@ -18,10 +17,9 @@ public class Reload implements CommandExecutor {
 
     @Override
     public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
-        final Main main = (Main) this.plugin;
-        main.reloadConfig();
-        main.start(this.plugin);
-        Messenger.tell(sender, "reload");
+        this.plugin.reloadConfig();
+        Main.messenger.tell(sender, "reload");
+        // TODO reload all world specific region config files
         return true;
     }
 

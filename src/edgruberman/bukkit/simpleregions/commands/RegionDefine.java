@@ -2,38 +2,33 @@ package edgruberman.bukkit.simpleregions.commands;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import edgruberman.bukkit.simpleregions.Catalog;
-import edgruberman.bukkit.simpleregions.Messenger;
+import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Region;
 
-public class RegionDefine implements CommandExecutor {
-
-    private final Catalog catalog;
+public class RegionDefine extends RegionExecutor {
 
     public RegionDefine(final Catalog catalog) {
-        this.catalog = catalog;
+        super(catalog, 2, false);
     }
 
     // usage: /<command>[ (n|e|s|w|u|d|1|2)[ <Coordinate>[ <Region>[ <World>]]]]
     @Override
-    public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
-        final Region region = Utility.parseRegion(args, 2, this.catalog, sender);
-        if (region == null) return false;
-
+    protected boolean execute(final CommandSender sender, final Command command, final String label, final List<String> args, final Region region) {
         Block block = null;
         if (sender instanceof Player) block = ((Player) sender).getTargetBlock((HashSet<Byte>) null, 100);
 
-        if (args.length == 0) {
+        if (args.size() == 0) {
             if (block == null) {
-                Messenger.tell(sender, "blockNotIdentified");
+                Main.messenger.tell(sender, "blockNotIdentified");
                 return false;
             }
 
@@ -48,14 +43,14 @@ public class RegionDefine implements CommandExecutor {
             }
 
         } else {
-            final String type = args[0].toLowerCase();
+            final String type = args.get(0).toLowerCase();
             if (!Arrays.asList("n", "e", "s", "w", "u", "d", "1", "2").contains(type)) {
-                Messenger.tell(sender, "coordinateNotIdentified", type);
+                Main.messenger.tell(sender, "coordinateNotIdentified", type);
                 return false;
 
             }
 
-            if (args.length <= 1) {
+            if (args.size() <= 1) {
                        if (type.equals("1")) { region.set1(block.getX(), block.getY(), block.getZ());
                 } else if (type.equals("2")) { region.set2(block.getX(), block.getY(), block.getZ());
                 } else if (type.equals("n")) { region.setN(block.getZ());
@@ -69,17 +64,17 @@ public class RegionDefine implements CommandExecutor {
             } else {
                 int coord;
                 try {
-                    coord = Integer.parseInt(args[1]);
+                    coord = Integer.parseInt(args.get(1));
                 } catch (final NumberFormatException e) {
-                    Messenger.tell(sender, "coordinateNotIdentified", args[1]);
+                    Main.messenger.tell(sender, "coordinateNotIdentified", args.get(1));
                     return false;
                 }
 
                 if (type.equals("1")) {
-                    Messenger.tell(sender, "unsupportedParameter", "1", "Specific coordinate must designate specific direction");
+                    Main.messenger.tell(sender, "unsupportedParameter", "1", "Specific coordinate must designate specific direction");
                     return false;
                 } else if (type.equals("2")) {
-                    Messenger.tell(sender, "unsupportedParameter", "2", "Specific coordinate must designate specific direction");
+                    Main.messenger.tell(sender, "unsupportedParameter", "2", "Specific coordinate must designate specific direction");
                     return false;
                 } else if (type.equals("n")) { region.setN(coord);
                 } else if (type.equals("e")) { region.setE(coord);
@@ -93,7 +88,7 @@ public class RegionDefine implements CommandExecutor {
 
         this.catalog.repository.saveRegion(region, false);
         Bukkit.getServer().dispatchCommand(sender, "simpleregions:region.info " + region.formatName() + " " + region.formatWorld());
-        Messenger.tell(sender, "coordinateUpdated");
+        Main.messenger.tell(sender, "coordinateUpdated");
         return true;
     }
 

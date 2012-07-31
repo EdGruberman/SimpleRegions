@@ -1,46 +1,40 @@
 package edgruberman.bukkit.simpleregions.commands;
 
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import edgruberman.bukkit.simpleregions.Catalog;
-import edgruberman.bukkit.simpleregions.Messenger;
+import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Region;
 
-public class RegionAccessGrant implements CommandExecutor {
-
-    private final Catalog catalog;
+public class RegionAccessGrant extends RegionExecutor {
 
     public RegionAccessGrant(final Catalog catalog) {
-        this.catalog = catalog;
+        super(catalog, 1, true);
     }
 
     // usage: /<command> <Access>[ <Region>[ <World>]]
     @Override
-    public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
-        final Region region = Utility.parseRegion(args, 1, this.catalog, sender);
-        if (region == null) return false;
-
-        if (!Utility.checkOwner(region, sender)) return true;
-
-        final String access = Utility.parse(args, 0, "<Access>", sender);
+    protected boolean execute(final CommandSender sender, final Command command, final String label, final List<String> args, final Region region) {
+        final String access = RegionExecutor.parse(args, 0, "<Access>", sender);
         if (access == null) return false;
 
         if (region.hasDirectAccess(access)) {
-            Messenger.tell(sender, "accessGrantAlready", access, region.formatName(), region.formatWorld());
+            Main.messenger.tell(sender, "accessGrantAlready", access, region.formatName(), region.formatWorld());
             return true;
         }
 
         region.access.add(access);
         this.catalog.repository.saveRegion(region, false);
-        Messenger.tell(sender, "accessGrantSuccess", access, region.formatName(), region.formatWorld());
+        Main.messenger.tell(sender, "accessGrantSuccess", access, region.formatName(), region.formatWorld());
 
         final Player added = Bukkit.getServer().getPlayerExact(access);
         if (region.isActive() && added != null)
-            Messenger.tell(added, "accessGrantNotify", sender.getName(), region.formatName(), region.formatWorld());
+            Main.messenger.tell(added, "accessGrantNotify", sender.getName(), region.formatName(), region.formatWorld());
 
         return true;
     }

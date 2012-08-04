@@ -68,7 +68,7 @@ abstract class RegionExecutor extends Executor {
         } else {
             // <Region> and <World> arguments supplied
             final String region = args.get(this.index);
-            final String world = (args.size() <= this.index + 1 ? ((Player) sender).getWorld().getName() : args.get(this.index + 1));
+            final String world = (args.size() <= this.index + 1 && sender instanceof Player ? ((Player) sender).getWorld().getName() : args.get(this.index + 1));
             found = this.catalog.getRegion(region, world);
         }
 

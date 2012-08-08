@@ -1,6 +1,6 @@
 name: @NAME@
 description: Protect regions of blocks so only configured players can modify
-softdepend: [MessageManager]
+softdepend: [TimeService]
 version: @VERSION@
 author: @AUTHOR@
 main: @MAIN@

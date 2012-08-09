@@ -28,7 +28,7 @@ public class RegionDefine extends RegionExecutor {
 
         if (args.size() == 0) {
             if (block == null) {
-                Main.messenger.tell(sender, "blockNotIdentified");
+                Main.courier.send(sender, "blockNotIdentified");
                 return false;
             }
 
@@ -45,7 +45,7 @@ public class RegionDefine extends RegionExecutor {
         } else {
             final String type = args.get(0).toLowerCase();
             if (!Arrays.asList("n", "e", "s", "w", "u", "d", "1", "2").contains(type)) {
-                Main.messenger.tell(sender, "coordinateNotIdentified", type);
+                Main.courier.send(sender, "coordinateNotIdentified", type);
                 return false;
 
             }
@@ -66,15 +66,15 @@ public class RegionDefine extends RegionExecutor {
                 try {
                     coord = Integer.parseInt(args.get(1));
                 } catch (final NumberFormatException e) {
-                    Main.messenger.tell(sender, "coordinateNotIdentified", args.get(1));
+                    Main.courier.send(sender, "coordinateNotIdentified", args.get(1));
                     return false;
                 }
 
                 if (type.equals("1")) {
-                    Main.messenger.tell(sender, "unsupportedParameter", "1", "Specific coordinate must designate specific direction");
+                    Main.courier.send(sender, "unsupportedParameter", "1", "Specific coordinate must designate specific direction");
                     return false;
                 } else if (type.equals("2")) {
-                    Main.messenger.tell(sender, "unsupportedParameter", "2", "Specific coordinate must designate specific direction");
+                    Main.courier.send(sender, "unsupportedParameter", "2", "Specific coordinate must designate specific direction");
                     return false;
                 } else if (type.equals("n")) { region.setN(coord);
                 } else if (type.equals("e")) { region.setE(coord);
@@ -88,7 +88,7 @@ public class RegionDefine extends RegionExecutor {
 
         this.catalog.repository.saveRegion(region, false);
         Bukkit.getServer().dispatchCommand(sender, "simpleregions:region.info " + region.formatName() + " " + region.formatWorld());
-        Main.messenger.tell(sender, "coordinateUpdated");
+        Main.courier.send(sender, "coordinateUpdated");
         return true;
     }
 

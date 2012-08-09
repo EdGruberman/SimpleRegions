@@ -19,7 +19,7 @@ public class RegionDeactivate extends RegionExecutor {
     @Override
     protected boolean execute(final CommandSender sender, final Command command, final String label, final List<String> args, final Region region) {
         region.setActive(false);
-        Main.messenger.tell(sender, "deactivated", region.formatName(), region.formatWorld());
+        Main.courier.send(sender, "deactivated", region.formatName(), region.formatWorld());
         return true;
     }
 

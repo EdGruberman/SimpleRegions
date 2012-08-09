@@ -24,17 +24,17 @@ public class RegionAccessGrant extends RegionExecutor {
         if (access == null) return false;
 
         if (region.hasDirectAccess(access)) {
-            Main.messenger.tell(sender, "accessGrantAlready", access, region.formatName(), region.formatWorld());
+            Main.courier.send(sender, "accessGrantAlready", access, region.formatName(), region.formatWorld());
             return true;
         }
 
         region.access.add(access);
         this.catalog.repository.saveRegion(region, false);
-        Main.messenger.tell(sender, "accessGrantSuccess", access, region.formatName(), region.formatWorld());
+        Main.courier.send(sender, "accessGrantSuccess", access, region.formatName(), region.formatWorld());
 
         final Player added = Bukkit.getServer().getPlayerExact(access);
         if (region.isActive() && added != null)
-            Main.messenger.tell(added, "accessGrantNotify", sender.getName(), region.formatName(), region.formatWorld());
+            Main.courier.send(added, "accessGrantNotify", sender.getName(), region.formatName(), region.formatWorld());
 
         return true;
     }

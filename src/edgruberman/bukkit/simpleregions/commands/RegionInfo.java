@@ -25,11 +25,11 @@ public class RegionInfo extends RegionExecutor {
         // Instruct owners on how to define/activate
         if (!region.isActive()) {
             if (!region.isDefault() && !region.isDefined() && sender.hasPermission("simpleregions.region.define")) {
-                Main.messenger.tell(sender, "undefined");
+                Main.courier.send(sender, "undefined");
                 return true;
             }
 
-            Main.messenger.tell(sender, "inactive");
+            Main.courier.send(sender, "inactive");
         }
         return true;
     }

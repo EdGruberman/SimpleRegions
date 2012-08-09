@@ -25,21 +25,21 @@ public class RegionCreate extends RegionExecutor {
         if (name == null) return false;
 
         if (!(sender instanceof Player) && args.size() < 2) {
-            Main.messenger.tell(sender, "requiresParameter", "<World>");
+            Main.courier.send(sender, "requiresParameter", "<World>");
             return false;
         }
 
         final String worldName = (args.size() >= 2 ? args.get(1) : ((Player) sender).getWorld().getName());
         final World world = Bukkit.getWorld(worldName);
         if (world == null) {
-            Main.messenger.tell(sender, "worldNotFound", worldName);
+            Main.courier.send(sender, "worldNotFound", worldName);
             return true;
         }
 
         final edgruberman.bukkit.simpleregions.Region created = new edgruberman.bukkit.simpleregions.Region(world, name);
         this.catalog.addRegion(created);
         this.catalog.repository.saveRegion(created, false);
-        Main.messenger.tell(sender, "regionCreated", created.formatName(), created.formatWorld());
+        Main.courier.send(sender, "regionCreated", created.formatName(), created.formatWorld());
         Bukkit.getServer().dispatchCommand(sender, "simpleregions:region.set " + created.formatName() + " " + created.formatWorld());
         return true;
     }

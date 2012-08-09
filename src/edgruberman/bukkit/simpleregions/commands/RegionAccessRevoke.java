@@ -22,7 +22,7 @@ public class RegionAccessRevoke extends RegionExecutor {
         if (access == null) return false;
 
         if (!region.hasDirectAccess(access)) {
-            Main.messenger.tell(sender, "accessRevokeMissing", access, region.formatName(), region.formatWorld());
+            Main.courier.send(sender, "accessRevokeMissing", access, region.formatName(), region.formatWorld());
             return true;
         }
 
@@ -33,7 +33,7 @@ public class RegionAccessRevoke extends RegionExecutor {
             }
 
         this.catalog.repository.saveRegion(region, false);
-        Main.messenger.tell(sender, "accessRevokeSuccess", access, region.formatName(), region.formatWorld());
+        Main.courier.send(sender, "accessRevokeSuccess", access, region.formatName(), region.formatWorld());
         return true;
     }
 

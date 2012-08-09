@@ -24,7 +24,7 @@ public class RegionAccessReset extends RegionExecutor {
         region.access.clear();
         region.access.add(access);
         this.catalog.repository.saveRegion(region, false);
-        Main.messenger.tell(sender, "accessReset", access, region.formatName(), region.formatWorld());
+        Main.courier.send(sender, "accessReset", access, region.formatName(), region.formatWorld());
         return true;
     }
 

@@ -19,14 +19,14 @@ public class RegionExit extends RegionExecutor {
     @Override
     protected boolean execute(final CommandSender sender, final Command command, final String label, final List<String> args, final Region region) {
         if (args.size() >= 1) {
-            Main.messenger.tell(sender, String.format("exitPrevious", region.exit.getFormat().replace("&", "&&")));
+            Main.courier.send(sender, String.format("exitPrevious", region.exit.getFormat().replace("&", "&&")));
             region.exit.setFormat(RegionExecutor.join(args, " "));
             this.catalog.repository.saveRegion(region, false);
-            Main.messenger.tell(sender, "exitSet");
+            Main.courier.send(sender, "exitSet");
         }
 
-        Main.messenger.tell(sender, String.format("exitExisting", region.exit.getFormat().replace("&", "&&")));
-        Main.messenger.tell(sender, "exitMessage", region.exit.formatted);
+        Main.courier.send(sender, String.format("exitExisting", region.exit.getFormat().replace("&", "&&")));
+        Main.courier.send(sender, "exitMessage", region.exit.formatted);
         return true;
     }
 

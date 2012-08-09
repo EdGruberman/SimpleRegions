@@ -23,7 +23,7 @@ public class RegionDelete extends RegionExecutor {
         Bukkit.getServer().dispatchCommand(sender, "simpleregions:region.unset");
         this.catalog.removeRegion(region);
         this.catalog.repository.deleteRegion(region, false);
-        Main.messenger.tell(sender, "regionDeleted", region.formatName(), region.formatWorld());
+        Main.courier.send(sender, "regionDeleted", region.formatName(), region.formatWorld());
         return true;
     }
 

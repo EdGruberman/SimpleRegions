@@ -46,7 +46,7 @@ final class Guard implements Listener {
 
     private void tellDenied(final Player player, final Location target) {
         final String current = Main.formatNames(this.catalog.getRegions(target), player);
-        Main.messenger.tell(player, "denied", current);
+        Main.courier.send(player, "denied", current);
     }
 
     @EventHandler(ignoreCancelled = true)

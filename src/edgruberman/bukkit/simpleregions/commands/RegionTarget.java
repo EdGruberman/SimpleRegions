@@ -22,7 +22,7 @@ public class RegionTarget extends RegionExecutor {
     @Override
     protected boolean execute(final CommandSender sender, final Command command, final String label, final List<String> args, final Region region) {
         if (!(sender instanceof Player)) {
-            Main.messenger.tell(sender, "requiresPlayer");
+            Main.courier.send(sender, "requiresPlayer");
             return true;
         }
 
@@ -31,7 +31,7 @@ public class RegionTarget extends RegionExecutor {
         final Set<Region> regions = this.catalog.getRegions(target);
 
         final String names = Main.formatNames(regions, player);
-        Main.messenger.tell(sender, (this.catalog.isAllowed(player, player.getLocation()) ? "targetHasAccess" : "targetNoAccess"), names, regions.size(), target.getBlockX(), target.getBlockY(), target.getBlockZ());
+        Main.courier.send(sender, (this.catalog.isAllowed(player, player.getLocation()) ? "targetHasAccess" : "targetNoAccess"), names, regions.size(), target.getBlockX(), target.getBlockY(), target.getBlockZ());
         return true;
     }
 

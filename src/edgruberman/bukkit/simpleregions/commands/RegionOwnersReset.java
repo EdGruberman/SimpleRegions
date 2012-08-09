@@ -23,14 +23,14 @@ public class RegionOwnersReset extends RegionExecutor {
 
         // Do not allow an owner to remove their own ownership accidentally if they can't add themselves back forcibly
         if (!sender.hasPermission("simpleregions.region.owner.override") && !sender.hasPermission(owner)) {
-            Main.messenger.tell(sender, "ownerRevokePrevent");
+            Main.courier.send(sender, "ownerRevokePrevent");
             return true;
         }
 
         region.owners.clear();
         region.owners.add(owner);
         this.catalog.repository.saveRegion(region, false);
-        Main.messenger.tell(sender, "ownerReset", owner, region.formatName(), region.formatWorld());
+        Main.courier.send(sender, "ownerReset", owner, region.formatName(), region.formatWorld());
         return true;
     }
 

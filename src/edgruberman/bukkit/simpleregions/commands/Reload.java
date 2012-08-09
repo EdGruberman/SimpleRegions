@@ -18,7 +18,7 @@ public class Reload implements CommandExecutor {
     @Override
     public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
         this.plugin.reloadConfig();
-        Main.messenger.tell(sender, "reload");
+        Main.courier.send(sender, "reload");
         // TODO reload all world specific region config files
         return true;
     }

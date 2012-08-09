@@ -23,6 +23,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import edgruberman.bukkit.messaging.couriers.ConfigurationCourier;
+import edgruberman.bukkit.messaging.couriers.TimestampedConfigurationCourier;
 import edgruberman.bukkit.simpleregions.commands.RegionAccessGrant;
 import edgruberman.bukkit.simpleregions.commands.RegionAccessReset;
 import edgruberman.bukkit.simpleregions.commands.RegionAccessRevoke;
@@ -53,7 +55,7 @@ public final class Main extends JavaPlugin implements RegionRepository {
      */
     private static final String WORLD_SPECIFICS = "Worlds";
 
-    public static Messenger messenger;
+    public static ConfigurationCourier courier;
 
     private final Map<World, ConfigurationFile> configuration = new HashMap<World, ConfigurationFile>();
     private Catalog catalog = null;
@@ -61,8 +63,8 @@ public final class Main extends JavaPlugin implements RegionRepository {
     @Override
     public void onEnable() {
         this.reloadConfig();
+        Main.courier = new TimestampedConfigurationCourier(this, "messages");
 
-        Main.messenger = Messenger.load(this, "messages");
         this.catalog = new Catalog(this, this);
         this.loadServerDefault(this.catalog, this.getConfig().getConfigurationSection("DEFAULT"));
         new Guard(this.catalog);
@@ -94,7 +96,7 @@ public final class Main extends JavaPlugin implements RegionRepository {
         for (final ConfigurationFile config : this.configuration.values())
             if (config.isSaveQueued()) config.save();
 
-        Main.messenger = null;
+        Main.courier = null;
     }
 
     @Override
@@ -239,8 +241,8 @@ public final class Main extends JavaPlugin implements RegionRepository {
     public static String formatNames(final Collection<Region> regions, final Player access) {
         String formatted = "";
         for (final Region region : regions) {
-            if (formatted.length() > 0) formatted += Main.messenger.getFormat("regionName.+delimiter");
-            formatted += String.format((region.hasAccess(access) ? Main.messenger.getFormat("regionName.+hasAccess") : Main.messenger.getFormat("regionName.+noAccess")), region.formatName());
+            if (formatted.length() > 0) formatted += Main.courier.format("regionName.+delimiter");
+            formatted += Main.courier.format((region.hasAccess(access) ? "regionName.+hasAccess" : "regionName.+noAccess"), region.formatName());
         }
         return formatted;
     }

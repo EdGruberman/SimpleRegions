@@ -36,12 +36,12 @@ abstract class RegionExecutor extends Executor {
         if (this.index != null) {
             region = this.identifyRegion(sender, args);
             if (region == null) {
-                Main.messenger.tell(sender, "regionNotFound");
+                Main.courier.send(sender, "regionNotFound");
                 return false;
             }
 
             if (this.requiresOwner && !RegionExecutor.isOwner(sender, region)) {
-                Main.messenger.tell(sender, "requiresOwner", region.owners.toString().replaceAll("^\\[|\\]$", ""));
+                Main.courier.send(sender, "requiresOwner", region.owners.toString().replaceAll("^\\[|\\]$", ""));
                 return true;
             }
         }
@@ -104,7 +104,7 @@ abstract class RegionExecutor extends Executor {
 
     protected static String parse(final List<String> args, final int index, final String parameter, final CommandSender sender) {
         if (args.size() < (index + 1)) {
-            Main.messenger.tell(sender, "requiresParameter", parameter);
+            Main.courier.send(sender, "requiresParameter", parameter);
             return null;
         }
 
@@ -117,7 +117,7 @@ abstract class RegionExecutor extends Executor {
 
     protected static void describeRegion(final Region region, final CommandSender sender) {
         // # 2 = Region, 3 = World, 4 = Active, 5 = Owners, 6 = Access, 7 = North, 8 = East, 9 = South, 10 = West, 11 = Down, 12 = Up
-        Main.messenger.tell(sender, (region.isDefault() ? "describeDefault" : "describe")
+        Main.courier.send(sender, (region.isDefault() ? "describeDefault" : "describe")
                 , region.formatName()
                 , region.formatWorld()
                 , region.isActive()
@@ -150,7 +150,7 @@ abstract class RegionExecutor extends Executor {
             sizeZ = Math.abs(region.getW() - region.getE()) + 1;
 
         // 2 = X Length, 3 = Y Length, 4 = Z Length, 5 = Volume
-        Main.messenger.tell(sender, "volume"
+        Main.courier.send(sender, "volume"
             , (sizeX == null ? "?" : sizeX), (sizeY == null ? "?" : sizeY), (sizeZ == null ? "?" : sizeZ)
             , (sizeX != null && sizeY != null && sizeZ != null ? new DecimalFormat().format(sizeX * sizeY * sizeZ) : "?")
         );
@@ -171,7 +171,7 @@ abstract class RegionExecutor extends Executor {
             sizeZ = Math.abs(region.getW() - region.getE()) + 1;
 
         // 2 = X Length, 3 = Z Length, 4 = Area
-        Main.messenger.tell(sender, "area"
+        Main.courier.send(sender, "area"
                 , (sizeX == null ? "?" : sizeX), (sizeZ == null ? "?" : sizeZ)
                 , (sizeX != null && sizeZ != null ? new DecimalFormat().format(sizeX * sizeZ) : "?")
         );

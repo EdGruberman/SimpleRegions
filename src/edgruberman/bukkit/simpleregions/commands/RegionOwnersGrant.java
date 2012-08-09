@@ -24,17 +24,17 @@ public class RegionOwnersGrant extends RegionExecutor {
         if (owner == null) return false;
 
         if (region.isDirectOwner(owner)) {
-            Main.messenger.tell(sender, "ownerGrantAlready", owner, region.formatName(), region.formatWorld());
+            Main.courier.send(sender, "ownerGrantAlready", owner, region.formatName(), region.formatWorld());
             return true;
         }
 
         region.owners.add(owner);
         this.catalog.repository.saveRegion(region, false);
-        Main.messenger.tell(sender, "ownerGrantSuccess", owner, region.formatName(), region.formatWorld());
+        Main.courier.send(sender, "ownerGrantSuccess", owner, region.formatName(), region.formatWorld());
 
         final Player added = Bukkit.getServer().getPlayerExact(owner);
         if (region.isActive() && added != null)
-            Main.messenger.tell(added, String.format("ownerGrantNotify", sender.getName(), region.formatName(), region.formatWorld()));
+            Main.courier.send(added, String.format("ownerGrantNotify", sender.getName(), region.formatName(), region.formatWorld()));
 
         return true;
     }

@@ -16,6 +16,10 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import edgruberman.bukkit.messaging.Message;
+import edgruberman.bukkit.messaging.messages.TimestampedConfigurationMessage;
+import edgruberman.bukkit.messaging.recipients.Sender;
+
 final class BoundaryAlerter implements Listener {
 
     private final Catalog catalog;
@@ -57,7 +61,7 @@ final class BoundaryAlerter implements Listener {
      * @param to block player has moved to
      */
     private void checkCrossings(final Player player, final Location from, final Location to) {
-        List<String> exited = null, enteredFormat = null, enteredMessage = null;
+        List<Message> entered = null;
 
         // Determine applicable regions to check
         final Set<Region> regions = new HashSet<Region>();
@@ -71,34 +75,21 @@ final class BoundaryAlerter implements Listener {
             isInTo = region.contains(to.getBlockX(), to.getBlockY(), to.getBlockZ());
             if (isInFrom == isInTo) continue;
 
-            // Exiting this region
-            if (isInFrom && region.exit.formatted.length() != 0) {
-                if (exited == null) exited = new ArrayList<String>();
-                exited.add(region.exit.formatted);
-            }
+            // Exiting this region, show message first
+            if (isInFrom && region.exit.formatted.length() != 0)
+                Main.courier.send(player, "exit", region.exit.formatted);
 
-            // Entering this region
+            // Entering this region, cache message for display after all other exits
             if (isInTo && region.enter.formatted.length() != 0) {
-                if (enteredFormat == null) {
-                    enteredFormat = new ArrayList<String>();
-                    enteredMessage = new ArrayList<String>();
-                }
-                enteredFormat.add(Main.messenger.getFormat(region.hasAccess(player) ? "enterHasAccess" : "enterNoAccess"));
-                enteredMessage.add(region.enter.formatted);
+                if (entered == null) entered = new ArrayList<Message>();
+                entered.addAll(TimestampedConfigurationMessage.create(Main.courier.getBase(), (region.hasAccess(player) ? "enterHasAccess" : "enterNoAccess"), region.enter.formatted));
             }
         }
 
-        // Show any exit messages first
-        if (exited != null)
-            for (final String message : exited)
-                Main.messenger.tell(player, "exit", message);
-
-        // Show any enter messages next
-        if (enteredFormat != null)
-            for (int i = 0; i <= enteredFormat.size() - 1; i++) {
-                final String message = Main.messenger.tellMessage(player, enteredFormat.get(i), enteredMessage.get(i));
-                this.catalog.plugin.getLogger().finer("#TELL@" + player.getName() + "# " + message);
-            }
+        // Show any enter messages after exit messages
+        if (entered != null)
+            for (final Message message : entered)
+                Main.courier.deliver(new Sender(player), message);
     }
 
     private static boolean sameChunk(final Location i, final Location j) {

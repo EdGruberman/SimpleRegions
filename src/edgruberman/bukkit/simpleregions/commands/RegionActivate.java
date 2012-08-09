@@ -19,7 +19,7 @@ public class RegionActivate extends RegionExecutor {
     @Override
     protected boolean execute(final CommandSender sender, final Command command, final String label, final List<String> args, final Region region) {
         region.setActive(true);
-        Main.messenger.tell(sender, "activated", region.formatName(), region.formatWorld());
+        Main.courier.send(sender, "activated", region.formatName(), region.formatWorld());
         return true;
     }
 

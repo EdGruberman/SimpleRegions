@@ -18,7 +18,7 @@ public class RegionUnset extends RegionExecutor {
     @Override
     protected boolean execute(final CommandSender sender, final Command command, final String label, final List<String> args, final Region region) {
         RegionExecutor.removeWorkingRegion(sender);
-        Main.messenger.tell(sender, "unset");
+        Main.courier.send(sender, "unset");
         return true;
     }
 

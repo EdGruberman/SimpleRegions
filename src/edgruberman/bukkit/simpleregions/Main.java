@@ -23,8 +23,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import edgruberman.bukkit.messaging.couriers.ConfigurationCourier;
-import edgruberman.bukkit.messaging.couriers.TimestampedConfigurationCourier;
 import edgruberman.bukkit.simpleregions.commands.RegionAccessGrant;
 import edgruberman.bukkit.simpleregions.commands.RegionAccessReset;
 import edgruberman.bukkit.simpleregions.commands.RegionAccessRevoke;
@@ -44,6 +42,8 @@ import edgruberman.bukkit.simpleregions.commands.RegionSet;
 import edgruberman.bukkit.simpleregions.commands.RegionTarget;
 import edgruberman.bukkit.simpleregions.commands.RegionUnset;
 import edgruberman.bukkit.simpleregions.commands.Reload;
+import edgruberman.bukkit.simpleregions.messaging.couriers.ConfigurationCourier;
+import edgruberman.bukkit.simpleregions.messaging.couriers.TimestampedConfigurationCourier;
 
 public final class Main extends JavaPlugin implements RegionRepository {
 

@@ -1,11 +1,11 @@
-package edgruberman.bukkit.messaging.couriers;
+package edgruberman.bukkit.simpleregions.messaging.couriers;
 
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
 
-import edgruberman.bukkit.messaging.Message;
-import edgruberman.bukkit.messaging.Recipients;
-import edgruberman.bukkit.messaging.messages.TimestampedConfigurationMessage;
+import edgruberman.bukkit.simpleregions.messaging.Message;
+import edgruberman.bukkit.simpleregions.messaging.Recipients;
+import edgruberman.bukkit.simpleregions.messaging.messages.TimestampedConfigurationMessage;
 
 public class TimestampedConfigurationCourier extends ConfigurationCourier {
 

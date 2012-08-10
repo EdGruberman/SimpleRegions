@@ -16,9 +16,9 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import edgruberman.bukkit.messaging.Message;
-import edgruberman.bukkit.messaging.messages.TimestampedConfigurationMessage;
-import edgruberman.bukkit.messaging.recipients.Sender;
+import edgruberman.bukkit.simpleregions.messaging.Message;
+import edgruberman.bukkit.simpleregions.messaging.messages.TimestampedConfigurationMessage;
+import edgruberman.bukkit.simpleregions.messaging.recipients.Sender;
 
 final class BoundaryAlerter implements Listener {
 

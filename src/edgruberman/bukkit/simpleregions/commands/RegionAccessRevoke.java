@@ -21,19 +21,14 @@ public class RegionAccessRevoke extends RegionExecutor {
         final String access = RegionExecutor.parse(args, 0, "<Access>", sender);
         if (access == null) return false;
 
-        if (!region.hasDirectAccess(access)) {
-            Main.courier.send(sender, "accessRevokeMissing", access, region.formatName(), region.formatWorld());
+        if (!region.access.contains(access)) {
+            Main.courier.send(sender, "accessRevokeMissing", access, RegionExecutor.formatName(region), RegionExecutor.formatWorld(region));
             return true;
         }
 
-        for (final String o : region.access)
-            if (o.equalsIgnoreCase(access)) {
-                region.access.remove(access);
-                break;
-            }
-
+        region.access.remove(access);
         this.catalog.repository.saveRegion(region, false);
-        Main.courier.send(sender, "accessRevokeSuccess", access, region.formatName(), region.formatWorld());
+        Main.courier.send(sender, "accessRevokeSuccess", access, RegionExecutor.formatName(region), RegionExecutor.formatWorld(region));
         return true;
     }
 

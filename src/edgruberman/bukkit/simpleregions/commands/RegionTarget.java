@@ -22,16 +22,20 @@ public class RegionTarget extends RegionExecutor {
     @Override
     protected boolean execute(final CommandSender sender, final Command command, final String label, final List<String> args, final Region region) {
         if (!(sender instanceof Player)) {
-            Main.courier.send(sender, "requiresPlayer");
+            Main.courier.send(sender, "requiresPlayer", label);
             return true;
         }
 
         final Player player = (Player) sender;
         final Location target = player.getTargetBlock((HashSet<Byte>) null, 50).getLocation();
-        final Set<Region> regions = this.catalog.getRegions(target);
+        if (target == null) {
+            Main.courier.send(sender, "blockNotIdentified");
+            return true;
+        }
 
-        final String names = Main.formatNames(regions, player);
-        Main.courier.send(sender, (this.catalog.isAllowed(player, player.getLocation()) ? "targetHasAccess" : "targetNoAccess"), names, regions.size(), target.getBlockX(), target.getBlockY(), target.getBlockZ());
+        final Set<Region> regions = this.catalog.getRegions(target);
+        final String names = RegionExecutor.formatNames(regions, player);
+        Main.courier.send(sender, "target", names, regions.size(), this.catalog.isAllowed(player, target)?1:0, target.getBlockX(), target.getBlockY(), target.getBlockZ());
         return true;
     }
 

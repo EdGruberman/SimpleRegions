@@ -12,14 +12,14 @@ import edgruberman.bukkit.simpleregions.Region;
 public class RegionSet extends RegionExecutor {
 
     public RegionSet(final Catalog catalog) {
-        super(catalog, 1, false);
+        super(catalog, 0, false);
     }
 
     // usage: /<command>[ <Region>[ <World>]]
     @Override
     protected boolean execute(final CommandSender sender, final Command command, final String label, final List<String> args, final Region region) {
         RegionExecutor.putWorkingRegion(sender, region);
-        Main.courier.send(sender, "set", region.formatName(), region.formatWorld());
+        Main.courier.send(sender, "set", RegionExecutor.formatName(region), RegionExecutor.formatWorld(region));
         return true;
     }
 

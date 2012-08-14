@@ -18,34 +18,29 @@ import org.bukkit.event.painting.PaintingPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
+import edgruberman.bukkit.simpleregions.commands.RegionExecutor;
+
 final class Guard implements Listener {
 
-    /**
-     * Items whose uses are cancelled if a player is interacting with
-     * a block in a region they do not have access to.
-     */
-    static final List<Integer> DENIED_ITEMS = new ArrayList<Integer>(Arrays.asList(
-              Material.BUCKET.getId()
-            , Material.WATER_BUCKET.getId()
-            , Material.LAVA_BUCKET.getId()
-            , Material.FLINT_AND_STEEL.getId()
-    ));
-
-    static final List<Integer> BUCKETS = new ArrayList<Integer>(Arrays.asList(
+    private static final List<Integer> BUCKETS = new ArrayList<Integer>(Arrays.asList(
               Material.BUCKET.getId()
             , Material.WATER_BUCKET.getId()
             , Material.LAVA_BUCKET.getId()
     ));
 
     private final Catalog catalog;
+    private final List<Integer> deniedItems = new ArrayList<Integer>();
+    private final boolean protectFire;
 
-    public Guard(final Catalog catalog) {
+    public Guard(final Catalog catalog, final List<Material> deniedItems, final boolean protectFire) {
         this.catalog = catalog;
+        for (final Material material : deniedItems) this.deniedItems.add(material.getId());
+        this.protectFire = protectFire;
         catalog.plugin.getServer().getPluginManager().registerEvents(this, catalog.plugin);
     }
 
     private void tellDenied(final Player player, final Location target) {
-        final String current = Main.formatNames(this.catalog.getRegions(target), player);
+        final String current = RegionExecutor.formatNames(this.catalog.getRegions(target), player);
         Main.courier.send(player, "denied", current);
     }
 
@@ -57,7 +52,7 @@ final class Guard implements Listener {
         event.setCancelled(true);
         this.tellDenied(event.getPlayer(), target);
         this.catalog.plugin.getLogger().fine(
-                "Cancelled " + event.getPlayer().getName() + " attempting to break a " + event.getBlock().getType().name() + " " + this.formatLocation(target));
+                "Cancelled " + event.getPlayer().getName() + " attempting to break " + event.getBlock().getType().name() + " " + this.formatLocation(target));
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -68,13 +63,13 @@ final class Guard implements Listener {
         event.setCancelled(true);
         this.tellDenied(event.getPlayer(), target);
         this.catalog.plugin.getLogger().fine(
-                "Cancelled " + event.getPlayer().getName() + " attempting to place a " + event.getBlock().getType().name() + " " + this.formatLocation(target));
+                "Cancelled " + event.getPlayer().getName() + " attempting to place " + event.getBlock().getType().name() + " " + this.formatLocation(target));
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerInteract(final PlayerInteractEvent event) {
         final ItemStack inHand = event.getPlayer().getItemInHand();
-        if (!this.leftClickFire(event) && !Guard.DENIED_ITEMS.contains(inHand.getTypeId())) return;
+        if (!(this.protectFire && this.leftClickFire(event)) && !this.deniedItems.contains(inHand.getTypeId())) return;
 
         final Location target = event.getClickedBlock().getLocation();
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK && Guard.BUCKETS.contains(inHand.getTypeId()))
@@ -85,7 +80,7 @@ final class Guard implements Listener {
         event.setCancelled(true);
         this.tellDenied(event.getPlayer(), target);
         this.catalog.plugin.getLogger().fine(
-                "Cancelled " + event.getPlayer().getName() + " attempting to interact with a " + inHand.getType().name() + " " + this.formatLocation(target));
+                "Cancelled " + event.getPlayer().getName() + " attempting to interact with " + inHand.getType().name() + " " + this.formatLocation(target));
     }
 
     private boolean leftClickFire(final PlayerInteractEvent interaction) {

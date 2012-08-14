@@ -20,56 +20,60 @@ import org.bukkit.plugin.Plugin;
 
 import edgruberman.bukkit.simpleregions.util.ChunkCoordinates;
 
-/**
- * Relates a server to world indices
- */
+/** relates a server to world indices */
 public final class Catalog implements Listener {
 
     public final Plugin plugin;
-    public final RegionRepository repository;
-    public final Map<String, Index> worlds = new HashMap<String, Index>();
-    public Region serverDefault = null;
+    public final Repository repository;
+    public Region serverDefault;
 
-    public Catalog(final Plugin plugin, final RegionRepository repository) {
+    /** world to region index keyed by world name */
+    public final Map<String, Index> indices = new HashMap<String, Index>();
+
+    Catalog(final Plugin plugin, final Repository repository) {
         this.plugin = plugin;
         this.repository = repository;
-
-        for (final World world : plugin.getServer().getWorlds())
-            this.worlds.put(world.getName(), new Index(this, world, repository.loadRegions(world)));
-
+        this.serverDefault = repository.loadDefault(null);
+        for (final World world : plugin.getServer().getWorlds()) this.loadIndex(world);
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
+    }
+
+    public void clear() {
+        this.repository.clear();
+        this.indices.clear();
+    }
+
+    private void loadIndex(final World world) {
+        final Index index = new Index(world, this.repository);
+        this.indices.put(world.getName(), index);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onWorldLoad(final WorldLoadEvent event) {
-        this.worlds.put(event.getWorld().getName(), new Index(this, event.getWorld(), this.repository.loadRegions(event.getWorld())));
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onChunkLoad(final ChunkLoadEvent event) {
-        this.worlds.get(event.getWorld().getName()).chunkLoaded(event.getChunk());
-    }
-
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onChunkUnload(final ChunkUnloadEvent event) {
-        this.worlds.get(event.getWorld().getName()).chunkUnloaded(event.getChunk());
+        this.loadIndex(event.getWorld());
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onWorldUnload(final WorldUnloadEvent event) {
-        this.worlds.remove(event.getWorld().getName());
+        this.indices.remove(event.getWorld().getName());
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void onChunkLoad(final ChunkLoadEvent event) {
+        this.indices.get(event.getWorld().getName()).loadChunk(event.getChunk());
+    }
+
+    @EventHandler(priority = EventPriority.LOW)
+    public void onChunkUnload(final ChunkUnloadEvent event) {
+        this.indices.get(event.getWorld().getName()).unloadChunk(event.getChunk());
     }
 
     /**
-     * Active regions that contain at least one block of the loaded chunk
-     * (Unloaded chunks will not have regions returned)
-     *
      * @param location location that identifies chunk
-     * @return active regions for loaded chunks that contain location; empty set if no regions apply
-     * TODO regionsForLoadedChunk(chunkX, chunkZ)
+     * @return active regions that contain at least one block for the loaded chunk that contains location; empty set if no regions apply
      */
     public Set<Region> getChunkRegions(final Location location) {
-        final Set<Region> possible = this.worlds.get(location.getWorld().getName()).loaded.get(ChunkCoordinates.hash(location.getBlockX() >> 4, location.getBlockZ() >> 4));
+        final Set<Region> possible = this.indices.get(location.getWorld().getName()).loaded.get(ChunkCoordinates.hash(location.getBlockX() >> 4, location.getBlockZ() >> 4));
         return (possible != null ? possible : Collections.<Region>emptySet());
     }
 
@@ -89,23 +93,16 @@ public final class Catalog implements Listener {
             if (region.contains(location)) regions.add(region);
 
         if (regions.size() == 0) {
-            final Region def = this.getDefault(location.getWorld().getName());
+            final Region def = this.defaultFor(location.getWorld().getName());
             if (def != null) regions.add(def);
         }
 
         return regions;
     }
 
-    /**
-     * Determines default applicable region for specified world. A world's
-     * default region (non-null) overrides the server default region.
-     *
-     * @param world world name to return applicable default region for
-     * @return default region applicable for world
-     * TODO defaultRegion
-     */
-    public Region getDefault(final String world) {
-        final Index index = this.worlds.get(world);
+    /** @return world default region if exists; otherwise returns server default region; null if neither exist */
+    public Region defaultFor(final String world) {
+        final Index index = this.indices.get(world);
         if (index == null) return this.serverDefault;
 
         final Region def = index.worldDefault;
@@ -114,21 +111,9 @@ public final class Catalog implements Listener {
         return def;
     }
 
-    public Region getRegion(final String region, final String world) {
-        if (region.equalsIgnoreCase(Region.NAME_DEFAULT))
-            return this.getDefault(world);
-
-        if (world == null) return null;
-
-        final Index index = this.worlds.get(world);
-        if (index == null) return null;
-
-        return index.regions.get(region.toLowerCase());
-    }
-
     /**
-     * Determine if player is allowed to manipulate the target location based
-     * on region configuration.<br>
+     * Determine if player is allowed to manipulate the target location based on region configuration.<br>
+     * <br>
      * Access is determined by:<br>
      *     = true if any active region applies and allows access to the player<br>
      *     = true if no active region applies and the world default region allows access to the player<br>
@@ -140,52 +125,30 @@ public final class Catalog implements Listener {
      * @return true if player has access, otherwise false
      */
     public boolean isAllowed(final Player player, final Location target) {
+        if (player.hasPermission("simpleregions.region.override.protection")) return true;
+
         boolean found = false;
 
-        // Check loaded regions.
+        // check loaded regions, return true if any region allows access
         for (final Region region : this.getChunkRegions(target))
             if (region.contains(target)) {
                 if (region.hasAccess(player)) return true;
                 found = true;
             }
 
-        // If at least one loaded region was found, that indicates all applicable regions would have been found in loaded.
+        // if at least one loaded region was found, that indicates all applicable regions would have been found in loaded
         if (found) return false;
 
-        // Check all regions only if chunk is not loaded at target.
-        // Slightly redundant in checking loaded regions again, but this should be a rare edge case.
-        if (!target.getWorld().isChunkLoaded(target.getBlockX() >> 4, target.getBlockZ() >> 4)) {
-            for (final Region region : this.worlds.get(target.getWorld().getName()).regions.values())
-                if (region.isActive() && region.contains(target)) {
-                    if (region.hasAccess(player)) return true;
-                    found = true;
-                }
+        // check world default region only if no other regions apply
+        final Region worldDefault = this.indices.get(target.getWorld().getName()).worldDefault;
+        if (worldDefault != null && worldDefault.active)
+            return this.indices.get(target.getWorld()).worldDefault.hasAccess(player);
 
-            // If we found at least one applicable unloaded region, do not check default regions.
-            if (found) return false;
-        }
-
-        // Check world default region only if no other regions apply.
-        final Region worldDefault = this.worlds.get(target.getWorld().getName()).worldDefault;
-        if (worldDefault != null && worldDefault.isActive())
-            return this.worlds.get(target.getWorld()).worldDefault.hasAccess(player);
-
-        // Check server default region only if no other regions apply and there is no world default region.
-        if (this.serverDefault != null && this.serverDefault.isActive())
+        // check server default region only if no other regions apply and there is no world default region
+        if (this.serverDefault != null && this.serverDefault.active)
             return this.serverDefault.hasAccess(player);
 
         return false;
-    }
-
-    public void addRegion(final Region region) {
-        this.worlds.get(region.world.getName()).add(region);
-    }
-
-    public void removeRegion(final Region region) {
-        final Index index = this.worlds.get(region.world.getName());
-        if (index == null) throw new IllegalArgumentException("Unable to remove region; region world index not found: " + region.world.getName());
-
-        index.remove(region);
     }
 
 }

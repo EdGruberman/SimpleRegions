@@ -18,8 +18,10 @@ public class RegionActivate extends RegionExecutor {
     // usage: /<command>[ <Region>[ <World>]]
     @Override
     protected boolean execute(final CommandSender sender, final Command command, final String label, final List<String> args, final Region region) {
-        region.setActive(true);
-        Main.courier.send(sender, "activated", region.formatName(), region.formatWorld());
+        region.active = true;
+        if (!region.isDefault()) this.catalog.indices.get(region.world).refresh(region);
+        this.catalog.repository.saveRegion(region, false);
+        Main.courier.send(sender, "activated", RegionExecutor.formatName(region), RegionExecutor.formatWorld(region));
         return true;
     }
 

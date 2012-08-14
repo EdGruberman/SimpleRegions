@@ -22,27 +22,22 @@ public class RegionOwnersRevoke extends RegionExecutor {
         final String owner = RegionExecutor.parse(args, 0, "<Owner>", sender);
         if (owner == null) return false;
 
-        if (!region.isDirectOwner(owner)) {
-            Main.courier.send(sender, "ownerRevokeMissing", owner, region.formatName(), region.formatWorld());
+        if (!region.owners.contains(owner)) {
+            Main.courier.send(sender, "ownerRevokeMissing", owner, RegionExecutor.formatName(region), RegionExecutor.formatWorld(region));
             return true;
         }
 
-        final String name = owner.toLowerCase();
-        for (final String o : region.owners)
-            if (o.toLowerCase().equals(name)) {
-                region.owners.remove(o);
-                break;
-            }
+        region.owners.remove(owner);
 
         // Do not allow an owner to remove their own ownership accidentally if they can't add themselves back forcibly
-        if (!sender.hasPermission("simpleregions.region.owner.override") && sender instanceof Player && !region.isOwner((Player) sender)) {
+        if (!sender.hasPermission("simpleregions.region.owner.override") && sender instanceof Player && !region.owners.inherits(sender)) {
             region.owners.add(owner);
             Main.courier.send(sender, "ownerRevokePrevent");
             return true;
         }
 
         this.catalog.repository.saveRegion(region, false);
-        Main.courier.send(sender, "ownerRevokeSuccess", owner, region.formatName(), region.formatWorld());
+        Main.courier.send(sender, "ownerRevokeSuccess", owner, RegionExecutor.formatName(region), RegionExecutor.formatWorld(region));
         return true;
     }
 

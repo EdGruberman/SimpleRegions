@@ -30,7 +30,7 @@ public class RegionOwnersReset extends RegionExecutor {
         region.owners.clear();
         region.owners.add(owner);
         this.catalog.repository.saveRegion(region, false);
-        Main.courier.send(sender, "ownerReset", owner, region.formatName(), region.formatWorld());
+        Main.courier.send(sender, "ownerReset", owner, RegionExecutor.formatName(region), RegionExecutor.formatWorld(region));
         return true;
     }
 

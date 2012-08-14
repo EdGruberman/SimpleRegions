@@ -1,6 +1,5 @@
 name: @NAME@
 description: Protect regions of blocks so only configured players can modify
-softdepend: [TimeService]
 version: @VERSION@
 author: @AUTHOR@
 main: @MAIN@
@@ -23,10 +22,10 @@ commands:
         description: Unset your working region
         permission: simpleregions.region.unset
         usage: /<command>
-    'simpleregions:region.info':
-        aliases: [info, region.info]
-        description: Show region information
-        permission: simpleregions.region.info
+    'simpleregions:region.describe':
+        aliases: [describe, region.describe, region.info]
+        description: Show region description
+        permission: simpleregions.region.describe
         usage: /<command>[ <Region>[ <World>]]
     'simpleregions:region.activate':
         aliases: [region.on, region.activate]
@@ -72,12 +71,12 @@ commands:
         aliases: region.enter
         description: View/set region enter message format (* Owners Only)
         permission: simpleregions.region.enter
-        usage: /<command>[ <Message>]
+        usage: /<command>[ (<Message>|default)]
     'simpleregions:region.exit':
         aliases: region.exit
         description: View/set region exit message format (* Owners Only)
         permission: simpleregions.region.exit
-        usage: /<command>[ <Message>]
+        usage: /<command>[ (<Message>|default)]
     'simpleregions:region.create':
         aliases: region.create
         description: Create new region
@@ -87,17 +86,25 @@ commands:
         aliases: region.define
         description: Define working region coordinates
         permission: simpleregions.region.define
-        usage: /<command>[ (n|e|s|w|u|d|1|2) <Coordinate>[ <Region>[ <World>]]]
+        usage: /<command>[ (1|2)|((n|e|s|w|u|d)[:<Coordinate>])[ <Region>[ <World>]]]
     'simpleregions:region.delete':
         aliases: region.delete
         description: Delete region
         permission: simpleregions.region.delete
         usage: /<command> <Region> <World>
+    'simpleregions:region.rename':
+        aliases: region.rename
+        description: Rename region
+        permission: simpleregions.region.rename
+        usage: /<command> <New>[ <Region>[ <World>]]
     'simpleregions:reload':
         aliases: simpleregions.reload
         description: Reload configuration
         permission: simpleregions.reload
 permissions:
+    'simpleregions.[players]':
+        description: All players; "Permission group" used to grant access to regions
+        default: true
     simpleregions.region:
         description: Can use common actions of region command
         default: true
@@ -106,7 +113,7 @@ permissions:
             simpleregions.region.target: true
             simpleregions.region.set: true
             simpleregions.region.unset: true
-            simpleregions.region.info: true
+            simpleregions.region.describe: true
             simpleregions.region.access.grant: true
             simpleregions.region.access.revoke: true
             simpleregions.region.access.reset: true
@@ -119,16 +126,27 @@ permissions:
         description: Can use administrative features of SimpleRegions plugin
         default: op
         children:
-            simpleregions.region.owner.override: true
+            simpleregions.region.override: true
             simpleregions.region.read: true
             simpleregions.region.enter: true
             simpleregions.region.exit: true
             simpleregions.region.create: true
             simpleregions.region.define: true
             simpleregions.region.delete: true
+            simpleregions.region.rename: true
+            simpleregions.region.message.color: true
             simpleregions.reload: true
-    simpleregions.region.owner.override:
-        description: Perform region commands that require owner even if not owner
+    simpleregions.region.override:
+        description: Granted owner access to all regions even if not owner
+        default: false
+        children:
+            simpleregions.region.override.commands: true
+            simpleregions.region.override.protection: true
+    simpleregions.region.override.commands:
+        description: Can use region commands even if not owner (still requires individual command permission)
+        default: false
+    simpleregions.region.override.protection:
+        description: Can interact with regions in-game even if not owner
         default: false
     simpleregions.region.current:
         description: Can use region.current command
@@ -142,8 +160,8 @@ permissions:
     simpleregions.region.unset:
         description: Can use region.unset command
         default: false
-    simpleregions.region.info:
-        description: Can use region.info command
+    simpleregions.region.describe:
+        description: Can use region.describe command
         default: false
     simpleregions.region.activate:
         description: Can use region.activate command (* Owners Only)
@@ -184,6 +202,12 @@ permissions:
     simpleregions.region.delete:
         description: Can use region.delete command
         default: false
+    simpleregions.region.rename:
+        description: Can use region.rename command
+        default: false
     simpleregions.region.reload:
         description: Can use reload command
+        default: false
+    simpleregions.region.message.color:
+        description: Can use color codes in enter and exit messages
         default: false

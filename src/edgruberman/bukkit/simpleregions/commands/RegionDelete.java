@@ -19,11 +19,16 @@ public class RegionDelete extends RegionExecutor {
     // usage: /<command> <Region> <World>
     @Override
     protected boolean execute(final CommandSender sender, final Command command, final String label, final List<String> args, final Region region) {
-        Bukkit.getServer().dispatchCommand(sender, "simpleregions:region.info " + region.formatName() + " " + region.formatWorld());
+        if (args.size() < 2) {
+            Main.courier.send(sender, "requiresArgument", "<Region> <World>");
+            return false;
+        }
+
+        Bukkit.getServer().dispatchCommand(sender, "simpleregions:region.describe " + RegionExecutor.formatName(region) + " " + RegionExecutor.formatWorld(region));
         Bukkit.getServer().dispatchCommand(sender, "simpleregions:region.unset");
-        this.catalog.removeRegion(region);
+        this.catalog.indices.get(region.world).deregister(region);
         this.catalog.repository.deleteRegion(region, false);
-        Main.courier.send(sender, "regionDeleted", region.formatName(), region.formatWorld());
+        Main.courier.send(sender, "delete", RegionExecutor.formatName(region), RegionExecutor.formatWorld(region));
         return true;
     }
 

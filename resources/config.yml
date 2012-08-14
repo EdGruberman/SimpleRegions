@@ -1,68 +1,73 @@
 logLevel: INFO
+deniedItems: [BUCKET, WATER_BUCKET, LAVA_BUCKET, FLINT_AND_STEEL] # usage cancelled if target block is in a denied region
+protectFire: true
 messages:
-    regionName:
-        +hasAccess: '§2%1$s§r' # 1 = Region Name
-        +noAccess: '§e%1$s§r' # 1 = Region Name
+    region:
+        +name: '{1,choice,0#§e|1#§2}{0}§r' # 0 = Region Name, 1 = hasAccess(0|1)
         +delimiter: ', '
-    denied: '-> Region §caccess denied§r: %2$s' # 2 = Formatted Region Names
-    currentHasAccess: '-> §2Current regions§r: %2$s §8(%3$d)' # 2 = Formatted Region Names, 3 = Count
-    currentNoAccess: '-> §eCurrent regions§r: %2$s §8(%3$d)' # 2 = Formatted Region Names, 3 = Count
-    targetHasAccess: '-> §2Target regions§r: %2$s §8(%3$d at x:%4$d y:%5$d z:%6$d)' # 2 = Formatted Region Names, 3 = Count, 4 = X, 5 = Y, 6 = Z
-    targetNoAccess: '-> §eTarget regions§r: %2$s §8(%3$d at x:%4$d y:%5$d z:%6$d)' # 2 = Formatted Region Names, 3 = Count, 4 = X, 5 = Y, 6 = Z
-    enterHasAccess: '-> §2%2$s' # 2 = Enter Message
-    enterNoAccess: '-> §e%2$s' # 2 = Enter Message
-    exit: '-> §2%2$s' # 2 = Exit Message
-    accessGrantAlready: '-> Region access §ealready contains§r %2$s for %3$s in %4$s' # 2 = <Access>, 3 = Region, 4 = World
-    accessGrantSuccess: '-> Region §2access added§r to %2$s for %3$s in %4$s' # 2 = <Access>, 3 = Region, 4 = World
-    accessGrantNotify: '§8%1$tH:%1$tM:%1$tS§r -> Region §2access granted§r to you by %2$s for %3$s in %4$s' # 2 = Grantor, 3 = Region, 4 = World
-    accessReset: '-> Region §2access reset§r to %2$s for %3$s in %4$s' # 2 = <Access>, 3 = Region, 4 = World
-    accessRevokeMissing: '-> Region access does §enot explicitly grant access§r to %2$s for %3$s in %4$s' # 2 = <Access>, 3 = Region, 4 = World
-    accessRevokeSuccess: '-> Region §2access revoked§r from %2$s for %3$s in %4$s' # 2 = <Access>, 3 = Region, 4 = World
-    ownerGrantAlready: '-> Region owners §ealready contains§r %2$s for %3$s in %4$s' # 2 = <Owner>, 3 = Region, 4 = World
-    ownerGrantSuccess: '-> Region §2ownership added§r to %2$s for %3$s in %4$s' # 2 = <Owner>, 3 = Region, 4 = World
-    ownerGrantNotify: '§8%1$tH:%1$tM:%1$tS§r -> Region §2ownership granted§r to you by %2$s for %3$s in %4$s' # 2 = Grantor, 3 = Region, 4 = World
-    ownerReset: '-> Region §2owners reset§r to %2$s for %3$s in %4$s' # 2 = <Owner>, 3 = Region, 4 = World
+    denied: '-> Region §caccess denied§r: {1}' # 1 = Formatted Region Names
+    current: '-> {3,choice,0#§e|1#§2}Current region{2,choice,0#|2<s}§r: {1} §8({2})' # 1 = Formatted Region Names, 2 = Count, 3 = hasAccess(0|1)
+    target: '-> {3,choice,0#§e|1#§2}Target region{2,choice,0#|2<s}§r: {1} §8({2} at x:{4} y:{5} z:{6})' # 1 = Formatted Region Names, 2 = Count, 3 = hasAccess(0|1), 4 = X, 5 = Y, 6 = Z
+    enter: '-> §8Entered region§r {2,choice,0#§e|1#§2}{1}' # 1 = Region Name, 2 = hasAccess(0|1)
+    exit: '-> §8Left region§r §2{1}' # 1 = Region Name, 2 = hasAccess(0|1)
+    enterCustom: '-> {1}' # 1 = Enter Message
+    exitCustom: '-> {1}' # 1 = Exit Message
+    accessGrantAlready: '-> Region access §ealready contains§r {1} for {2} in {3}' # 1 = <Access>, 2 = Region, 3 = World
+    accessGrantSuccess: '-> Region §2access added§r to {1} for {2} in {3}' # 1 = <Access>, 2 = Region, 3 = World
+    accessGrantNotify: '§8{0,time,HH:mm:ss}§r -> Region §2access granted§r to you by {1} for {2} in {3}' # 1 = Grantor, 2 = Region, 3 = World
+    accessReset: '-> Region §2access reset§r to {1} for {2} in {3}' # 1 = <Access>, 2 = Region, 3 = World
+    accessRevokeMissing: '-> Region access does §enot explicitly grant access§r to {1} for {2} in {3}' # 1 = <Access>, 2 = Region, 3 = World
+    accessRevokeSuccess: '-> Region §2access revoked§r from {1} for {2} in {3}' # 1 = <Access>, 2 = Region, 3 = World
+    ownerGrantAlready: '-> Region owners §ealready contains§r {1} for {2} in {3}' # 1 = <Owner>, 2 = Region, 3 = World
+    ownerGrantSuccess: '-> Region §2ownership added§r to {1} for {2} in {3}' # 1 = <Owner>, 2 = Region, 3 = World
+    ownerGrantNotify: '§8{0,time,HH:mm:ss}§r -> Region §2ownership granted§r to you by {1} for {2} in {3}' # 1 = Grantor, 2 = Region, 3 = World
+    ownerReset: '-> Region §2owners reset§r to {1} for {2} in {3}' # 1 = <Owner>, 2 = Region, 3 = World
     ownerRevokePrevent: '-> You can §cnot remove yourself§r as a region owner'
-    ownerRevokeMissing: '-> Region owners §edoes not explicitly contain§r %2$s for %3$s in %4$s' # 2 = <Owner>, 3 = Region, 4 = World
-    ownerRevokeSuccess: '-> Region §2ownership revoked§r from %2$s for %3$s in %4$s' # 2 = <Owner>, 3 = Region, 4 = World
-    activated: '-> §2Activated§r region %2$s in %3$s' # 2 = Region, 3 = World
-    deactivated: '-> §eDeactivated§r region %2$s in %3$s' # 2 = Region, 3 = World
-    deleted: '-> §2Region deleted§r: %2$s in %3$s' # 2 = Region, 3 = World
-    set: '-> §2Set working region§r to: %2$s in %3$s' # 2 = Region, 3 = World
+    ownerRevokeMissing: '-> Region owners §edoes not explicitly contain§r {1} for {2} in {3}' # 1 = <Owner>, 2 = Region, 3 = World
+    ownerRevokeSuccess: '-> Region §2ownership revoked§r from {1} for {2} in {3}' # 1 = <Owner>, 2 = Region, 3 = World
+    activated: '-> §2Activated§r region {1} in {2}' # 1 = Region, 2 = World
+    deactivated: '-> §eDeactivated§r region {1} in {2}' # 1 = Region, 2 = World
+    delete: '-> §2Deleted§r region {1} in {2}' # 1 = Region, 2 = World
+    set: '-> §2Set working region§r to {1} in {2}' # 1 = Region, 2 = World
     unset: '-> §2Unset working region'
-    reload: '-> SimpleRegions configuration §2reloaded'
-    requiresParameter: '-> Required §cparameter missing§r: %2$s' # 2 = Parameter
-    requiresOwner: '-> Command cancelled when §cnot region owner§r: %2$s' # 2 = Owner
-    requiresPlayer: '-> Command cancelled when §cnot in-game player'
-    regionNotFound: '-> Region §enot found'
-    worldNotFound: '-> World §enot found' # 2 = World
-    regionCreated: '-> §2Region created§r: %2$s in %3$s' # 2 = Region, 3 = World
+    renameConflict: '-> Region §cname conflict§r in {2}: {1}' # 1 = <Name>, 2 = World
+    renameSuccess: '-> §2Renamed§r region from {3} to {1} in {2}' # 1 = New Name, 2 = World, 3 = Old Name
+    reload: '-> {1} plugin §2reloaded' # 1 = Plugin Name
+    requiresArgument: '-> Required §cargument missing§r: {1}' # 1 = Argument Name
+    requiresOwner: '-> §cOnly region owners§r can use the {1} command' # 1 = Command Label
+    requiresPlayer: '-> §cOnly in-game players§r can use the {1} command' # 1 = Command Label
+    requiresWorkingRegion: '-> §eWorking region not set§r    To set: §5/region.set §o<Region>'
+    regionNotFound: '-> Region §enot found§r: {1}' # 1 = <Region>
+    worldNotFound: '-> World §enot found§r: {1}' # 1 = <World>
+    regionCreated: '-> §2Region created§r: {1} in {2}' # 1 = Region, 2 = World
     blockNotIdentifed: '-> Target block §enot identified'
-    coordinateNotIdentified: '-> Coordinate type %2$s §enot recognized' # 2 = Type
+    coordinateNotIdentified: '-> Coordinate type {1} §enot recognized' # 1 = Type
     coordinateUpdated: '-> Region §2coordinates updated'
-    unsupportedParameter: '-> §eUnsupported parameter§r: %2$s §8(%3$s)' # 2 = Parameter, 3 = Reason
-    enterPrevious: '-> Previous region enter format: %2$s' # 2 = Enter Format
-    enterSet: '-> Region §2enter format set'
-    enterExisting: '-> Region enter format: %2$s' # 2 = Enter Format
-    enterMessage: '-> Region enter message: %2$s' # 2 = Formatted Enter Message
-    exitPrevious: '-> Previous region exit format: %2$s'
-    exitSet: '-> Region §2exit format set'
-    exitExisting: '-> Region exit format: %2$s' # 2 = Exit Format
-    exitMessage: '-> Region exit message: %2$s' # 2 = Formatted Exit Message
-    undefined: '-> §eUndefined region§r; To define: /define'
-    inactive: '-> §eInactive region§r; To activate: /region_on'
-    area: '-> Area: %2$sx * %3$sz = %4$s blocks squared' # 2 = X Length, 3 = Z Length, 4 = Area
-    volume: '-> Volume: %2$sx * %3$sy * %4$sz = %5$s blocks cubed' # 2 = X Length, 3 = Y Length, 4 = Z Length, 5 = Volume
-    describe: # 2 = Region, 3 = World, 4 = Active, 5 = Owners, 6 = Access, 7 = North, 8 = East, 9 = South, 10 = West, 11 = Down, 12 = Up 
-        - '-> -- Region: %2$s in %3$s'
-        - '-> Active: %4$s'
-        - '-> Owners: %5$s'
-        - '-> Access: %6$s'
-        - '-> x:  [West] %10$d  to  %8$d [East]'
-        - '-> y:  [North] %7$d  to  %9$d [South]'
-        - '-> z:  [Down] %11$d  to  %12$d [Up]'
-    describeDefault: # 2 = Region, 3 = World, 4 = Active, 5 = Owners, 6 = Access, 7 = North, 8 = East, 9 = South, 10 = West, 11 = Down, 12 = Up
-        - '-> -- Region: %2$s in %3$s'
-        - '-> Active: %4$s'
-        - '-> Access: %6$s'
+    unsupportedParameter: '-> §eUnsupported parameter§r: {1} §8({2})' # 1 = Parameter, 2 = Reason
+    +unsupportedReasonDirectionMissing: 'Specific coordinate must designate specific direction'
+    enterPrevious: '-> Previous region enter format: {1}' # 1 = Enter Format
+    enterSuccess: '-> Region §2enter format set'
+    enterExisting: '-> Region enter format: {1}' # 1 = Enter Format
+    enterExample: '-> Example region enter message:'
+    exitPrevious: '-> Previous region exit format: {1}'
+    exitSuccess: '-> Region §2exit format set'
+    exitExisting: '-> Region exit format: {1}' # 1 = Exit Format
+    exitExample: '-> Example region exit message:'
+    undefined: '-> §eUndefined§r region    To define: §5/region.define'
+    inactive: '-> §eInactive§r region    To activate: §5/region.on'
+    describe: # 1 = Region, 2 = World, 3 = isActive(0|1), 4 = Owners, 5 = Access, 6 = Min X, 7 = Max X, 8 = Min Y, 9 = Max Y, 10 = Min Z, 11 = Max Z, 12 = X Length, 13 = Y Length, 14 = Z Length, 15 = Area, 16 = Volume, 17 = hasAccess(0|1), 18 = isOwner(0|1)
+        normal:
+            - '-> -- Region: {1} in {2}'
+            - '-> Active: {3,choice,0#§efalse|1#true}'
+            - '-> {18,choice,0#§e|1#§2}Owners§r: {4}'
+            - '-> {17,choice,0#§e|1#§2}Access§r: {5}'
+            - '-> x:  [West]  {6}  to  {7}  [East]'
+            - '-> z: [North]  {10}  to  {11}  [South]'
+            - '-> y:  [Down]  {8}  to  {9}  [Up]'
+            - '->   Area: {12}x * {14}z = {15} blocks squared'
+            - '-> Volume: {12}x * {14}z * {13}y = {16} blocks cubed'
+        default:
+            - '-> -- Region: {1} in {2}'
+            - '-> Active: {3,choice,0#§efalse|1#true}'
+            - '-> {17,choice,0#§e|1#§2}Access§r: {5}'
 version: @VERSION@

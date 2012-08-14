@@ -1,0 +1,4 @@
+server:
+    active: true
+    access:
+        - 'simpleregions.[players]'

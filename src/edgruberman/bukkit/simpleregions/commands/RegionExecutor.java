@@ -104,7 +104,7 @@ public abstract class RegionExecutor extends Executor {
     }
 
     protected static boolean isOwner(final CommandSender sender, final Region region) {
-        if (sender.hasPermission("simpleregions.region.override.commands")) return true;
+        if (sender.hasPermission("simpleregions.override.commands")) return true;
 
         if ((sender instanceof Player) && region.owners.inherits(sender)) return true;
 

@@ -22,7 +22,7 @@ public class RegionOwnersReset extends RegionExecutor {
         if (owner == null) return false;
 
         // Do not allow an owner to remove their own ownership accidentally if they can't add themselves back forcibly
-        if (!sender.hasPermission("simpleregions.region.owner.override") && !sender.hasPermission(owner)) {
+        if (!sender.hasPermission("simpleregions.override.commands") && !sender.hasPermission(owner)) {
             Main.courier.send(sender, "ownerRevokePrevent");
             return true;
         }

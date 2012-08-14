@@ -30,7 +30,7 @@ public class RegionOwnersRevoke extends RegionExecutor {
         region.owners.remove(owner);
 
         // Do not allow an owner to remove their own ownership accidentally if they can't add themselves back forcibly
-        if (!sender.hasPermission("simpleregions.region.owner.override") && sender instanceof Player && !region.owners.inherits(sender)) {
+        if (!sender.hasPermission("simpleregions.override.commands") && sender instanceof Player && !region.owners.inherits(sender)) {
             region.owners.add(owner);
             Main.courier.send(sender, "ownerRevokePrevent");
             return true;

@@ -126,7 +126,7 @@ permissions:
         description: Can use administrative features of SimpleRegions plugin
         default: op
         children:
-            simpleregions.region.override: true
+            simpleregions.override: true
             simpleregions.region.read: true
             simpleregions.region.enter: true
             simpleregions.region.exit: true
@@ -136,16 +136,16 @@ permissions:
             simpleregions.region.rename: true
             simpleregions.region.message.color: true
             simpleregions.reload: true
-    simpleregions.region.override:
+    simpleregions.override:
         description: Granted owner access to all regions even if not owner
         default: false
         children:
-            simpleregions.region.override.commands: true
-            simpleregions.region.override.protection: true
-    simpleregions.region.override.commands:
+            simpleregions.override.commands: true
+            simpleregions.override.protection: true
+    simpleregions.override.commands:
         description: Can use region commands even if not owner (still requires individual command permission)
         default: false
-    simpleregions.region.override.protection:
+    simpleregions.override.protection:
         description: Can interact with regions in-game even if not owner
         default: false
     simpleregions.region.current:
@@ -164,28 +164,28 @@ permissions:
         description: Can use region.describe command
         default: false
     simpleregions.region.activate:
-        description: Can use region.activate command (* Owners Only)
+        description: Can use region.activate command (* Owners only)
         default: false
     simpleregions.region.deactivate:
-        description: Can use region.deactivate command (* Owners Only)
+        description: Can use region.deactivate command (* Owners only)
         default: false
     simpleregions.region.access.grant:
-        description: Can use region.access.grant command (* Owners Only)
+        description: Can use region.access.grant command (* Owners only)
         default: false
     simpleregions.region.access.revoke:
-        description: Can use region.access.revoke command (* Owners Only)
+        description: Can use region.access.revoke command (* Owners only)
         default: false
     simpleregions.region.access.reset:
-        description: Can use region.access.reset command (* Owners Only)
+        description: Can use region.access.reset command (* Owners only)
         default: false
     simpleregions.region.owners.grant:
-        description: Can use region.owners.grant command (* Owners Only)
+        description: Can use region.owners.grant command (* Owners only)
         default: false
     simpleregions.region.owners.revoke:
-        description: Can use region.owners.revoke command (* Owners Only)
+        description: Can use region.owners.revoke command (* Owners only)
         default: false
     simpleregions.region.owners.reset:
-        description: Can use region.owners.revoke command (* Owners Only)
+        description: Can use region.owners.revoke command (* Owners only)
         default: false
     simpleregions.region.enter:
         description: Can use region.enter command

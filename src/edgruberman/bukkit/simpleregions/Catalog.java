@@ -125,7 +125,7 @@ public final class Catalog implements Listener {
      * @return true if player has access, otherwise false
      */
     public boolean isAllowed(final Player player, final Location target) {
-        if (player.hasPermission("simpleregions.region.override.protection")) return true;
+        if (player.hasPermission("simpleregions.override.protection")) return true;
 
         boolean found = false;
 

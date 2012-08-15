@@ -2,6 +2,7 @@ package edgruberman.bukkit.simpleregions.commands;
 
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -18,9 +19,10 @@ public class RegionAccessReset extends RegionExecutor {
     // usage: /<command> <Access>[ <Region>[ <World>]]
     @Override
     protected boolean execute(final CommandSender sender, final Command command, final String label, final List<String> args, final Region region) {
-        final String access = RegionExecutor.parse(args, 0, "<Access>", sender);
+        String access = RegionExecutor.parse(args, 0, "<Access>", sender);
         if (access == null) return false;
 
+        access = Bukkit.getOfflinePlayer(access).getName();
         region.access.clear();
         region.access.add(access);
         this.catalog.repository.saveRegion(region, false);

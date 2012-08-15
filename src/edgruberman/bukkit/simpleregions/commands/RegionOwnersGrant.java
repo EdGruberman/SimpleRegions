@@ -20,7 +20,7 @@ public class RegionOwnersGrant extends RegionExecutor {
     // usage: /<command> <Owner>[ <Region>[ <World>]]
     @Override
     protected boolean execute(final CommandSender sender, final Command command, final String label, final List<String> args, final Region region) {
-        final String owner = RegionExecutor.parse(args, 0, "<Owner>", sender);
+        String owner = RegionExecutor.parse(args, 0, "<Owner>", sender);
         if (owner == null) return false;
 
         if (region.owners.contains(owner)) {
@@ -28,6 +28,7 @@ public class RegionOwnersGrant extends RegionExecutor {
             return true;
         }
 
+        owner = Bukkit.getOfflinePlayer(owner).getName();
         region.owners.add(owner);
         this.catalog.repository.saveRegion(region, false);
         Main.courier.send(sender, "ownerGrantSuccess", owner, RegionExecutor.formatName(region), RegionExecutor.formatWorld(region));

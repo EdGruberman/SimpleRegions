@@ -20,7 +20,7 @@ public class RegionAccessGrant extends RegionExecutor {
     // usage: /<command> <Access>[ <Region>[ <World>]]
     @Override
     protected boolean execute(final CommandSender sender, final Command command, final String label, final List<String> args, final Region region) {
-        final String access = RegionExecutor.parse(args, 0, "<Access>", sender);
+        String access = RegionExecutor.parse(args, 0, "<Access>", sender);
         if (access == null) return false;
 
         if (region.access.contains(access)) {
@@ -28,6 +28,7 @@ public class RegionAccessGrant extends RegionExecutor {
             return true;
         }
 
+        access = Bukkit.getOfflinePlayer(access).getName();
         region.access.add(access);
         this.catalog.repository.saveRegion(region, false);
         Main.courier.send(sender, "accessGrantSuccess", access, RegionExecutor.formatName(region), RegionExecutor.formatWorld(region));

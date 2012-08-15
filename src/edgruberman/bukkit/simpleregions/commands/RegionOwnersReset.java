@@ -2,6 +2,7 @@ package edgruberman.bukkit.simpleregions.commands;
 
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -18,7 +19,7 @@ public class RegionOwnersReset extends RegionExecutor {
     // usage: /<command> <Owner>[ <Region>[ <World>]]
     @Override
     protected boolean execute(final CommandSender sender, final Command command, final String label, final List<String> args, final Region region) {
-        final String owner = RegionExecutor.parse(args, 0, "<Owner>", sender);
+        String owner = RegionExecutor.parse(args, 0, "<Owner>", sender);
         if (owner == null) return false;
 
         // Do not allow an owner to remove their own ownership accidentally if they can't add themselves back forcibly
@@ -27,6 +28,7 @@ public class RegionOwnersReset extends RegionExecutor {
             return true;
         }
 
+        owner = Bukkit.getOfflinePlayer(owner).getName();
         region.owners.clear();
         region.owners.add(owner);
         this.catalog.repository.saveRegion(region, false);

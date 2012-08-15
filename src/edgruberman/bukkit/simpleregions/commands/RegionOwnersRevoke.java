@@ -2,6 +2,7 @@ package edgruberman.bukkit.simpleregions.commands;
 
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -37,7 +38,7 @@ public class RegionOwnersRevoke extends RegionExecutor {
         }
 
         this.catalog.repository.saveRegion(region, false);
-        Main.courier.send(sender, "ownerRevokeSuccess", owner, RegionExecutor.formatName(region), RegionExecutor.formatWorld(region));
+        Main.courier.send(sender, "ownerRevokeSuccess", Bukkit.getOfflinePlayer(owner).getName(), RegionExecutor.formatName(region), RegionExecutor.formatWorld(region));
         return true;
     }
 

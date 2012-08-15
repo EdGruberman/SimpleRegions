@@ -2,6 +2,7 @@ package edgruberman.bukkit.simpleregions.commands;
 
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
@@ -28,7 +29,7 @@ public class RegionAccessRevoke extends RegionExecutor {
 
         region.access.remove(access);
         this.catalog.repository.saveRegion(region, false);
-        Main.courier.send(sender, "accessRevokeSuccess", access, RegionExecutor.formatName(region), RegionExecutor.formatWorld(region));
+        Main.courier.send(sender, "accessRevokeSuccess", Bukkit.getOfflinePlayer(access).getName(), RegionExecutor.formatName(region), RegionExecutor.formatWorld(region));
         return true;
     }
 

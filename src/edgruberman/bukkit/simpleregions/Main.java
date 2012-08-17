@@ -16,6 +16,7 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 
 import org.bukkit.Material;
+import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import edgruberman.bukkit.simpleregions.commands.RegionAccessGrant;
@@ -85,6 +86,7 @@ public final class Main extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        HandlerList.unregisterAll(this);
         this.catalog.clear();
         Main.courier = null;
     }

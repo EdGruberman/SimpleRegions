@@ -20,19 +20,13 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import edgruberman.bukkit.simpleregions.messaging.Message;
-import edgruberman.bukkit.simpleregions.messaging.messages.TimestampedConfigurationMessage;
-import edgruberman.bukkit.simpleregions.messaging.messages.TimestampedMessage;
-import edgruberman.bukkit.simpleregions.messaging.recipients.Sender;
+import edgruberman.bukkit.simpleregions.messaging.Sender;
 
 public final class BoundaryAlerter implements Listener {
 
     private final Catalog catalog;
     private final Map<Player, Location> lastBlockChange = new HashMap<Player, Location>();
 
-    /**
-     * @param enter default MessageFormat pattern: 0 = Time, 1 = Region Name, 2 = Access(0:false,1:true)
-     * @param exit default MessageFormat pattern: 0 = Time, 1 = Region Name, 2 = Access(0:false,1:true)
-     */
     BoundaryAlerter(final Catalog catalog) {
         this.catalog = catalog;
         for (final Player player : Bukkit.getOnlinePlayers()) this.lastBlockChange.put(player, player.getLocation());
@@ -85,35 +79,32 @@ public final class BoundaryAlerter implements Listener {
             if (isInFrom == isInTo) continue;
 
             // exiting this region, show message first
-            if (isInFrom)
-                for (final Message message : this.createMessage(region.exit, "exit", "exitCustom", region, player))
-                    Main.courier.submit(new Sender(player), message);
+            if (isInFrom) Main.courier.submit(new Sender(player), this.draft(region.exit, "exit", "exitCustom", region, player));
 
             // entering this region, cache message for display after all other exits
             if (isInTo) {
                 if (entered == null) entered = new ArrayList<Message>();
-                entered.addAll(this.createMessage(region.enter, "enter", "enterCustom", region, player));
+                entered.addAll(this.draft(region.enter, "enter", "enterCustom", region, player));
             }
         }
 
         // show any enter messages after exit messages
         if (entered != null)
-            for (final Message message : entered)
-                Main.courier.submit(new Sender(player), message);
+            Main.courier.submit(new Sender(player), entered);
     }
 
-    public List<? extends Message> createMessage(final String custom, final String defaultPath, final String customPath, final Region region, final CommandSender target) {
+    public List<Message> draft(final String custom, final String defaultPath, final String customPath, final Region region, final CommandSender target) {
         if (custom != null && custom.length() == 0) return Collections.emptyList();
 
         final Object[] arguments = new Object[] { region.name, region.hasAccess(target)?1:0 };
 
         if (custom != null) {
             // embed custom formatted inside custom message
-            final StringBuffer formatted = (new TimestampedMessage(custom, arguments)).format(target);
-            return TimestampedConfigurationMessage.create(Main.courier.getBase(), customPath, formatted);
+            final StringBuffer formatted = Message.Factory.create(custom, arguments).build().format(target);
+            return Main.courier.draft(customPath, formatted);
         }
 
-        return TimestampedConfigurationMessage.create(Main.courier.getBase(), defaultPath, arguments);
+        return Main.courier.draft(defaultPath, arguments);
     }
 
     private static boolean sameChunk(final Location i, final Location j) {

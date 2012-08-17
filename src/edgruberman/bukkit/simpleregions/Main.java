@@ -39,22 +39,22 @@ import edgruberman.bukkit.simpleregions.commands.RegionSet;
 import edgruberman.bukkit.simpleregions.commands.RegionTarget;
 import edgruberman.bukkit.simpleregions.commands.RegionUnset;
 import edgruberman.bukkit.simpleregions.commands.Reload;
-import edgruberman.bukkit.simpleregions.messaging.couriers.ConfigurationCourier;
-import edgruberman.bukkit.simpleregions.messaging.couriers.TimestampedConfigurationCourier;
+import edgruberman.bukkit.simpleregions.messaging.ConfigurationCourier;
+import edgruberman.bukkit.simpleregions.messaging.Courier;
 import edgruberman.bukkit.simpleregions.util.Version;
 
 public final class Main extends JavaPlugin {
 
     private static final Version MINIMUM_CONFIGURATION = new Version("4.0.0");
 
-    public static ConfigurationCourier courier;
+    public static Courier courier;
 
     private Catalog catalog = null;
 
     @Override
     public void onEnable() {
         this.reloadConfig();
-        Main.courier = new TimestampedConfigurationCourier(this, "messages");
+        Main.courier = ConfigurationCourier.Factory.create(this).setBase("messages").build();
 
         this.extractConfig("defaults.yml", false);
         final Repository repository = new Repository(this, new File(this.getDataFolder(), "defaults.yml"), new File(this.getDataFolder(), "Worlds"));

@@ -9,7 +9,7 @@ messages:
     current: '-> {3,choice,0#§e|1#§2}Current region{2,choice,0#|2<s}§r: {1} §8({2})' # 1 = Formatted Region Names, 2 = Count, 3 = hasAccess(0|1)
     target: '-> {3,choice,0#§e|1#§2}Target region{2,choice,0#|2<s}§r: {1} §8({2} at x:{4} y:{5} z:{6})' # 1 = Formatted Region Names, 2 = Count, 3 = hasAccess(0|1), 4 = X, 5 = Y, 6 = Z
     enter: '-> §8Entered region§r {2,choice,0#§e|1#§2}{1}' # 1 = Region Name, 2 = hasAccess(0|1)
-    exit: '-> §8Left region§r §2{1}' # 1 = Region Name, 2 = hasAccess(0|1)
+    exit: '-> §2Left region §8{1}' # 1 = Region Name, 2 = hasAccess(0|1)
     enterCustom: '-> {1}' # 1 = Enter Message
     exitCustom: '-> {1}' # 1 = Exit Message
     accessGrantAlready: '-> Region access §ealready contains§r {1} for {2} in {3}' # 1 = <Access>, 2 = Region, 3 = World

@@ -12,7 +12,7 @@ import org.bukkit.World;
 
 import edgruberman.bukkit.simpleregions.util.ChunkCoordinates;
 
-/** relates a world to regions and chunks to regions */
+/** relates worlds and chunks to regions */
 public final class Index {
 
     public final World world;
@@ -26,10 +26,16 @@ public final class Index {
     /** regions in loaded chunks keyed by chunk hash */
     public final Map<Long, Set<Region>> loaded = new HashMap<Long, Set<Region>>();
 
-    Index(final World world, final Repository repository) {
+    /** count of chunks loaded by region */
+    private final Map<Region, Long> references = new HashMap<Region, Long>();
+
+    private final Catalog catalog;
+
+    Index(final World world, final Catalog catalog) {
         this.world = world;
-        this.worldDefault = repository.loadDefault(world.getName());
-        for (final Region region : repository.loadRegions(world.getName())) this.register(region);
+        this.catalog = catalog;
+        this.worldDefault = catalog.repository.loadDefault(world.getName());
+        for (final Region region : catalog.repository.loadRegions(world.getName())) this.register(region);
     }
 
     public void clear() {
@@ -39,16 +45,19 @@ public final class Index {
 
     public void register(final Region region) {
         this.regions.add(region);
+        this.references.put(region, 0L);
         if (!region.active) return;
 
         // load region into applicable loaded chunk index entries
         for (final ChunkCoordinates coords : region.chunks())
             if (this.world.isChunkLoaded(coords.x, coords.z))
-                this.loadRegion(coords.getHash(), region);
+                this.index(coords.getHash(), region);
     }
 
     public void deregister(final Region region) {
         this.regions.remove(region);
+        this.references.remove(region);
+        this.catalog.deregisterOptions(region);
 
         // unload region from any loaded chunk index entries
         final Iterator<Entry<Long, Set<Region>>> it = this.loaded.entrySet().iterator();
@@ -76,15 +85,25 @@ public final class Index {
         final long hash = ChunkCoordinates.hash(chunkX, chunkZ);
         for (final Region region : this.regions)
             if (region.isDefined() && region.within(chunkX, chunkZ) && region.active)
-                this.loadRegion(hash, region);
+                this.index(hash, region);
     }
 
     /** remove any index entries to any regions that contain the unloaded chunk */
     void unloadChunk(final Chunk chunk) {
-        this.loaded.remove(ChunkCoordinates.hash(chunk));
+        final Set<Region> unloaded = this.loaded.remove(ChunkCoordinates.hash(chunk));
+        if (unloaded == null) return;
+
+        for (final Region region : unloaded) {
+            final long remaining = this.references.get(region);
+            this.references.put(region, remaining - 1);
+            if (remaining == 1) this.catalog.deregisterOptions(region);
+        }
     }
 
-    private void loadRegion(final long chunk, final Region region) {
+    private void index(final long chunk, final Region region) {
+        final long existing = this.references.put(region, this.references.get(region) + 1);
+        if (existing == 0) this.catalog.registerOptions(region);
+
         Set<Region> loaded = this.loaded.get(chunk);
         if (loaded == null) loaded = new HashSet<Region>();
         if (!loaded.add(region)) return;

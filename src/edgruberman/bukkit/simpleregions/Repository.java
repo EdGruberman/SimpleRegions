@@ -37,6 +37,7 @@ public class Repository {
         if (definition == null) return null;
 
         final Region region = new Region(world, null, definition.getStringList("owners"), definition.getStringList("access"));
+        region.options.addAll(definition.getStringList("options"));
         region.active = definition.getBoolean("active");
         return region;
     }
@@ -46,22 +47,22 @@ public class Repository {
         final Set<Region> regions = new HashSet<Region>();
         final Set<String> names = worldConfig.getKeys(false);
         for (final String name : names) {
-            final ConfigurationSection config = worldConfig.getConfigurationSection(name);
+            final ConfigurationSection definition = worldConfig.getConfigurationSection(name);
 
-            final Region region = new Region(world, name, config.getStringList("owners"), config.getStringList("access"));
+            final Region region = new Region(world, name, definition.getStringList("owners"), definition.getStringList("access"));
+            region.options.addAll(definition.getStringList("options"));
+            region.active = definition.getBoolean("active");
 
-            final Integer x1 = (config.isInt("x1") ? config.getInt("x1", 0) : null);
-            final Integer x2 = (config.isInt("x2") ? config.getInt("x2", 0) : null);
-            final Integer y1 = (config.isInt("y1") ? config.getInt("y1", 0) : null);
-            final Integer y2 = (config.isInt("y2") ? config.getInt("y2", 0) : null);
-            final Integer z1 = (config.isInt("z1") ? config.getInt("z1", 0) : null);
-            final Integer z2 = (config.isInt("z2") ? config.getInt("z2", 0) : null);
+            final Integer x1 = (definition.isInt("x1") ? definition.getInt("x1", 0) : null);
+            final Integer x2 = (definition.isInt("x2") ? definition.getInt("x2", 0) : null);
+            final Integer y1 = (definition.isInt("y1") ? definition.getInt("y1", 0) : null);
+            final Integer y2 = (definition.isInt("y2") ? definition.getInt("y2", 0) : null);
+            final Integer z1 = (definition.isInt("z1") ? definition.getInt("z1", 0) : null);
+            final Integer z2 = (definition.isInt("z2") ? definition.getInt("z2", 0) : null);
             region.setCoords(x1, x2, y1, y2, z1, z2);
 
-            if (config.isString("enter")) region.enter = config.getString("enter");
-            if (config.isString("exit")) region.exit = config.getString("exit");
-
-            region.active = config.getBoolean("active");
+            if (definition.isString("enter")) region.enter = definition.getString("enter");
+            if (definition.isString("exit")) region.exit = definition.getString("exit");
 
             regions.add(region);
         }
@@ -83,9 +84,10 @@ public class Repository {
 
         final ConfigurationSection section = config.createSection(path);
 
-        section.set("active", region.active);
         section.set("owners", region.owners.members.toArray());
         section.set("access", region.access.members.toArray());
+        section.set("options", region.options.toArray());
+        section.set("active", region.active);
         if (!region.isDefault()) {
             section.set("enter", region.enter);
             section.set("exit", region.exit);

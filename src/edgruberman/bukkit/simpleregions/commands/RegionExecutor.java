@@ -99,7 +99,7 @@ public abstract class RegionExecutor extends Executor {
                 }
         }
 
-        if (found == null) Main.courier.send(sender, "regionNotFound");
+        if (found == null) Main.courier.send(sender, "regionNotFound", region);
         return found;
     }
 

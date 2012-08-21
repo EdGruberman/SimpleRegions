@@ -1,6 +1,8 @@
 logLevel: INFO
 deniedItems: [BUCKET, WATER_BUCKET, LAVA_BUCKET, FLINT_AND_STEEL] # usage cancelled if target block is in a denied region
 protectFire: true
+options:
+    no-locks: LockCreateCancel
 messages:
     region:
         +name: '{1,choice,0#§e|1#§2}{0}§r' # 0 = Region Name, 1 = hasAccess(0|1)
@@ -55,12 +57,19 @@ messages:
     exitExample: '-> Example region exit message:'
     undefined: '-> §eUndefined§r region    To define: §5/region.define'
     inactive: '-> §eInactive§r region    To activate: §5/region.on'
-    describe: # 1 = Region, 2 = World, 3 = isActive(0|1), 4 = Owners, 5 = Access, 6 = Min X, 7 = Max X, 8 = Min Y, 9 = Max Y, 10 = Min Z, 11 = Max Z, 12 = X Length, 13 = Y Length, 14 = Z Length, 15 = Area, 16 = Volume, 17 = hasAccess(0|1), 18 = isOwner(0|1)
+    optionAddUnrecognized: '-> Region option §cunrecognized§r: {1}' # 1 = Option, 2 = Region, 3 = World
+    optionAddExisting: '-> Region option §o{1}§r §ealready added§r to {2} in {3}' # 1 = Option, 2 = Region, 3 = World
+    optionAddSuccess: '-> Region option §o{1}§r §2added§r to {2} in {3}' # 1 = Option, 2 = Region, 3 = World
+    optionRemoveMissing: '-> Region option §o{1}§r §edoes not exist§r on {2} in {3}' # 1 = Option, 2 = Region, 3 = World
+    optionRemoveSuccess: '-> Region option §o{1}§r §2removed§r from {2} in {3}' # 1 = Option, 2 = Region, 3 = World
+    lockCreateCancel: '-> Locks §ccan not be created§r in region: {1}' # 1 = Region
+    describe: # 1 = Region, 2 = World, 3 = isActive(0|1), 4 = Owners, 5 = Access, 6 = Min X, 7 = Max X, 8 = Min Y, 9 = Max Y, 10 = Min Z, 11 = Max Z, 12 = X Length, 13 = Y Length, 14 = Z Length, 15 = Area, 16 = Volume, 17 = hasAccess(0|1), 18 = isOwner(0|1), 19 = Options
         normal:
             - '-> -- Region: {1} in {2}'
             - '-> Active: {3,choice,0#§efalse|1#true}'
             - '-> {18,choice,0#§e|1#§2}Owners§r: {4}'
             - '-> {17,choice,0#§e|1#§2}Access§r: {5}'
+            - '-> Options: {19}'
             - '-> x:  [West]  {6}  to  {7}  [East]'
             - '-> z: [North]  {10}  to  {11}  [South]'
             - '-> y:  [Down]  {8}  to  {9}  [Up]'
@@ -70,4 +79,8 @@ messages:
             - '-> -- Region: {1} in {2}'
             - '-> Active: {3,choice,0#§efalse|1#true}'
             - '-> {17,choice,0#§e|1#§2}Access§r: {5}'
+            - '-> Options: {19}'
+        options:
+            +name: '{1,choice,0#§c|1#}{0}{1,choice,0#(Unrecognized)§r|1#}' # 0 = Key, 1 = isRecognized(0|1) 
+            +delimiter: ', '
 version: @VERSION@

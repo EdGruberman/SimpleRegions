@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -19,6 +20,7 @@ import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.plugin.Plugin;
 
+import edgruberman.bukkit.simpleregions.options.Option;
 import edgruberman.bukkit.simpleregions.util.ChunkCoordinates;
 
 /** relates a server to world indices */
@@ -31,22 +33,55 @@ public final class Catalog implements Listener {
     /** world to region index keyed by world name */
     public final Map<String, Index> indices = new HashMap<String, Index>();
 
-    Catalog(final Plugin plugin, final Repository repository) {
+    public final Map<String, Option> options = new HashMap<String, Option>();
+
+    Catalog(final Plugin plugin, final Repository repository, final ConfigurationSection options) {
         this.plugin = plugin;
         this.repository = repository;
         this.serverDefault = repository.loadDefault(null);
+
+        if (options != null)
+            for (final String key : options.getKeys(false)) {
+                try {
+                    final Option option = Option.create(plugin, options.getString(key));
+                    this.options.put(key, option);
+                } catch (final Exception e) {
+                    plugin.getLogger().warning("Unable to load option: " + key + "; " + e);
+                }
+            }
+
         for (final World world : plugin.getServer().getWorlds()) this.loadIndex(world);
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     public void clear() {
         HandlerList.unregisterAll(this);
+        for (final Option option : this.options.values()) option.clear();
         this.repository.clear();
         this.indices.clear();
     }
 
+    public void registerOptions(final Region region) {
+        for (final String key : region.options) {
+            final Option option = this.options.get(key);
+            if (option == null) {
+                this.plugin.getLogger().warning("Unrecognized option \"" + key + "\" configured for region: " + region);
+                continue;
+            }
+
+            option.register(region);
+        }
+    }
+
+    public void deregisterOptions(final Region region) {
+        for (final String key : region.options) {
+            final Option option = this.options.get(key);
+            if (option != null) option.deregister(region);
+        }
+    }
+
     private void loadIndex(final World world) {
-        final Index index = new Index(world, this.repository);
+        final Index index = new Index(world, this);
         this.indices.put(world.getName(), index);
     }
 

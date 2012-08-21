@@ -1,23 +1,11 @@
 package edgruberman.bukkit.simpleregions;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.Writer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.logging.Handler;
-import java.util.logging.Level;
 
 import org.bukkit.Material;
 import org.bukkit.event.HandlerList;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import edgruberman.bukkit.simpleregions.commands.RegionAccessGrant;
 import edgruberman.bukkit.simpleregions.commands.RegionAccessReset;
@@ -31,6 +19,8 @@ import edgruberman.bukkit.simpleregions.commands.RegionDelete;
 import edgruberman.bukkit.simpleregions.commands.RegionDescribe;
 import edgruberman.bukkit.simpleregions.commands.RegionEnter;
 import edgruberman.bukkit.simpleregions.commands.RegionExit;
+import edgruberman.bukkit.simpleregions.commands.RegionOptionAdd;
+import edgruberman.bukkit.simpleregions.commands.RegionOptionRemove;
 import edgruberman.bukkit.simpleregions.commands.RegionOwnersGrant;
 import edgruberman.bukkit.simpleregions.commands.RegionOwnersReset;
 import edgruberman.bukkit.simpleregions.commands.RegionOwnersRevoke;
@@ -41,15 +31,16 @@ import edgruberman.bukkit.simpleregions.commands.RegionUnset;
 import edgruberman.bukkit.simpleregions.commands.Reload;
 import edgruberman.bukkit.simpleregions.messaging.ConfigurationCourier;
 import edgruberman.bukkit.simpleregions.messaging.Courier;
-import edgruberman.bukkit.simpleregions.util.Version;
+import edgruberman.bukkit.simpleregions.util.CustomPlugin;
 
-public final class Main extends JavaPlugin {
-
-    private static final Version MINIMUM_CONFIGURATION = new Version("4.0.0");
+public final class Main extends CustomPlugin {
 
     public static Courier courier;
 
     private Catalog catalog = null;
+
+    @Override
+    public void onLoad() { this.putConfigMinimum("config.yml", "4.2.0"); }
 
     @Override
     public void onEnable() {
@@ -58,7 +49,7 @@ public final class Main extends JavaPlugin {
 
         this.extractConfig("defaults.yml", false);
         final Repository repository = new Repository(this, new File(this.getDataFolder(), "defaults.yml"), new File(this.getDataFolder(), "Worlds"));
-        this.catalog = new Catalog(this, repository);
+        this.catalog = new Catalog(this, repository, this.getConfig().getConfigurationSection("options"));
         new Guard(this.catalog, this.parseMaterialList("deniedItems"), this.getConfig().getBoolean("protectFire"));
         final BoundaryAlerter alerter = new BoundaryAlerter(this.catalog);
 
@@ -82,6 +73,8 @@ public final class Main extends JavaPlugin {
         this.getCommand("simpleregions:region.define").setExecutor(new RegionDefine(this.catalog));
         this.getCommand("simpleregions:region.delete").setExecutor(new RegionDelete(this.catalog));
         this.getCommand("simpleregions:region.rename").setExecutor(new RegionRename(this.catalog));
+        this.getCommand("simpleregions:region.option.add").setExecutor(new RegionOptionAdd(this.catalog));
+        this.getCommand("simpleregions:region.option.remove").setExecutor(new RegionOptionRemove(this.catalog));
     }
 
     @Override
@@ -89,74 +82,6 @@ public final class Main extends JavaPlugin {
         HandlerList.unregisterAll(this);
         this.catalog.clear();
         Main.courier = null;
-    }
-
-    @Override
-    public void reloadConfig() {
-        this.saveDefaultConfig();
-        super.reloadConfig();
-        this.setLogLevel(this.getConfig().getString("logLevel"));
-
-        final Version version = new Version(this.getConfig().isSet("version") ? this.getConfig().getString("version") : null);
-        if (version.compareTo(Main.MINIMUM_CONFIGURATION) >= 0) return;
-
-        this.archiveConfig("config.yml", version);
-        this.saveDefaultConfig();
-        this.reloadConfig();
-    }
-
-    @Override
-    public void saveDefaultConfig() {
-        this.extractConfig("config.yml", false);
-    }
-
-    private void archiveConfig(final String resource, final Version version) {
-        final String backupName = "%1$s - Archive version %2$s - %3$tY%3$tm%3$tdT%3$tH%3$tM%3$tS.yml";
-        final File backup = new File(this.getDataFolder(), String.format(backupName, resource.replaceAll("(?i)\\.yml$", ""), version, new Date()));
-        final File existing = new File(this.getDataFolder(), resource);
-
-        if (!existing.renameTo(backup))
-            throw new IllegalStateException("Unable to archive configuration file \"" + existing.getPath() + "\" with version \"" + version + "\" to \"" + backup.getPath() + "\"");
-
-        this.getLogger().warning("Archived configuration file \"" + existing.getPath() + "\" with version \"" + version + "\" to \"" + backup.getPath() + "\"");
-    }
-
-    private void extractConfig(final String resource, final boolean replace) {
-        final Charset source = Charset.forName("UTF-8");
-        final Charset target = Charset.defaultCharset();
-        if (target.equals(source)) {
-            super.saveResource(resource, replace);
-            return;
-        }
-
-        final File config = new File(this.getDataFolder(), resource);
-        if (config.exists()) return;
-
-        final char[] cbuf = new char[1024]; int read;
-        try {
-            final Reader in = new BufferedReader(new InputStreamReader(this.getResource(resource), source));
-            final Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(config), target));
-            while((read = in.read(cbuf)) > 0) out.write(cbuf, 0, read);
-            out.close(); in.close();
-
-        } catch (final Exception e) {
-            throw new IllegalArgumentException("Could not extract configuration file \"" + resource + "\" to " + config.getPath() + "\";" + e.getClass().getName() + ": " + e.getMessage());
-        }
-    }
-
-    private void setLogLevel(final String name) {
-        Level level;
-        try { level = Level.parse(name); } catch (final Exception e) {
-            level = Level.INFO;
-            this.getLogger().warning("Log level defaulted to " + level.getName() + "; Unrecognized java.util.logging.Level: " + name);
-        }
-
-        // only set the parent handler lower if necessary, otherwise leave it alone for other configurations that have set it
-        for (final Handler h : this.getLogger().getParent().getHandlers())
-            if (h.getLevel().intValue() > level.intValue()) h.setLevel(level);
-
-        this.getLogger().setLevel(level);
-        this.getLogger().config("Log level set to: " + this.getLogger().getLevel());
     }
 
     private List<Material> parseMaterialList(final String path) {

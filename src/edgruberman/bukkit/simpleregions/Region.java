@@ -1,6 +1,8 @@
 package edgruberman.bukkit.simpleregions;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.bukkit.command.CommandSender;
 
@@ -16,6 +18,7 @@ public final class Region extends BlockCuboid {
     public String exit = null;
     public final AccessList owners = new AccessList();
     public final AccessList access = new AccessList();
+    public final Set<String> options = new HashSet<String>();
 
     public Region(final String world, final String name, final Collection<String> owners, final Collection<String> access) {
         this.world = world;
@@ -31,6 +34,7 @@ public final class Region extends BlockCuboid {
         this.enter = original.enter;
         this.exit = original.exit;
         this.setCoords(original.x1, original.x2, original.y1, original.y2, original.z1, original.z2);
+        this.options.addAll(original.options);
     }
 
     public void setCoords(final Integer x1, final Integer x2, final Integer y1, final Integer y2, final Integer z1, final Integer z2) {

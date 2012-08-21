@@ -1,5 +1,6 @@
 name: @NAME@
 description: Protect regions of blocks so only configured players can modify
+softdepend: [SimpleLocks]
 version: @VERSION@
 author: @AUTHOR@
 main: @MAIN@
@@ -53,17 +54,17 @@ commands:
         permission: simpleregions.region.owners.reset
         usage: /<command> <Owner>[ <Region>[ <World>]]
     'simpleregions:region.access.grant':
-        aliases: [access+, access.grant, region.access.grant]
+        aliases: [region+, access+, access.grant, region.access.grant]
         description: Add explicit region access (* Owners Only)
         permission: simpleregions.region.access.grant
         usage: /<command> <Access>[ <Region>[ <World>]]
     'simpleregions:region.access.revoke':
-        aliases: [access-, access.revoke, region.access.revoke]
+        aliases: [region-, access-, access.revoke, region.access.revoke]
         description: Remove explicit region access (* Owners Only)
         permission: simpleregions.region.access.revoke
         usage: /<command> <Access>[ <Region>[ <World>]]
     'simpleregions:region.access.reset':
-        aliases: [access=, access.reset, region.access.reset]
+        aliases: [region=, access=, access.reset, region.access.reset]
         description: Reset explicit region access (* Owners Only)
         permission: simpleregions.region.access.reset
         usage: /<command> <Access>[ <Region>[ <World>]]
@@ -97,6 +98,16 @@ commands:
         description: Rename region
         permission: simpleregions.region.rename
         usage: /<command> <New>[ <Region>[ <World>]]
+    'simpleregions:region.option.add':
+        aliases: [region.option+, region.option.add]
+        description: Add option to region
+        permission: simpleregions.region.option.add
+        usage: /<command> <Option>[ <Region>[ <World>]]
+    'simpleregions:region.option.remove':
+        aliases: [region.option-, region.option.remove]
+        description: Remove option from region
+        permission: simpleregions.region.option.remove
+        usage: /<command> <Option>[ <Region>[ <World>]]
     'simpleregions:reload':
         aliases: simpleregions.reload
         description: Reload configuration
@@ -134,6 +145,8 @@ permissions:
             simpleregions.region.define: true
             simpleregions.region.delete: true
             simpleregions.region.rename: true
+            simpleregions.region.option.add: true
+            simpleregions.region.option.remove: true
             simpleregions.region.message.color: true
             simpleregions.reload: true
     simpleregions.override:
@@ -204,6 +217,12 @@ permissions:
         default: false
     simpleregions.region.rename:
         description: Can use region.rename command
+        default: false
+    simpleregions.region.option.add:
+        description: Can use region.option.add command
+        default: false
+    simpleregions.region.option.remove:
+        description: Can use region.option.remove command
         default: false
     simpleregions.region.reload:
         description: Can use reload command

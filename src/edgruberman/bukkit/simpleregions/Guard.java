@@ -7,6 +7,7 @@ import java.util.List;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -27,6 +28,11 @@ final class Guard implements Listener {
             , Material.WATER_BUCKET.getId()
             , Material.LAVA_BUCKET.getId()
     ));
+
+    private static final List<Integer> SIGNS = new ArrayList<Integer>(Arrays.asList(
+            Material.SIGN_POST.getId()
+          , Material.WALL_SIGN.getId()
+  ));
 
     private final Catalog catalog;
     private final List<Integer> deniedItems = new ArrayList<Integer>();
@@ -53,6 +59,12 @@ final class Guard implements Listener {
         this.tellDenied(event.getPlayer(), target);
         this.catalog.plugin.getLogger().fine(
                 "Cancelled " + event.getPlayer().getName() + " attempting to break " + event.getBlock().getType().name() + " " + this.formatLocation(target));
+
+        if (!Guard.SIGNS.contains(event.getBlock().getTypeId())) return;
+
+        // refresh signs to keep text showing
+        final Sign state = (Sign) event.getBlock().getState();
+        state.update();
     }
 
     @EventHandler(ignoreCancelled = true)

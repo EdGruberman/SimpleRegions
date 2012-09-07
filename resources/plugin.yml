@@ -1,8 +1,9 @@
-name: @NAME@
+name: SimpleRegions
 version: @VERSION@
 description: Protect regions of blocks so only configured players can modify
 softdepend: [SimpleLocks]
 author: EdGruberman (ed@rjump.com)
+website: http://github.com/EdGruberman/SimpleRegions
 main: edgruberman.bukkit.simpleregions.Main
 commands:
     'simpleregions:region.current':

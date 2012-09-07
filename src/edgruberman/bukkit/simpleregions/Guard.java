@@ -75,12 +75,12 @@ final class Guard implements Listener {
         event.setCancelled(true);
         this.tellDenied(event.getPlayer(), target);
         this.catalog.plugin.getLogger().fine(
-                "Cancelled " + event.getPlayer().getName() + " attempting to place " + event.getBlock().getType().name() + " " + this.formatLocation(target));
+                "Cancelled " + event.getPlayer().getName() + " attempting to place " + event.getItemInHand().getType().name() + " " + this.formatLocation(target));
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerInteract(final PlayerInteractEvent event) {
-        final ItemStack inHand = event.getPlayer().getItemInHand();
+        final ItemStack inHand = event.getItem();
         if (!(this.protectFire && this.leftClickFire(event)) && !this.deniedItems.contains(inHand.getTypeId())) return;
 
         final Location target = event.getClickedBlock().getLocation();

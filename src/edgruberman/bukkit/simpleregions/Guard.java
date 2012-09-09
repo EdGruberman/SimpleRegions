@@ -3,6 +3,7 @@ package edgruberman.bukkit.simpleregions;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -57,8 +58,9 @@ final class Guard implements Listener {
 
         event.setCancelled(true);
         this.tellDenied(event.getPlayer(), target);
-        this.catalog.plugin.getLogger().fine(
-                "Cancelled " + event.getPlayer().getName() + " attempting to break " + event.getBlock().getType().name() + " " + this.formatLocation(target));
+        this.catalog.plugin.getLogger().log(Level.FINE,
+                "Cancelled {0} attempting to break {1} at {2}"
+                , new Object[] { event.getPlayer().getName(), event.getBlock().getType().name(), target });
 
         if (!Guard.SIGNS.contains(event.getBlock().getTypeId())) return;
 
@@ -74,8 +76,9 @@ final class Guard implements Listener {
 
         event.setCancelled(true);
         this.tellDenied(event.getPlayer(), target);
-        this.catalog.plugin.getLogger().fine(
-                "Cancelled " + event.getPlayer().getName() + " attempting to place " + event.getItemInHand().getType().name() + " " + this.formatLocation(target));
+        this.catalog.plugin.getLogger().log(Level.FINE,
+                "Cancelled {0} attempting to place {1} {2}"
+                , new Object[] { event.getPlayer().getName(), event.getItemInHand().getType(), target });
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -91,8 +94,9 @@ final class Guard implements Listener {
 
         event.setCancelled(true);
         this.tellDenied(event.getPlayer(), target);
-        this.catalog.plugin.getLogger().fine(
-                "Cancelled " + event.getPlayer().getName() + " attempting to interact with " + inHand.getType().name() + " " + this.formatLocation(target));
+        this.catalog.plugin.getLogger().log(Level.FINE,
+                "Cancelled {0} attempting to interact with {1} at {2} on {3}"
+                , new Object[] { event.getPlayer().getName(), ( inHand != null ? inHand.getType().name() : "HAND" ), target, event.getBlockFace() });
     }
 
     private boolean leftClickFire(final PlayerInteractEvent interaction) {
@@ -112,7 +116,8 @@ final class Guard implements Listener {
 
         event.setCancelled(true);
         this.tellDenied(player, target);
-        this.catalog.plugin.getLogger().fine("Cancelled " + player.getName() + " attempting to break a painting " + this.formatLocation(target));
+        this.catalog.plugin.getLogger().log(Level.FINE,
+                "Cancelled {0} attempting to break a painting at {1}", new Object[] { player.getName(), target });
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -123,11 +128,8 @@ final class Guard implements Listener {
 
         event.setCancelled(true);
         this.tellDenied(event.getPlayer(), target);
-        this.catalog.plugin.getLogger().fine("Cancelled " + event.getPlayer().getName() + " attempting to place a painting " + this.formatLocation(target));
-    }
-
-    private String formatLocation(final Location location) {
-        return "[" + location.getWorld().getName() + "] (x:" + location.getBlockX()+ ", y:" + location.getBlockY() + ", z:" + location.getBlockZ() + ")";
+        this.catalog.plugin.getLogger().log(Level.FINE,
+                "Cancelled {0} attempting to place a painting at {1}", new Object[] { event.getPlayer().getName(), target });
     }
 
 }

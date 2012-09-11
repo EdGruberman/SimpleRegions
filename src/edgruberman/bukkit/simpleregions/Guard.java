@@ -84,7 +84,7 @@ final class Guard implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onPlayerInteract(final PlayerInteractEvent event) {
         final ItemStack inHand = event.getItem();
-        if (inHand != null && !(this.protectFire && this.leftClickFire(event)) && !this.deniedItems.contains(inHand.getTypeId())) return;
+        if (inHand == null || !(this.protectFire && this.leftClickFire(event)) && !this.deniedItems.contains(inHand.getTypeId())) return;
 
         final Location target = event.getClickedBlock().getLocation();
         if (inHand != null && event.getAction() == Action.RIGHT_CLICK_BLOCK && Guard.BUCKETS.contains(inHand.getTypeId()))
@@ -96,7 +96,7 @@ final class Guard implements Listener {
         this.tellDenied(event.getPlayer(), target);
         this.catalog.plugin.getLogger().log(Level.FINE,
                 "Cancelled {0} attempting to interact with {1} at {2} on {3}"
-                , new Object[] { event.getPlayer().getName(), ( inHand != null ? inHand.getType().name() : "HAND" ), target, event.getBlockFace() });
+                , new Object[] { event.getPlayer().getName(), inHand.getType().name(), target, event.getBlockFace() });
     }
 
     private boolean leftClickFire(final PlayerInteractEvent interaction) {

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <project name="Bukkit Plugin" default="default">
-    <description>Bukkit Plugin Standard Build Management v3.2.0</description>
+    <description>Bukkit Plugin Standard Build Management v3.3.0</description>
 
     <target name="debug">
         <echoproperties />
@@ -32,6 +32,9 @@
     <!-- ======== Life Cycle Version Management ( alpha > beta > candidate > release ) ======== -->
 
     <target name="default" description="#.#.#_+1  |  Increment build of current version (code committed within current life cycle definition)" depends="-previous">
+        <fail message="Previous version is Full Release; Build revision, minor, or major to increment version accordingly">
+            <condition><equals arg1="${previous.type}" arg2="" /></condition>
+        </fail>
         <propertyfile file="${version.properties}">
             <entry key="build" operation="+" value="1" type="int" />
         </propertyfile>
@@ -73,6 +76,9 @@
     </target>
 
     <target name="beta" description="#.#.#b0  |  Move life cycle to beta (public testing encouraged without any guarantee)" depends="-previous">
+        <fail message="Previous version is Full Release; Build revision, minor, or major to increment version accordingly">
+            <condition><equals arg1="${previous.type}" arg2="" /></condition>
+        </fail>
         <propertyfile file="${version.properties}">
             <entry key="type" value="b" />
             <entry key="build" value="0" type="int" />
@@ -82,6 +88,9 @@
     </target>
 
     <target name="candidate" description="#.#.#rc0  |  Move life cycle to release candidate (functionality no longer intended to change, production release imminent)" depends="-previous">
+        <fail message="Previous version is Full Release; Build revision, minor, or major to increment version accordingly">
+            <condition><equals arg1="${previous.type}" arg2="" /></condition>
+        </fail>
         <propertyfile file="${version.properties}">
             <entry key="type" value="rc" />
             <entry key="build" value="0" type="int" />
@@ -91,6 +100,9 @@
     </target>
 
     <target name="release" description="#.#.#  |  Remove life cycle indicator for full production release" depends="-previous">
+        <fail message="Previous version is Full Release; Build revision, minor, or major to increment version accordingly">
+            <condition><equals arg1="${previous.type}" arg2="" /></condition>
+        </fail>
         <propertyfile file="${version.properties}">
             <entry key="type" value="" />
             <entry key="build" value="" />

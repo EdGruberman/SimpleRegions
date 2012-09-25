@@ -19,8 +19,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import edgruberman.bukkit.simpleregions.messaging.Individual;
 import edgruberman.bukkit.simpleregions.messaging.Message;
-import edgruberman.bukkit.simpleregions.messaging.Sender;
 
 public final class BoundaryAlerter implements Listener {
 
@@ -79,21 +79,21 @@ public final class BoundaryAlerter implements Listener {
             if (isInFrom == isInTo) continue;
 
             // exiting this region, show message first
-            if (isInFrom) Main.courier.submit(new Sender(player), this.draft(region.exit, "exit", "exitCustom", region, player));
+            if (isInFrom) Main.courier.submit(new Individual(player), this.compose(region.exit, "exit", "exitCustom", region, player));
 
             // entering this region, cache message for display after all other exits
             if (isInTo) {
                 if (entered == null) entered = new ArrayList<Message>();
-                entered.addAll(this.draft(region.enter, "enter", "enterCustom", region, player));
+                entered.addAll(this.compose(region.enter, "enter", "enterCustom", region, player));
             }
         }
 
         // show any enter messages after exit messages
         if (entered != null)
-            Main.courier.submit(new Sender(player), entered);
+            Main.courier.submit(new Individual(player), entered);
     }
 
-    public List<Message> draft(final String custom, final String defaultPath, final String customPath, final Region region, final CommandSender target) {
+    public List<Message> compose(final String custom, final String defaultPath, final String customPath, final Region region, final CommandSender target) {
         if (custom != null && custom.length() == 0) return Collections.emptyList();
 
         final Object[] arguments = new Object[] { region.name, region.hasAccess(target)?1:0 };
@@ -101,10 +101,10 @@ public final class BoundaryAlerter implements Listener {
         if (custom != null) {
             // embed custom formatted inside custom message
             final StringBuffer formatted = Message.Factory.create(custom, arguments).build().format(target);
-            return Main.courier.draft(customPath, formatted);
+            return Main.courier.compose(customPath, formatted);
         }
 
-        return Main.courier.draft(defaultPath, arguments);
+        return Main.courier.compose(defaultPath, arguments);
     }
 
     private static boolean sameChunk(final Location i, final Location j) {

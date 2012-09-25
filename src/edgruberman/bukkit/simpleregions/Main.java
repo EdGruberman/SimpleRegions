@@ -30,22 +30,24 @@ import edgruberman.bukkit.simpleregions.commands.RegionTarget;
 import edgruberman.bukkit.simpleregions.commands.RegionUnset;
 import edgruberman.bukkit.simpleregions.commands.Reload;
 import edgruberman.bukkit.simpleregions.messaging.ConfigurationCourier;
-import edgruberman.bukkit.simpleregions.messaging.Courier;
 import edgruberman.bukkit.simpleregions.util.CustomPlugin;
 
 public final class Main extends CustomPlugin {
 
-    public static Courier courier;
+    public static ConfigurationCourier courier;
 
     private Catalog catalog = null;
 
     @Override
-    public void onLoad() { this.putConfigMinimum("config.yml", "4.2.0"); }
+    public void onLoad() {
+        this.putConfigMinimum(CustomPlugin.CONFIGURATION_FILE, "4.3.0");
+        this.putConfigMinimum("messages.yml", "4.3.0");
+    }
 
     @Override
     public void onEnable() {
         this.reloadConfig();
-        Main.courier = ConfigurationCourier.Factory.create(this).setBase("messages").build();
+        Main.courier = ConfigurationCourier.Factory.create(this).setBase(this.loadConfig("messages.yml")).setColorCode("colorCode").build();
 
         this.extractConfig("defaults.yml", false);
         final Repository repository = new Repository(this, new File(this.getDataFolder(), "defaults.yml"), new File(this.getDataFolder(), "Worlds"));

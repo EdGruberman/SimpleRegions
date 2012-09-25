@@ -10,7 +10,7 @@ import edgruberman.bukkit.simpleregions.BoundaryAlerter;
 import edgruberman.bukkit.simpleregions.Catalog;
 import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Region;
-import edgruberman.bukkit.simpleregions.messaging.Sender;
+import edgruberman.bukkit.simpleregions.messaging.Individual;
 
 public class RegionExit extends RegionExecutor {
 
@@ -44,7 +44,7 @@ public class RegionExit extends RegionExecutor {
 
         Main.courier.send(sender, "exitExisting", (region.exit != null ? region.exit : "§onull§r"));
         Main.courier.send(sender, "exitExample");
-        Main.courier.submit(new Sender(sender), this.alerter.draft(region.exit, "exit", "exitCustom", region, sender));
+        Main.courier.submit(new Individual(sender), this.alerter.compose(region.exit, "exit", "exitCustom", region, sender));
 
         return true;
     }

@@ -24,7 +24,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 /**
  * @author EdGruberman (ed@rjump.com)
- * @version 1.1.0
+ * @version 1.1.1
  */
 public class CustomPlugin extends JavaPlugin {
 
@@ -64,10 +64,12 @@ public class CustomPlugin extends JavaPlugin {
         this.extractConfig(CustomPlugin.CONFIGURATION_FILE, false);
     }
 
+    /** @param resource same as in {@link #loadConfig(String, char, Version)} */
     public FileConfiguration loadConfig(final String resource) {
         return this.loadConfig(resource, this.pathSeparator, this.configurationMinimums.get(resource));
     }
 
+    /** @param resource file name relative to plugin data folder and base of jar (embedded file extracted if does not exist) */
     public FileConfiguration loadConfig(final String resource, final char pathSeparator, final Version required) {
         // extract default if not existing
         this.extractConfig(resource, false);
@@ -89,6 +91,7 @@ public class CustomPlugin extends JavaPlugin {
         return this.loadConfig(resource, this.pathSeparator, null);
     }
 
+    /** extract embedded configuration file from jar, translating character encoding to default character set */
     public void extractConfig(final String resource, final boolean replace) {
         final Charset target = Charset.defaultCharset();
         final File config = new File(this.getDataFolder(), resource);
@@ -109,6 +112,7 @@ public class CustomPlugin extends JavaPlugin {
         }
     }
 
+    /** make a backup copy of an existing configuration file */
     public void archiveConfig(final String resource, final Version version) {
         final File backup = new File(this.getDataFolder(), MessageFormat.format(CustomPlugin.CONFIGURATION_ARCHIVE, resource.replaceAll("(?i)\\.yml$", ""), version, new Date()));
         final File existing = new File(this.getDataFolder(), resource);

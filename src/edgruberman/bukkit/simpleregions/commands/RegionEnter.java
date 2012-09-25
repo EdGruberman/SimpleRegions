@@ -10,7 +10,7 @@ import edgruberman.bukkit.simpleregions.BoundaryAlerter;
 import edgruberman.bukkit.simpleregions.Catalog;
 import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Region;
-import edgruberman.bukkit.simpleregions.messaging.Sender;
+import edgruberman.bukkit.simpleregions.messaging.Individual;
 
 public class RegionEnter extends RegionExecutor {
 
@@ -44,7 +44,7 @@ public class RegionEnter extends RegionExecutor {
 
         Main.courier.send(sender, "enterExisting", (region.enter != null ? region.enter : "§onull§r"));
         Main.courier.send(sender, "enterExample");
-        Main.courier.submit(new Sender(sender), this.alerter.draft(region.enter, "enter", "enterCustom", region, sender));
+        Main.courier.submit(new Individual(sender), this.alerter.compose(region.enter, "enter", "enterCustom", region, sender));
 
         return true;
     }

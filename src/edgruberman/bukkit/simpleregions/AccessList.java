@@ -50,6 +50,7 @@ public class AccessList {
     public boolean inherits(final CommandSender player) {
         if (this.contains(player.getName())) return true;
 
+        // permissions must be explicitly set to true to avoid default ops getting access due to permission that doesn't exist
         for (final String name : this.members)
             if (player.isPermissionSet(name) && player.hasPermission(name))
                 return true;

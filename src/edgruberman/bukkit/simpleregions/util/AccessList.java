@@ -1,4 +1,4 @@
-package edgruberman.bukkit.simpleregions;
+package edgruberman.bukkit.simpleregions.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;

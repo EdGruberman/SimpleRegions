@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.bukkit.command.CommandSender;
 
+import edgruberman.bukkit.simpleregions.util.AccessList;
 import edgruberman.bukkit.simpleregions.util.BlockCuboid;
 
 /** protected area */

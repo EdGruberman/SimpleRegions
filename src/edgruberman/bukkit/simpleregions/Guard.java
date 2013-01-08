@@ -15,8 +15,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.painting.PaintingBreakByEntityEvent;
-import org.bukkit.event.painting.PaintingPlaceEvent;
+import org.bukkit.event.hanging.HangingBreakByEntityEvent;
+import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -107,11 +107,11 @@ final class Guard implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onPaintingBreakByEntity(final PaintingBreakByEntityEvent event) {
+    public void onHangingBreakByEntity(final HangingBreakByEntityEvent event) {
         if (!(event.getRemover() instanceof Player)) return;
 
         final Player player = (Player) event.getRemover();
-        final Location target = event.getPainting().getLocation();
+        final Location target = event.getEntity().getLocation();
         if (this.catalog.isAllowed(player, target)) return;
 
         event.setCancelled(true);
@@ -121,7 +121,7 @@ final class Guard implements Listener {
     }
 
     @EventHandler(ignoreCancelled = true)
-    public void onPaintingPlace(final PaintingPlaceEvent event) {
+    public void onHangingPlace(final HangingPlaceEvent event) {
         final Location target = event.getBlock().getLocation();
         target.add(event.getBlockFace().getModX(), event.getBlockFace().getModY(), event.getBlockFace().getModZ());
         if (this.catalog.isAllowed(event.getPlayer(), target)) return;

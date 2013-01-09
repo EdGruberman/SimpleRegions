@@ -15,8 +15,8 @@ public final class Region extends BlockCuboid {
     public final String world;
     public final String name;
     public boolean active = false;
-    public String enter = null;
-    public String exit = null;
+    public String greeting = null;
+    public String farewell = null;
     public final AccessList owners = new AccessList();
     public final AccessList access = new AccessList();
     public final Set<String> options = new HashSet<String>();
@@ -32,8 +32,8 @@ public final class Region extends BlockCuboid {
     public Region(final Region original, final String newName) {
         this(original.world, newName, original.owners.members, original.access.members);
         this.active = original.active;
-        this.enter = original.enter;
-        this.exit = original.exit;
+        this.greeting = original.greeting;
+        this.farewell = original.farewell;
         this.setCoords(original.x1, original.x2, original.y1, original.y2, original.z1, original.z2);
         this.options.addAll(original.options);
     }

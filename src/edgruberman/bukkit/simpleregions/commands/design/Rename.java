@@ -1,4 +1,4 @@
-package edgruberman.bukkit.simpleregions.commands;
+package edgruberman.bukkit.simpleregions.commands.design;
 
 import java.util.List;
 
@@ -9,11 +9,12 @@ import org.bukkit.command.CommandSender;
 import edgruberman.bukkit.simpleregions.Catalog;
 import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Region;
+import edgruberman.bukkit.simpleregions.commands.RegionExecutor;
 
-public class RegionRename extends RegionExecutor {
+public class Rename extends RegionExecutor {
 
-    public RegionRename(final Catalog catalog) {
-        super(catalog, 1, false);
+    public Rename(final Catalog catalog) {
+        super(catalog, 1);
     }
 
     // usage: /<command> <New>[ <Region>[ <World>]]
@@ -31,7 +32,7 @@ public class RegionRename extends RegionExecutor {
                 break;
             }
         if (conflict != null) {
-            Main.courier.send(sender, "renameConflict", RegionExecutor.formatName(conflict), RegionExecutor.formatWorld(conflict));
+            Main.courier.send(sender, "rename-conflict", RegionExecutor.formatName(conflict), RegionExecutor.formatWorld(conflict));
             return true;
         }
 
@@ -47,9 +48,9 @@ public class RegionRename extends RegionExecutor {
 
         final Region working = RegionExecutor.getWorkingRegion(sender);
         if (working != null && working.equals(region))
-            Bukkit.getPluginCommand("simpleregions:region.set").execute(sender, "simplregions:region.set", args.toArray(new String[] { RegionExecutor.formatName(renamed), RegionExecutor.formatWorld(renamed) }));
+            Bukkit.getPluginCommand("simpleregions:context").execute(sender, "simplregions:context", args.toArray(new String[] { RegionExecutor.formatName(renamed), RegionExecutor.formatWorld(renamed) }));
 
-        Main.courier.send(sender, "renameSuccess", RegionExecutor.formatName(renamed), RegionExecutor.formatWorld(renamed), RegionExecutor.formatName(region));
+        Main.courier.send(sender, "rename", RegionExecutor.formatName(renamed), RegionExecutor.formatWorld(renamed), RegionExecutor.formatName(region));
         return true;
     }
 

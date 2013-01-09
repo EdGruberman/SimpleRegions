@@ -1,4 +1,4 @@
-package edgruberman.bukkit.simpleregions.commands;
+package edgruberman.bukkit.simpleregions.commands.design;
 
 import java.util.Collections;
 import java.util.List;
@@ -12,10 +12,11 @@ import org.bukkit.entity.Player;
 import edgruberman.bukkit.simpleregions.Catalog;
 import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Region;
+import edgruberman.bukkit.simpleregions.commands.RegionExecutor;
 
-public class RegionCreate extends RegionExecutor {
+public class Create extends RegionExecutor {
 
-    public RegionCreate(final Catalog catalog) {
+    public Create(final Catalog catalog) {
         super(catalog);
     }
 
@@ -28,14 +29,14 @@ public class RegionCreate extends RegionExecutor {
         if (name.equalsIgnoreCase(RegionExecutor.NAME_DEFAULT)) name = null;
 
         if (!(sender instanceof Player) && args.size() < 2) {
-            Main.courier.send(sender, "requiresArgument", "<World>");
+            Main.courier.send(sender, "requires-argument", "<World>");
             return false;
         }
 
         final String worldName = (args.size() >= 2 ? args.get(1) : ((Player) sender).getWorld().getName());
         final World world = (worldName.equalsIgnoreCase(RegionExecutor.SERVER_DEFAULT) ? null : Bukkit.getWorld(worldName));
         if (world == null && !worldName.equalsIgnoreCase(RegionExecutor.SERVER_DEFAULT)) {
-            Main.courier.send(sender, "worldNotFound", worldName);
+            Main.courier.send(sender, "world-not-found", worldName);
             return true;
         }
 
@@ -48,15 +49,15 @@ public class RegionCreate extends RegionExecutor {
                 break;
             }
         if (conflict != null) {
-            Main.courier.send(sender, "renameConflict", RegionExecutor.formatName(conflict), RegionExecutor.formatWorld(conflict));
+            Main.courier.send(sender, "rename-conflict", RegionExecutor.formatName(conflict), RegionExecutor.formatWorld(conflict));
             return true;
         }
 
         final Region created = new Region(world.getName(), name, Collections.<String>emptyList(), Collections.<String>emptyList());
         this.catalog.indices.get(created.world).register(created);
         this.catalog.repository.saveRegion(created, false);
-        Main.courier.send(sender, "regionCreated", RegionExecutor.formatName(created), RegionExecutor.formatWorld(created));
-        Bukkit.getServer().dispatchCommand(sender, "simpleregions:region.set " + RegionExecutor.formatName(created) + " " + RegionExecutor.formatWorld(created));
+        Main.courier.send(sender, "create", RegionExecutor.formatName(created), RegionExecutor.formatWorld(created));
+        Bukkit.getServer().dispatchCommand(sender, "simpleregions:context " + RegionExecutor.formatName(created) + " " + RegionExecutor.formatWorld(created));
         return true;
     }
 

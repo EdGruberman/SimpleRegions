@@ -1,4 +1,4 @@
-package edgruberman.bukkit.simpleregions.commands;
+package edgruberman.bukkit.simpleregions.commands.manage;
 
 import java.util.List;
 
@@ -9,22 +9,23 @@ import org.bukkit.command.CommandSender;
 import edgruberman.bukkit.simpleregions.Catalog;
 import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Region;
+import edgruberman.bukkit.simpleregions.commands.RegionExecutor;
 
-public class RegionOwnersReset extends RegionExecutor {
+public class Reform extends OwnerExecutor {
 
-    public RegionOwnersReset(final Catalog catalog) {
-        super(catalog, 1, true);
+    public Reform(final Catalog catalog) {
+        super(catalog, 1);
     }
 
     // usage: /<command> <Owner>[ <Region>[ <World>]]
     @Override
-    protected boolean execute(final CommandSender sender, final Command command, final String label, final List<String> args, final Region region) {
+    protected boolean perform(final CommandSender sender, final Command command, final String label, final List<String> args, final Region region) {
         String owner = RegionExecutor.parse(args, 0, "<Owner>", sender);
         if (owner == null) return false;
 
         // Do not allow an owner to remove their own ownership accidentally if they can't add themselves back forcibly
         if (!sender.hasPermission("simpleregions.override.commands") && !sender.hasPermission(owner)) {
-            Main.courier.send(sender, "ownerRevokePrevent");
+            Main.courier.send(sender, "demote-prevent");
             return true;
         }
 
@@ -32,7 +33,7 @@ public class RegionOwnersReset extends RegionExecutor {
         region.owners.clear();
         region.owners.add(owner);
         this.catalog.repository.saveRegion(region, false);
-        Main.courier.send(sender, "ownerReset", owner, RegionExecutor.formatName(region), RegionExecutor.formatWorld(region));
+        Main.courier.send(sender, "reform", owner, RegionExecutor.formatName(region), RegionExecutor.formatWorld(region));
         return true;
     }
 

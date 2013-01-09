@@ -9,11 +9,12 @@ import org.bukkit.command.CommandSender;
 import edgruberman.bukkit.simpleregions.Catalog;
 import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Region;
+import edgruberman.bukkit.simpleregions.commands.manage.OwnerExecutor;
 
-public class RegionDescribe extends RegionExecutor {
+public class Describe extends RegionExecutor {
 
-    public RegionDescribe(final Catalog catalog) {
-        super(catalog, 0, false);
+    public Describe(final Catalog catalog) {
+        super(catalog, 0);
     }
 
     // usage: /<command>[ <Region>[ <World>]]
@@ -48,7 +49,7 @@ public class RegionDescribe extends RegionExecutor {
                 , this.formatOptions(region)
         );
 
-        if (region.active || !RegionExecutor.isOwner(sender, region)) return true;
+        if (region.active || !OwnerExecutor.isOwner(sender, region)) return true;
 
         // instruct owners on how to define
         if (!region.isDefault() && !region.isDefined() && sender.hasPermission("simpleregions.region.define")) {

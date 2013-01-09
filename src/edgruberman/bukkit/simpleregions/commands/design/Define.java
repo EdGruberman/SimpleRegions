@@ -1,4 +1,4 @@
-package edgruberman.bukkit.simpleregions.commands;
+package edgruberman.bukkit.simpleregions.commands.design;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -13,11 +13,12 @@ import org.bukkit.entity.Player;
 import edgruberman.bukkit.simpleregions.Catalog;
 import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Region;
+import edgruberman.bukkit.simpleregions.commands.RegionExecutor;
 
-public class RegionDefine extends RegionExecutor {
+public class Define extends RegionExecutor {
 
-    public RegionDefine(final Catalog catalog) {
-        super(catalog, 1, false);
+    public Define(final Catalog catalog) {
+        super(catalog, 1);
     }
 
     // usage: /<command>[ (1|2)|((n|e|s|w|u|d)[:<Coordinate>])[ <Region>[ <World>]]]
@@ -28,7 +29,7 @@ public class RegionDefine extends RegionExecutor {
 
         if (args.size() == 0) {
             if (block == null) {
-                Main.courier.send(sender, "blockNotIdentified");
+                Main.courier.send(sender, "unknown-argument", "<Block>", block);
                 return false;
             }
 
@@ -45,7 +46,7 @@ public class RegionDefine extends RegionExecutor {
         } else {
             final String type = args.get(0).split(":")[0].toLowerCase();
             if (!Arrays.asList("1", "2", "n", "e", "s", "w", "u", "d").contains(type)) {
-                Main.courier.send(sender, "coordinateNotIdentified", type);
+                Main.courier.send(sender, "unknown-argument", "<Type>", type);
                 return false;
 
             }
@@ -65,29 +66,27 @@ public class RegionDefine extends RegionExecutor {
                 try {
                     coord = Integer.parseInt(args.get(0).split(":")[1]);
                 } catch (final NumberFormatException e) {
-                    Main.courier.send(sender, "coordinateNotIdentified", args.get(1));
+                    Main.courier.send(sender, "unknown-argument", "<Coordinate>", args.get(0));
                     return false;
                 }
 
-                if (type.equals("1")) {
-                    Main.courier.send(sender, "unsupportedParameter", "1", Main.courier.format("+unsupportedReasonDirectionMissing"));
+                if (type.equals("1") || type.equals("2")) {
+                    Main.courier.send(sender, "unknown-argument", "<Type>", type);
                     return false;
-                } else if (type.equals("2")) {
-                    Main.courier.send(sender, "unsupportedParameter", "2", Main.courier.format("+unsupportedReasonDirectionMissing"));
-                    return false;
-                } else if (type.equals("n")) { region.setMinZ(coord); }
-                  else if (type.equals("e")) { region.setMaxX(coord); }
-                  else if (type.equals("s")) { region.setMaxZ(coord); }
-                  else if (type.equals("w")) { region.setMinX(coord); }
-                  else if (type.equals("u")) { region.setMaxY(coord); }
-                  else if (type.equals("d")) { region.setMinY(coord); }
+                }
+                else if (type.equals("n")) { region.setMinZ(coord); }
+                else if (type.equals("e")) { region.setMaxX(coord); }
+                else if (type.equals("s")) { region.setMaxZ(coord); }
+                else if (type.equals("w")) { region.setMinX(coord); }
+                else if (type.equals("u")) { region.setMaxY(coord); }
+                else if (type.equals("d")) { region.setMinY(coord); }
             }
         }
 
         this.catalog.indices.get(region.world).refresh(region);
         this.catalog.repository.saveRegion(region, false);
-        Bukkit.getServer().dispatchCommand(sender, "simpleregions:region.describe " + RegionExecutor.formatName(region) + " " + RegionExecutor.formatWorld(region));
-        Main.courier.send(sender, "coordinateUpdated");
+        Bukkit.getServer().dispatchCommand(sender, "simpleregions:describe " + RegionExecutor.formatName(region) + " " + RegionExecutor.formatWorld(region));
+        Main.courier.send(sender, "define");
         return true;
     }
 

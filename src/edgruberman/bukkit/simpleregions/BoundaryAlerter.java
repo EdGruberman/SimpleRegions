@@ -73,20 +73,20 @@ public final class BoundaryAlerter implements Listener {
             isInTo = region.contains(to.getBlockX(), to.getBlockY(), to.getBlockZ());
             if (isInFrom == isInTo) continue;
 
-            // exiting this region, show message first
+            // exiting this region, show farewell first
             if (isInFrom)
-                if (region.exit == null || region.exit.length() > 0)
-                    Main.courier.send(player, ( region.enter == null ? "exit" : "exitCustom" ), region.name, region.hasAccess(player)?1:0, region.exit);
+                if (region.farewell == null || region.farewell.length() > 0)
+                    Main.courier.send(player, ( region.greeting == null ? "farewell-default" : "farewell-custom" ), region.name, region.hasAccess(player)?1:0, region.farewell);
 
-            // entering this region, cache message for display after all other exits
+            // entering this region, cache greeting for display after all other farewells
             if (isInTo)
-                if (region.enter == null || region.enter.length() > 0) {
-                    final Message enter = Main.courier.compose(( region.enter == null ? "enter" : "enterCustom" ), region.name, region.hasAccess(player)?1:0, region.enter);
-                    if (entered == null) { entered = enter; } else { entered.append(enter); }
+                if (region.greeting == null || region.greeting.length() > 0) {
+                    final Message greeting = Main.courier.compose(( region.greeting == null ? "greeting-default" : "greeting-custom" ), region.name, region.hasAccess(player)?1:0, region.greeting);
+                    if (entered == null) { entered = greeting; } else { entered.append(greeting); }
                 }
         }
 
-        // show any enter messages after exit messages
+        // show any greetings only after farewells
         if (entered != null) Main.courier.submit(new Individual(player), entered);
     }
 

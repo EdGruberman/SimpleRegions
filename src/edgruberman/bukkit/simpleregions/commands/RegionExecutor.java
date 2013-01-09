@@ -22,20 +22,18 @@ public abstract class RegionExecutor extends Executor {
 
     protected final Catalog catalog;
     protected final Integer index;
-    protected final boolean requiresOwner;
 
-    RegionExecutor(final Catalog catalog) {
-        this(catalog, null, false);
+    protected RegionExecutor(final Catalog catalog) {
+        this(catalog, null);
     }
 
     /** @param index -1 to force working region; null to not parse region; 0+ to parse region in [Region[ World]] format starting at index */
-    RegionExecutor(final Catalog catalog, final Integer index, final boolean requiresOwner) {
+    protected RegionExecutor(final Catalog catalog, final Integer index) {
         this.catalog = catalog;
         this.index = index;
-        this.requiresOwner = requiresOwner;
     }
 
-    abstract boolean execute(final CommandSender sender, final Command command, final String label, final List<String> args, Region region);
+    protected abstract boolean execute(final CommandSender sender, final Command command, final String label, final List<String> args, Region region);
 
     @Override
     protected boolean execute(final CommandSender sender, final Command command, final String label, final List<String> args) {
@@ -43,11 +41,6 @@ public abstract class RegionExecutor extends Executor {
         if (this.index != null) {
             region = this.identifyRegion(sender, args);
             if (region == null) return false;
-
-            if (this.requiresOwner && !RegionExecutor.isOwner(sender, region)) {
-                Main.courier.send(sender, "requiresOwner", label);
-                return true;
-            }
         }
 
         return this.execute(sender, command, label, args, region);
@@ -66,7 +59,7 @@ public abstract class RegionExecutor extends Executor {
             // assume current region if player is in only one
             final Set<Region> regions = this.catalog.getRegions(((Player) sender).getLocation());
             if (regions.size() != 1) {
-                Main.courier.send(sender, "regionNotFound", "");
+                Main.courier.send(sender, "region-not-found", "");
                 return null;
             }
 
@@ -82,7 +75,7 @@ public abstract class RegionExecutor extends Executor {
 
         final Index index = this.catalog.indices.get(world);
         if (index == null) {
-            Main.courier.send(sender, "worldNotFound", world);
+            Main.courier.send(sender, "world-not-found", world);
             return null;
         }
 
@@ -99,16 +92,8 @@ public abstract class RegionExecutor extends Executor {
                 }
         }
 
-        if (found == null) Main.courier.send(sender, "regionNotFound", region);
+        if (found == null) Main.courier.send(sender, "region-not-found", region);
         return found;
-    }
-
-    protected static boolean isOwner(final CommandSender sender, final Region region) {
-        if (sender.hasPermission("simpleregions.override.commands")) return true;
-
-        if ((sender instanceof Player) && region.owners.inherits(sender)) return true;
-
-        return false;
     }
 
     public static String formatWorld(final Region region) {
@@ -158,7 +143,7 @@ public abstract class RegionExecutor extends Executor {
 
     protected static String parse(final List<String> args, final int index, final String argument, final CommandSender sender) {
         if (args.size() < (index + 1)) {
-            Main.courier.send(sender, "requiresArgument", argument);
+            Main.courier.send(sender, "requires-argument", argument);
             return null;
         }
 

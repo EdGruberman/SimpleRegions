@@ -1,233 +1,239 @@
 name: SimpleRegions
 version: @VERSION@
 description: Protect regions of blocks so only configured players can modify
-softdepend: [SimpleLocks]
 author: EdGruberman (ed@rjump.com)
 website: http://github.com/EdGruberman/SimpleRegions
 main: edgruberman.bukkit.simpleregions.Main
 commands:
-    'simpleregions:region.current':
-        aliases: [region, current]
+    'simpleregions:current':
+        aliases: [region.current, region]
         description: Show your current region
-        permission: simpleregions.region.current
-    'simpleregions:region.target':
-        aliases: [target, region.target]
+        permission: simpleregions.current
+        usage: '§f-> §7Usage: §b/<command>'
+    'simpleregions:target':
+        aliases: [region.target]
         description: Show region where you are looking
-        permission: simpleregions.region.target
-    'simpleregions:region.set':
-        aliases: [set, region.set]
+        permission: simpleregions.target
+        usage: '§f-> §7Usage: §b/<command>'
+    'simpleregions:context':
+        aliases: [region.context]
         description: Set your working region
-        permission: simpleregions.region.set
-        usage: /<command> <Region>[ <World>]
-    'simpleregions:region.unset':
-        aliases: [unset, region.unset]
+        permission: simpleregions.context
+        usage: '§f-> §7Usage: §b/<command> §o<Region>§3[ §b§o<World>§3]'
+    'simpleregions:clear':
+        aliases: [region.clear]
         description: Unset your working region
-        permission: simpleregions.region.unset
-        usage: /<command>
-    'simpleregions:region.describe':
-        aliases: [describe, region.describe, region.info]
+        permission: simpleregions.clear
+        usage: '§f-> §7Usage: §b/<command>'
+    'simpleregions:describe':
+        aliases: [region.describe]
         description: Show region description
-        permission: simpleregions.region.describe
-        usage: /<command>[ <Region>[ <World>]]
-    'simpleregions:region.activate':
-        aliases: [region.on, region.activate]
-        description: Enable region protection (* Owners Only)
-        permission: simpleregions.region.activate
-        usage: /<command>[ <Region>[ <World>]]
-    'simpleregions:region.deactivate':
-        aliases: [region.off, region.deactivate]
-        description: Disable region protection (* Owners Only)
-        permission: simpleregions.region.deactive
-        usage: /<command>[ <Region>[ <World>]]
-    'simpleregions:region.owners.grant':
-        aliases: [owners+, owners.grant, region.owners.grant]
-        description: Add explicit region owner (* Owners Only)
-        permission: simpleregions.region.owners.grant
-        usage: /<command> <Owner>[ <Region>[ <World>]]
-    'simpleregions:region.owners.revoke':
-        aliases: [owners-, owners.revoke, region.owners.revoke]
-        description: Remove explicit region owner (* Owners Only)
-        permission: simpleregions.region.owners.revoke
-        usage: /<command> <Owner>[ <Region>[ <World>]]
-    'simpleregions:region.owners.reset':
-        aliases: [owners=, owners.reset, region.owners.reset]
-        description: Reset explicit region owners (* Owners Only)
-        permission: simpleregions.region.owners.reset
-        usage: /<command> <Owner>[ <Region>[ <World>]]
-    'simpleregions:region.access.grant':
-        aliases: [region+, access+, access.grant, region.access.grant]
-        description: Add explicit region access (* Owners Only)
-        permission: simpleregions.region.access.grant
-        usage: /<command> <Access>[ <Region>[ <World>]]
-    'simpleregions:region.access.revoke':
-        aliases: [region-, access-, access.revoke, region.access.revoke]
-        description: Remove explicit region access (* Owners Only)
-        permission: simpleregions.region.access.revoke
-        usage: /<command> <Access>[ <Region>[ <World>]]
-    'simpleregions:region.access.reset':
-        aliases: [region=, access=, access.reset, region.access.reset]
-        description: Reset explicit region access (* Owners Only)
-        permission: simpleregions.region.access.reset
-        usage: /<command> <Access>[ <Region>[ <World>]]
-    'simpleregions:region.enter':
-        aliases: region.enter
-        description: View/set region enter message format (* Owners Only)
-        permission: simpleregions.region.enter
-        usage: /<command>[ (<Message>|default)]
-    'simpleregions:region.exit':
-        aliases: region.exit
-        description: View/set region exit message format (* Owners Only)
-        permission: simpleregions.region.exit
-        usage: /<command>[ (<Message>|default)]
-    'simpleregions:region.create':
-        aliases: region.create
+        permission: simpleregions.describe
+        usage: '§f-> §7Usage: §b/<command>§3[ §b§o<Region>§3[ §b§o<World>§3]]'
+    'simpleregions:activate':
+        aliases: [region.activate]
+        description: Enable region protection * Requires owner
+        permission: simpleregions.activate
+        usage: '§f-> §7Usage: §b/<command>§3[ §b§o<Region>§3[ §b§o<World>§3]]'
+    'simpleregions:deactivate':
+        aliases: [region.deactivate]
+        description: Disable region protection * Requires owner
+        permission: simpleregions.deactivate
+        usage: '§f-> §7Usage: §b/<command>§3[ §b§o<Region>§3[ §b§o<World>§3]]'
+    'simpleregions:promote':
+        aliases: [region.promote]
+        description: Add explicit region owner * Requires owner
+        permission: simpleregions.promote
+        usage: '§f-> §7Usage: §b/<command> §o<Owner>§3[ §b§o<Region>§3[ §b§o<World>§3]]'
+    'simpleregions:demote':
+        aliases: [region.demote]
+        description: Remove explicit region owner * Requires owner
+        permission: simpleregions.owners.revoke
+        usage: '§f-> §7Usage: §b/<command> §o<Owner>§3[ §b§o<Region>§3[ §b§o<World>§3]]'
+    'simpleregions:reform':
+        aliases: [region.reform]
+        description: Reset explicit region owners * Requires owner
+        permission: simpleregions.owners.reset
+        usage: '§f-> §7Usage: §b/<command> §o<Owner>§3[ §b§o<Region>§3[ §b§o<World>§3]]'
+    'simpleregions:grant':
+        aliases: [region.grant]
+        description: Add explicit region access * Requires owner
+        permission: simpleregions.grant
+        usage: '§f-> §7Usage: §b/<command> §o<Access>§3[ §b§o<Region>§3[ §b§o<World>§3]]'
+    'simpleregions:revoke':
+        aliases: [region.revoke]
+        description: Remove explicit region access * Requires owner
+        permission: simpleregions.revoke
+        usage: '§f-> §7Usage: §b/<command> §o<Access>§3[ §b§o<Region>§3[ §b§o<World>§3]]'
+    'simpleregions:replace':
+        aliases: [region.replace]
+        description: Reset explicit region access * Requires owner
+        permission: simpleregions.replace
+        usage: '§f-> §7Usage: §b/<command> §o<Access>§3[ §b§o<Region>§3[ §b§o<World>§3]]'
+    'simpleregions:greeting':
+        aliases: [region.greeting]
+        description: View/set region enter message format * Requires owner
+        permission: simpleregions.greeting
+        usage: '§f-> §7Usage: §b/<command>§3[ (§b§o<Message>§3|§bdefault§3)]'
+    'simpleregions:farewell':
+        aliases: [region.farewell]
+        description: View/set region exit message format * Requires owner
+        permission: simpleregions.farewell
+        usage: '§f-> §7Usage: §b/<command>§3[ (§b§o<Message>§3|§bdefault§3)]'
+    'simpleregions:create':
+        aliases: [region.create]
         description: Create new region
-        permission: simpleregions.region.create
-        usage: /<command> <Region>[ <World>]
-    'simpleregions:region.define':
-        aliases: region.define
+        permission: simpleregions.create
+        usage: '§f-> §7Usage: §b/<command> §o<Region>§3[ §b§o<World>§3]'
+    'simpleregions:define':
+        aliases: [region.define]
         description: Define working region coordinates
-        permission: simpleregions.region.define
-        usage: /<command>[ (1|2)|((n|e|s|w|u|d)[:<Coordinate>])[ <Region>[ <World>]]]
-    'simpleregions:region.delete':
-        aliases: region.delete
+        permission: simpleregions.define
+        usage: '§f-> §7Usage: §b/<command>§3[ (§b1§3|§b2§3)|((§bn§3|§be§3|§bs§3|§bw§3|§bu§3|§bd§3)[§b:§o<Coordinate>§3])[ §b§o<Region>§3[ §b§o<World>§3]]]'
+    'simpleregions:delete':
+        aliases: [region.delete]
         description: Delete region
-        permission: simpleregions.region.delete
-        usage: /<command> <Region> <World>
-    'simpleregions:region.rename':
-        aliases: region.rename
+        permission: simpleregions.delete
+        usage: '§f-> §7Usage: §b/<command> §o<Region> <World>'
+    'simpleregions:rename':
+        aliases: [region.rename]
         description: Rename region
-        permission: simpleregions.region.rename
-        usage: /<command> <New>[ <Region>[ <World>]]
-    'simpleregions:region.option.add':
-        aliases: [region.option+, region.option.add]
+        permission: simpleregions.rename
+        usage: '§f-> §7Usage: §b/<command> §o<New>§3[ §b§o<Region>§3[ §b§o<World>§3]]'
+    'simpleregions:attach':
+        aliases: [region.attach]
         description: Add option to region
-        permission: simpleregions.region.option.add
-        usage: /<command> <Option>[ <Region>[ <World>]]
-    'simpleregions:region.option.remove':
-        aliases: [region.option-, region.option.remove]
+        permission: simpleregions.option.add
+        usage: '§f-> §7Usage: §b/<command> §o<Option>§3[ §b§o<Region>§3[ §b§o<World>§3]]'
+    'simpleregions:detach':
+        aliases: [region.detach]
         description: Remove option from region
-        permission: simpleregions.region.option.remove
-        usage: /<command> <Option>[ <Region>[ <World>]]
+        permission: simpleregions.option.remove
+        usage: '§f-> §7Usage: §b/<command> §o<Option>§3[ §b§o<Region>§3[ §b§o<World>§3]]'
     'simpleregions:reload':
-        aliases: simpleregions.reload
         description: Reload configuration
         permission: simpleregions.reload
+        usage: '§f-> §7Usage: §b/<command>'
 permissions:
     'simpleregions.[players]':
         description: All players; "Permission group" used to grant access to regions
         default: true
+    simpleregions.admin:
+        description: Can use all features
+        default: op
+        children:
+            simpleregions.designer: true
+            simpleregions.override: true
+            simpleregions.reload: true
     simpleregions.user:
         description: Can use basic features
         default: true
         children:
-            simpleregions.region.current: true
-            simpleregions.region.target: true
-            simpleregions.region.set: true
-            simpleregions.region.unset: true
-            simpleregions.region.describe: true
-            simpleregions.region.access.grant: true
-            simpleregions.region.access.revoke: true
-            simpleregions.region.access.reset: true
-            simpleregions.region.owners.grant: true
-            simpleregions.region.owners.revoke: true
-            simpleregions.region.owners.reset: true
-            simpleregions.region.activate: true
-            simpleregions.region.deactivate: true
-    simpleregions.admin:
-        description: Can use administrative features
-        default: op
+            simpleregions.current: true
+            simpleregions.target: true
+            simpleregions.context: true
+            simpleregions.clear: true
+            simpleregions.describe: true
+            simpleregions.grant: true
+            simpleregions.revoke: true
+            simpleregions.replace: true
+            simpleregions.promote: true
+            simpleregions.demote: true
+            simpleregions.reform: true
+            simpleregions.activate: true
+            simpleregions.deactivate: true
+    simpleregions.designer:
+        description: Can create and edit regions
+        default: false
         children:
-            simpleregions.override: true
-            simpleregions.region.read: true
-            simpleregions.region.enter: true
-            simpleregions.region.exit: true
-            simpleregions.region.create: true
-            simpleregions.region.define: true
-            simpleregions.region.delete: true
-            simpleregions.region.rename: true
-            simpleregions.region.option.add: true
-            simpleregions.region.option.remove: true
-            simpleregions.region.message.color: true
-            simpleregions.reload: true
+            simpleregions.override.commands: true
+            simpleregions.greeting: true
+            simpleregions.farewell: true
+            simpleregions.create: true
+            simpleregions.define: true
+            simpleregions.delete: true
+            simpleregions.rename: true
+            simpleregions.option.add: true
+            simpleregions.option.remove: true
+            simpleregions.message.color: true
     simpleregions.override:
-        description: Granted owner access to all regions even if not owner
+        description: Can interact with regions as owner
         default: false
         children:
             simpleregions.override.commands: true
             simpleregions.override.protection: true
     simpleregions.override.commands:
-        description: Can use region commands even if not owner (still requires individual command permission)
+        description: Can use region commands even if not owner
         default: false
     simpleregions.override.protection:
         description: Can interact with regions in-game even if not owner
         default: false
-    simpleregions.region.current:
-        description: Can use region.current command
+    simpleregions.current:
+        description: Can use current command
         default: false
-    simpleregions.region.target:
-        description: Can use region.target command
+    simpleregions.target:
+        description: Can use target command
         default: false
-    simpleregions.region.set:
-        description: Can use region.set command
+    simpleregions.context:
+        description: Can use context command
         default: false
-    simpleregions.region.unset:
-        description: Can use region.unset command
+    simpleregions.clear:
+        description: Can use clear command
         default: false
-    simpleregions.region.describe:
-        description: Can use region.describe command
+    simpleregions.describe:
+        description: Can use describe command
         default: false
-    simpleregions.region.activate:
-        description: Can use region.activate command (* Owners only)
+    simpleregions.activate:
+        description: Can use activate command * Requires owner
         default: false
-    simpleregions.region.deactivate:
-        description: Can use region.deactivate command (* Owners only)
+    simpleregions.deactivate:
+        description: Can use deactivate command * Requires owner
         default: false
-    simpleregions.region.access.grant:
-        description: Can use region.access.grant command (* Owners only)
+    simpleregions.grant:
+        description: Can use grant command * Requires owner
         default: false
-    simpleregions.region.access.revoke:
-        description: Can use region.access.revoke command (* Owners only)
+    simpleregions.revoke:
+        description: Can use revoke command * Requires owner
         default: false
-    simpleregions.region.access.reset:
-        description: Can use region.access.reset command (* Owners only)
+    simpleregions.replace:
+        description: Can use replace command * Requires owner
         default: false
-    simpleregions.region.owners.grant:
-        description: Can use region.owners.grant command (* Owners only)
+    simpleregions.promote:
+        description: Can use promote command * Requires owner
         default: false
-    simpleregions.region.owners.revoke:
-        description: Can use region.owners.revoke command (* Owners only)
+    simpleregions.demote:
+        description: Can use demote command * Requires owner
         default: false
-    simpleregions.region.owners.reset:
-        description: Can use region.owners.revoke command (* Owners only)
+    simpleregions.reform:
+        description: Can use reform command * Requires owner
         default: false
-    simpleregions.region.enter:
-        description: Can use region.enter command
+    simpleregions.greeting:
+        description: Can use greeting command
         default: false
-    simpleregions.region.exit:
-        description: Can use region.exit command
+    simpleregions.farewell:
+        description: Can use farewell command
         default: false
-    simpleregions.region.create:
-        description: Can use region.create command
+    simpleregions.create:
+        description: Can use create command
         default: false
-    simpleregions.region.define:
-        description: Can use region.define command
+    simpleregions.define:
+        description: Can use define command
         default: false
-    simpleregions.region.delete:
-        description: Can use region.delete command
+    simpleregions.delete:
+        description: Can use delete command
         default: false
-    simpleregions.region.rename:
-        description: Can use region.rename command
+    simpleregions.rename:
+        description: Can use rename command
         default: false
-    simpleregions.region.option.add:
-        description: Can use region.option.add command
+    simpleregions.attach:
+        description: Can use attach command
         default: false
-    simpleregions.region.option.remove:
-        description: Can use region.option.remove command
+    simpleregions.detach:
+        description: Can use detach command
         default: false
     simpleregions.reload:
         description: Can use reload command
         default: false
-    simpleregions.region.message.color:
-        description: Can use color codes in enter and exit messages
+    simpleregions.message.color:
+        description: Can use color codes in greetings and farewells
         default: false

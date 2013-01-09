@@ -1,4 +1,4 @@
-package edgruberman.bukkit.simpleregions.options;
+package edgruberman.bukkit.simpleregions;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -7,8 +7,6 @@ import java.util.Set;
 import java.util.logging.Level;
 
 import org.bukkit.plugin.Plugin;
-
-import edgruberman.bukkit.simpleregions.Region;
 
 public class Option {
 
@@ -19,15 +17,11 @@ public class Option {
     }
 
     public static Class<? extends Option> find(final String className) throws ClassNotFoundException, ClassCastException {
-        // Look in local package first
         try {
-            return Class.forName(Option.class.getPackage().getName() + "." + className).asSubclass(Option.class);
+            return Class.forName(Option.class.getPackage().getName() + ".options." + className).asSubclass(Option.class);
         } catch (final Exception e) {
-            // Ignore to try searching for custom class next
+            return Class.forName(className).asSubclass(Option.class);
         }
-
-        // Look for a custom class
-        return Class.forName(className).asSubclass(Option.class);
     }
 
 

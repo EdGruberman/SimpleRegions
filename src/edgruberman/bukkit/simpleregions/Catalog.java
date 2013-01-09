@@ -20,7 +20,6 @@ import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.plugin.Plugin;
 
-import edgruberman.bukkit.simpleregions.options.Option;
 import edgruberman.bukkit.simpleregions.util.ChunkCoordinates;
 
 /** relates a server to world indices */

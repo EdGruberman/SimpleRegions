@@ -1,9 +1,9 @@
 package edgruberman.bukkit.simpleregions.commands;
 
-import java.util.List;
 import java.util.Set;
 
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -11,16 +11,18 @@ import edgruberman.bukkit.simpleregions.Catalog;
 import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Region;
 
-public class RegionCurrent extends RegionExecutor {
+public class Current implements CommandExecutor {
 
-    public RegionCurrent(final Catalog catalog) {
-        super(catalog);
+    private final Catalog catalog;
+
+    public Current(final Catalog catalog) {
+        this.catalog = catalog;
     }
 
     @Override
-    protected boolean execute(final CommandSender sender, final Command command, final String label, final List<String> args, final Region region) {
+    public boolean onCommand(final CommandSender sender, final Command command, final String label, final String[] args) {
         if (!(sender instanceof Player)) {
-            Main.courier.send(sender, "requiresPlayer", label);
+            Main.courier.send(sender, "requires-player", label);
             return true;
         }
 

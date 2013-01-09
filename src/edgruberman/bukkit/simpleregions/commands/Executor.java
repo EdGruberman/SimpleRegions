@@ -9,7 +9,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 
 /** transforms simple space delimited command arguments to allow for double quote delimited arguments containing spaces */
-abstract class Executor implements CommandExecutor {
+public abstract class Executor implements CommandExecutor {
 
     protected final StrTokenizer tokenizer = new StrTokenizer();
 

@@ -61,8 +61,8 @@ public class Repository {
             final Integer z2 = (definition.isInt("z2") ? definition.getInt("z2", 0) : null);
             region.setCoords(x1, x2, y1, y2, z1, z2);
 
-            if (definition.isString("enter")) region.enter = definition.getString("enter");
-            if (definition.isString("exit")) region.exit = definition.getString("exit");
+            if (definition.isString("greeting")) region.greeting = definition.getString("greeting");
+            if (definition.isString("farewell")) region.farewell = definition.getString("farewell");
 
             regions.add(region);
         }
@@ -89,8 +89,8 @@ public class Repository {
         section.set("options", region.options.toArray());
         section.set("active", region.active);
         if (!region.isDefault()) {
-            section.set("enter", region.enter);
-            section.set("exit", region.exit);
+            section.set("greeting", region.greeting);
+            section.set("farewell", region.farewell);
             section.set("x1", region.getX1());
             section.set("x2", region.getX2());
             section.set("y1", region.getY1());

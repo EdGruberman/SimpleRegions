@@ -1,81 +1,77 @@
 color-code: '§'
 region:
-    +name: '{1,choice,0#§e|1#§2}{0}§r' # 0 = Region Name, 1 = hasAccess(0|1)
-    +delimiter: ', '
-denied: '-> Region §caccess denied§r in {1}' # 1 = Formatted Region Names
-current: '-> {3,choice,0#§e|1#§2}Current region{2,choice,0#|2<s}§r: {1} §8({2})' # 1 = Formatted Region Names, 2 = Count, 3 = hasAccess(0|1)
-target: '-> {3,choice,0#§e|1#§2}Target region{2,choice,0#|2<s}§r: {1} §8({2} at x:{4} y:{5} z:{6})' # 1 = Formatted Region Names, 2 = Count, 3 = hasAccess(0|1), 4 = X, 5 = Y, 6 = Z
-enter: '-> §8Entered region§r {2,choice,0#§e|1#§2}{1}' # 1 = Region Name, 2 = hasAccess(0|1)
-exit: '-> §2Left region §8{1}' # 1 = Region Name, 2 = hasAccess(0|1)
-enterCustom: '-> {3}' # 1 = Region Name, 2 = hasAccess(0|1), 3 = Enter Message
-exitCustom: '-> {3}' # 1 = Region Name, 2 = hasAccess(0|1), 3 = Exit Message
-accessGrantAlready: '-> Region access §ealready contains§r {1} for {2} in {3}' # 1 = <Access>, 2 = Region, 3 = World
-accessGrantSuccess: '-> Region §2access added§r to {1} for {2} in {3}' # 1 = <Access>, 2 = Region, 3 = World
-accessGrantNotify: '§8{0,time,HH:mm:ss}§r -> Region §2access granted§r to you by {1} for {2} in {3}' # 1 = Grantor, 2 = Region, 3 = World
-accessReset: '-> Region §2access reset§r to {1} for {2} in {3}' # 1 = <Access>, 2 = Region, 3 = World
-accessRevokeMissing: '-> Region access does §enot explicitly grant access§r to {1} for {2} in {3}' # 1 = <Access>, 2 = Region, 3 = World
-accessRevokeSuccess: '-> Region §2access revoked§r from {1} for {2} in {3}' # 1 = <Access>, 2 = Region, 3 = World
-ownerGrantAlready: '-> Region owners §ealready contains§r {1} for {2} in {3}' # 1 = <Owner>, 2 = Region, 3 = World
-ownerGrantSuccess: '-> Region §2ownership added§r to {1} for {2} in {3}' # 1 = <Owner>, 2 = Region, 3 = World
-ownerGrantNotify: '§8{0,time,HH:mm:ss}§r -> Region §2ownership granted§r to you by {1} for {2} in {3}' # 1 = Grantor, 2 = Region, 3 = World
-ownerReset: '-> Region §2owners reset§r to {1} for {2} in {3}' # 1 = <Owner>, 2 = Region, 3 = World
-ownerRevokePrevent: '-> You can §cnot remove yourself§r as a region owner'
-ownerRevokeMissing: '-> Region owners §edoes not explicitly contain§r {1} for {2} in {3}' # 1 = <Owner>, 2 = Region, 3 = World
-ownerRevokeSuccess: '-> Region §2ownership revoked§r from {1} for {2} in {3}' # 1 = <Owner>, 2 = Region, 3 = World
-activated: '-> §2Activated§r region {1} in {2}' # 1 = Region, 2 = World
-deactivated: '-> §eDeactivated§r region {1} in {2}' # 1 = Region, 2 = World
-delete: '-> §2Deleted§r region {1} in {2}' # 1 = Region, 2 = World
-set: '-> §2Set working region§r to {1} in {2}' # 1 = Region, 2 = World
-unset: '-> §2Unset working region'
-renameConflict: '-> Region §cname conflict§r in {2}: {1}' # 1 = <Name>, 2 = World
-renameSuccess: '-> §2Renamed§r region from {3} to {1} in {2}' # 1 = New Name, 2 = World, 3 = Old Name
-reload: '-> {1} plugin §2reloaded' # 1 = Plugin Name
-requiresArgument: '-> Required §cargument missing§r: {1}' # 1 = Argument Name
-requiresOwner: '-> §cOnly region owners§r can use the {1} command' # 1 = Command Label
-requiresPlayer: '-> §cOnly in-game players§r can use the {1} command' # 1 = Command Label
-requiresWorkingRegion: '-> §eWorking region not set§r    To set: §5/region.set §o<Region>'
-regionNotFound: '-> Region §enot found§r: {1}' # 1 = <Region>
-worldNotFound: '-> World §enot found§r: {1}' # 1 = <World>
-regionCreated: '-> §2Region created§r: {1} in {2}' # 1 = Region, 2 = World
-blockNotIdentifed: '-> Target block §enot identified'
-coordinateNotIdentified: '-> Coordinate type {1} §enot recognized' # 1 = Type
-coordinateUpdated: '-> Region §2coordinates updated'
-unsupportedParameter: '-> §eUnsupported parameter§r: {1} §8({2})' # 1 = Parameter, 2 = Reason
-+unsupportedReasonDirectionMissing: 'Specific coordinate must designate specific direction'
-enterPrevious: '-> Previous region enter format: {1}' # 1 = Enter Format
-enterSuccess: '-> Region §2enter format set'
-enterExisting: '-> Region enter format: {1}' # 1 = Enter Format
-enterExample: '-> Example region enter message:'
-exitPrevious: '-> Previous region exit format: {1}'
-exitSuccess: '-> Region §2exit format set'
-exitExisting: '-> Region exit format: {1}' # 1 = Exit Format
-exitExample: '-> Example region exit message:'
-undefined: '-> §eUndefined§r region    To define: §5/region.define'
-inactive: '-> §eInactive§r region    To activate: §5/region.on'
-optionAddUnrecognized: '-> Region option §cunrecognized§r: {1}' # 1 = Option, 2 = Region, 3 = World
-optionAddExisting: '-> Region option §o{1}§r §ealready added§r to {2} in {3}' # 1 = Option, 2 = Region, 3 = World
-optionAddSuccess: '-> Region option §o{1}§r §2added§r to {2} in {3}' # 1 = Option, 2 = Region, 3 = World
-optionRemoveMissing: '-> Region option §o{1}§r §edoes not exist§r on {2} in {3}' # 1 = Option, 2 = Region, 3 = World
-optionRemoveSuccess: '-> Region option §o{1}§r §2removed§r from {2} in {3}' # 1 = Option, 2 = Region, 3 = World
-lockCreateCancel: '-> Locks §ccan not be created§r in region: {1}' # 1 = Region
+    +name: '{1,choice,0#§e|1#§2}{0}' # 0 = Region Name, 1 = hasAccess(0|1)
+    +delimiter: '§8, '
+denied: '§f-> §7Region §caccess denied§7 in {1}' # 1 = Formatted Region Names
+current: '§f-> §7{3,choice,0#§e|1#§2}Current region{2,choice,0#|2<s}§7: {1} §8({2})' # 1 = Formatted Region Names, 2 = Count, 3 = hasAccess(0|1)
+target: '§f-> §7{3,choice,0#§e|1#§2}Target region{2,choice,0#|2<s}§7: {1} §8({2} at x:{4} y:{5} z:{6})' # 1 = Formatted Region Names, 2 = Count, 3 = hasAccess(0|1), 4 = X, 5 = Y, 6 = Z
+greeting-default: '§f-> §8Entered region§7 {2,choice,0#§e|1#§2}{1}' # 1 = Region Name, 2 = hasAccess(0|1)
+farewell-default: '§f-> §2Left region §8{1}' # 1 = Region Name, 2 = hasAccess(0|1)
+greeting-custom: '§f-> {2,choice,0#§e|1#§2}{3}' # 1 = Region Name, 2 = hasAccess(0|1), 3 = Enter Message
+farewell-custom: '§f-> §2{3}' # 1 = Region Name, 2 = hasAccess(0|1), 3 = Exit Message
+grant-already: '§f-> §7Region access §ealready contains§7 {1} for §f{2} §8in {3}' # 1 = <Access>, 2 = Region, 3 = World
+grant: '§f-> §7Region §2access added to {1}§7 for §f{2} §8in {3}' # 1 = <Access>, 2 = Region, 3 = World
+grant-notify: '§8{0,time,HH:mm:ss} §f-> §7Region §2access granted§7 to you by {1} for §f{2} §8in {3}' # 1 = Grantor, 2 = Region, 3 = World
+replace: '§f-> §7Region §2access replaced with {1}§7 for §f{2} §8in {3}' # 1 = <Access>, 2 = Region, 3 = World
+revoke-missing: '§f-> §7Region access does §enot explicitly grant access§7 to {1} for §f{2} §8in {3}' # 1 = <Access>, 2 = Region, 3 = World
+revoke: '§f-> §7Region §2access revoked from {1}§7 for §f{2} §8in {3}' # 1 = <Access>, 2 = Region, 3 = World
+promote-already: '§f-> §7Region owners §ealready contains§7 {1} for §f{2} §8in {3}' # 1 = <Owner>, 2 = Region, 3 = World
+promote: '§f-> §7Region §2ownership added to {1}§7 for §f{2} §8in {3}' # 1 = <Owner>, 2 = Region, 3 = World
+promote-notify: '§8{0,time,HH:mm:ss} §f-> §7Region §2ownership granted§7 to you by {1} for §f{2} §8in {3}' # 1 = Grantor, 2 = Region, 3 = World
+reform: '§f-> §7Region §2owners reformed to {1}§7 for §f{2} §8in {3}' # 1 = <Owner>, 2 = Region, 3 = World
+demote-prevent: '§f-> §7You can §cnot remove yourself§7 as a region owner'
+demote-missing: '§f-> §7Region owners §edoes not explicitly contain§7 {1} for §f{2} §8in {3}' # 1 = <Owner>, 2 = Region, 3 = World
+demote: '§f-> §7Region §2ownership removed from {1}§7 for §f{2} §8in {3}' # 1 = <Owner>, 2 = Region, 3 = World
+activate: '§f-> §2Activated§7 region §f{1} §8in {2}' # 1 = Region, 2 = World
+deactivate: '§f-> §eDeactivated§7 region §f{1} §8in {2}' # 1 = Region, 2 = World
+delete: '§f-> §2Deleted§7 region §f{1} §8in {2}' # 1 = Region, 2 = World
+context: '§f-> §7Working region §2context set§7 to §f{1} §8in {2} §8(§7To clear: §b/region.clear§8)' # 1 = Region, 2 = World
+clear: '§f-> §7Working region §2context cleared§7 from §f{1} §8in {2} §8(§7To set context: §b/region.context {1} {2}§8)' # 1 = Region, 2 = World
+rename-conflict: '§f-> §7Region §cname conflict§7 in {2}: {1}' # 1 = <Name>, 2 = World
+rename: '§f-> §2Renamed§7 region from {3} to §f{1} §8in {2}' # 1 = New Name, 2 = World, 3 = Old Name
+create: '§f-> §2Region created§7: §f{1} §8in {2}' # 1 = Region, 2 = World
+define: '§f-> §7Region §2coordinates updated'
+greeting-previous: '§f-> §7Previous region enter format: {1}' # 1 = Enter Format
+greeting: '§f-> §7Region §2greeting format set'
+greeting-existing: '§f-> §7Region greeting format: {1}' # 1 = Enter Format
+greeting-example: '§f-> §7Example region greeting message:'
+farewell-previous: '§f-> §7Previous region farewell format: {1}'
+farewell: '§f-> §7Region §2farewell format set'
+farewell-existing: '§f-> §7Region farewell format: {1}' # 1 = Exit Format
+farewell-example: '§f-> §7Example region farewell message:'
+undefined: '§f-> §eUndefined§7 region §8(§b/r#§8)'
+inactive: '§f-> §eInactive§7 region §8(§b/region.activate§8)'
+attach-unrecognized: '§f-> §7Region option §cunrecognized§7: {1}' # 1 = Option, 2 = Region, 3 = World
+attach-existing: '§f-> §7Region option §o{1} §ealready added§7 to §f{2} §8in {3}' # 1 = Option, 2 = Region, 3 = World
+attach: '§f-> §7Region option §o{1} §2added§7 to §f{2} §8in {3}' # 1 = Option, 2 = Region, 3 = World
+detach-missing: '§f-> §7Region option §o{1} §edoes not exist§7 on §f{2} §8in {3}' # 1 = Option, 2 = Region, 3 = World
+detach: '§f-> §7Region option §o{1} §2removed§7 from §f{2} §8in {3}' # 1 = Option, 2 = Region, 3 = World
 describe: # 1 = Region, 2 = World, 3 = isActive(0|1), 4 = Owners, 5 = Access, 6 = Min X, 7 = Max X, 8 = Min Y, 9 = Max Y, 10 = Min Z, 11 = Max Z, 12 = X Length, 13 = Y Length, 14 = Z Length, 15 = Area, 16 = Volume, 17 = hasAccess(0|1), 18 = isOwner(0|1), 19 = Options
-    normal:
-        - '-> -- Region: {1} in {2}'
-        - '-> Active: {3,choice,0#§efalse|1#true}'
-        - '-> {18,choice,0#§e|1#§2}Owners§r: {4}'
-        - '-> {17,choice,0#§e|1#§2}Access§r: {5}'
-        - '-> Options: {19}'
-        - '-> x:  [West]  {6}  to  {7}  [East]'
-        - '-> z: [North]  {10}  to  {11}  [South]'
-        - '-> y:  [Down]  {8}  to  {9}  [Up]'
-        - '->   Area: {12}x * {14}z = {15} blocks squared'
-        - '-> Volume: {12}x * {14}z * {13}y = {16} blocks cubed'
-    default:
-        - '-> -- Region: {1} in {2}'
-        - '-> Active: {3,choice,0#§efalse|1#true}'
-        - '-> {17,choice,0#§e|1#§2}Access§r: {5}'
-        - '-> Options: {19}'
+    normal: |-
+        §f-> §7-- Region§8: §f{1} §8in {2}
+        §f-> §7Active§8:§7 {3,choice,0#§efalse|1#true}
+        §f-> {18,choice,0#§e|1#§2}Owners§8:§7 {4}
+        §f-> {17,choice,0#§e|1#§2}Access§8:§7 {5}
+        §f-> §7Options§8:§7 {19}
+        §f-> §7x§8:§7  [West]  §f{6}§7  to  §f{7}§7  [East]
+        §f-> §7z§8:§7 [North]  §f{10}§7  to  §f{11}§7  [South]
+        §f-> §7y§8:§7  [Down]    §f{8}§7  to   §f{9}§7  [Up]
+        §f-> §7  Area: {12}x * {14}z = §f{15}§7 blocks squared
+        §f-> §7Volume: {12}x * {14}z * {13}y = §f{16}§7 blocks cubed
+    default: |-
+        §f-> §7-- Region§8: §f{1} §8in {2}
+        §f-> §7Active: {3,choice,0#§efalse|1#true}
+        §f-> {17,choice,0#§e|1#§2}Access§7: {5}
+        §f-> §7Options: {19}
     options:
-        +name: '{1,choice,0#§c|1#}{0}{1,choice,0#(Unrecognized)§r|1#}' # 0 = Key, 1 = isRecognized(0|1) 
+        +name: '{1,choice,0#§c|1#}{0}{1,choice,0#(Unrecognized)§7|1#}' # 0 = Key, 1 = isRecognized(0|1) 
         +delimiter: ', '
+unknown-argument: '§f-> §eUnknown§f value for §b§o{1}§7: §f{2}' # 1 = Argument Name, 2 = Argument Value
+requires-argument: '§f-> §cMissing §7required argument: §b§o{1}' # 1 = Argument Name
+requires-owner: '§f-> §cOnly region owners§7 can use the §b/{1} §7command' # 1 = Command Label
+requires-player: '§f-> §cOnly in-game players§7 can use the §b/{1} §7command' # 1 = Command Label
+requires-working-region: '§f-> §eWorking region not set §8(§b/r. §o<Region>§8)'
+region-not-found: '§f-> §7Region §enot found§7: {1}' # 1 = <Region>
+world-not-found: '§f-> §7World §enot found§7: {1}' # 1 = <World>
+reload: '§f-> §2Reloaded §7{1} plugin' # 1 = Plugin Name
 version: @VERSION@

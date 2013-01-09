@@ -8,28 +8,28 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.HandlerList;
 
-import edgruberman.bukkit.simpleregions.commands.RegionAccessGrant;
-import edgruberman.bukkit.simpleregions.commands.RegionAccessReset;
-import edgruberman.bukkit.simpleregions.commands.RegionAccessRevoke;
-import edgruberman.bukkit.simpleregions.commands.RegionActivate;
-import edgruberman.bukkit.simpleregions.commands.RegionCreate;
-import edgruberman.bukkit.simpleregions.commands.RegionCurrent;
-import edgruberman.bukkit.simpleregions.commands.RegionDeactivate;
-import edgruberman.bukkit.simpleregions.commands.RegionDefine;
-import edgruberman.bukkit.simpleregions.commands.RegionDelete;
-import edgruberman.bukkit.simpleregions.commands.RegionDescribe;
-import edgruberman.bukkit.simpleregions.commands.RegionEnter;
-import edgruberman.bukkit.simpleregions.commands.RegionExit;
-import edgruberman.bukkit.simpleregions.commands.RegionOptionAdd;
-import edgruberman.bukkit.simpleregions.commands.RegionOptionRemove;
-import edgruberman.bukkit.simpleregions.commands.RegionOwnersGrant;
-import edgruberman.bukkit.simpleregions.commands.RegionOwnersReset;
-import edgruberman.bukkit.simpleregions.commands.RegionOwnersRevoke;
-import edgruberman.bukkit.simpleregions.commands.RegionRename;
-import edgruberman.bukkit.simpleregions.commands.RegionSet;
-import edgruberman.bukkit.simpleregions.commands.RegionTarget;
-import edgruberman.bukkit.simpleregions.commands.RegionUnset;
+import edgruberman.bukkit.simpleregions.commands.Current;
+import edgruberman.bukkit.simpleregions.commands.Describe;
 import edgruberman.bukkit.simpleregions.commands.Reload;
+import edgruberman.bukkit.simpleregions.commands.Target;
+import edgruberman.bukkit.simpleregions.commands.design.Attach;
+import edgruberman.bukkit.simpleregions.commands.design.Clear;
+import edgruberman.bukkit.simpleregions.commands.design.Context;
+import edgruberman.bukkit.simpleregions.commands.design.Create;
+import edgruberman.bukkit.simpleregions.commands.design.Define;
+import edgruberman.bukkit.simpleregions.commands.design.Delete;
+import edgruberman.bukkit.simpleregions.commands.design.Detach;
+import edgruberman.bukkit.simpleregions.commands.design.Rename;
+import edgruberman.bukkit.simpleregions.commands.manage.Activate;
+import edgruberman.bukkit.simpleregions.commands.manage.Deactivate;
+import edgruberman.bukkit.simpleregions.commands.manage.Demote;
+import edgruberman.bukkit.simpleregions.commands.manage.Farewell;
+import edgruberman.bukkit.simpleregions.commands.manage.Grant;
+import edgruberman.bukkit.simpleregions.commands.manage.Greeting;
+import edgruberman.bukkit.simpleregions.commands.manage.Promote;
+import edgruberman.bukkit.simpleregions.commands.manage.Reform;
+import edgruberman.bukkit.simpleregions.commands.manage.Replace;
+import edgruberman.bukkit.simpleregions.commands.manage.Revoke;
 import edgruberman.bukkit.simpleregions.messaging.ConfigurationCourier;
 import edgruberman.bukkit.simpleregions.util.CustomPlugin;
 
@@ -41,8 +41,8 @@ public final class Main extends CustomPlugin {
 
     @Override
     public void onLoad() {
-        this.putConfigMinimum("4.4.0a0");
-        this.putConfigMinimum("messages.yml", "4.4.0a0");
+        this.putConfigMinimum("4.4.0a11");
+        this.putConfigMinimum("messages.yml", "4.4.0a11");
     }
 
     @Override
@@ -57,27 +57,27 @@ public final class Main extends CustomPlugin {
         Bukkit.getPluginManager().registerEvents(new BoundaryAlerter(this.catalog), this);
 
         this.getCommand("simpleregions:reload").setExecutor(new Reload(this));
-        this.getCommand("simpleregions:region.current").setExecutor(new RegionCurrent(this.catalog));
-        this.getCommand("simpleregions:region.target").setExecutor(new RegionTarget(this.catalog));
-        this.getCommand("simpleregions:region.set").setExecutor(new RegionSet(this.catalog));
-        this.getCommand("simpleregions:region.unset").setExecutor(new RegionUnset(this.catalog));
-        this.getCommand("simpleregions:region.describe").setExecutor(new RegionDescribe(this.catalog));
-        this.getCommand("simpleregions:region.activate").setExecutor(new RegionActivate(this.catalog));
-        this.getCommand("simpleregions:region.deactivate").setExecutor(new RegionDeactivate(this.catalog));
-        this.getCommand("simpleregions:region.owners.grant").setExecutor(new RegionOwnersGrant(this.catalog));
-        this.getCommand("simpleregions:region.owners.revoke").setExecutor(new RegionOwnersRevoke(this.catalog));
-        this.getCommand("simpleregions:region.owners.reset").setExecutor(new RegionOwnersReset(this.catalog));
-        this.getCommand("simpleregions:region.access.grant").setExecutor(new RegionAccessGrant(this.catalog));
-        this.getCommand("simpleregions:region.access.revoke").setExecutor(new RegionAccessRevoke(this.catalog));
-        this.getCommand("simpleregions:region.access.reset").setExecutor(new RegionAccessReset(this.catalog));
-        this.getCommand("simpleregions:region.enter").setExecutor(new RegionEnter(this.catalog));
-        this.getCommand("simpleregions:region.exit").setExecutor(new RegionExit(this.catalog));
-        this.getCommand("simpleregions:region.create").setExecutor(new RegionCreate(this.catalog));
-        this.getCommand("simpleregions:region.define").setExecutor(new RegionDefine(this.catalog));
-        this.getCommand("simpleregions:region.delete").setExecutor(new RegionDelete(this.catalog));
-        this.getCommand("simpleregions:region.rename").setExecutor(new RegionRename(this.catalog));
-        this.getCommand("simpleregions:region.option.add").setExecutor(new RegionOptionAdd(this.catalog));
-        this.getCommand("simpleregions:region.option.remove").setExecutor(new RegionOptionRemove(this.catalog));
+        this.getCommand("simpleregions:current").setExecutor(new Current(this.catalog));
+        this.getCommand("simpleregions:target").setExecutor(new Target(this.catalog));
+        this.getCommand("simpleregions:context").setExecutor(new Context(this.catalog));
+        this.getCommand("simpleregions:clear").setExecutor(new Clear(this.catalog));
+        this.getCommand("simpleregions:describe").setExecutor(new Describe(this.catalog));
+        this.getCommand("simpleregions:activate").setExecutor(new Activate(this.catalog));
+        this.getCommand("simpleregions:deactivate").setExecutor(new Deactivate(this.catalog));
+        this.getCommand("simpleregions:promote").setExecutor(new Promote(this.catalog));
+        this.getCommand("simpleregions:demote").setExecutor(new Demote(this.catalog));
+        this.getCommand("simpleregions:reform").setExecutor(new Reform(this.catalog));
+        this.getCommand("simpleregions:grant").setExecutor(new Grant(this.catalog));
+        this.getCommand("simpleregions:revoke").setExecutor(new Revoke(this.catalog));
+        this.getCommand("simpleregions:replace").setExecutor(new Replace(this.catalog));
+        this.getCommand("simpleregions:greeting").setExecutor(new Greeting(this.catalog));
+        this.getCommand("simpleregions:farewell").setExecutor(new Farewell(this.catalog));
+        this.getCommand("simpleregions:create").setExecutor(new Create(this.catalog));
+        this.getCommand("simpleregions:define").setExecutor(new Define(this.catalog));
+        this.getCommand("simpleregions:delete").setExecutor(new Delete(this.catalog));
+        this.getCommand("simpleregions:rename").setExecutor(new Rename(this.catalog));
+        this.getCommand("simpleregions:attach").setExecutor(new Attach(this.catalog));
+        this.getCommand("simpleregions:detach").setExecutor(new Detach(this.catalog));
     }
 
     @Override

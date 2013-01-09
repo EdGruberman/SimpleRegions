@@ -1,16 +1,12 @@
 package edgruberman.bukkit.simpleregions;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -30,7 +26,6 @@ public final class BoundaryAlerter implements Listener {
     BoundaryAlerter(final Catalog catalog) {
         this.catalog = catalog;
         for (final Player player : Bukkit.getOnlinePlayers()) this.lastBlockChange.put(player, player.getLocation());
-        catalog.plugin.getServer().getPluginManager().registerEvents(this, catalog.plugin);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -64,7 +59,7 @@ public final class BoundaryAlerter implements Listener {
      * @param to block player has moved to
      */
     private void checkCrossings(final Player player, final Location from, final Location to) {
-        List<Message> entered = null;
+        Message entered = null;
 
         // determine applicable regions to check
         final Set<Region> regions = new HashSet<Region>();
@@ -79,32 +74,20 @@ public final class BoundaryAlerter implements Listener {
             if (isInFrom == isInTo) continue;
 
             // exiting this region, show message first
-            if (isInFrom) Main.courier.submit(new Individual(player), this.compose(region.exit, "exit", "exitCustom", region, player));
+            if (isInFrom)
+                if (region.exit == null || region.exit.length() > 0)
+                    Main.courier.send(player, ( region.enter == null ? "exit" : "exitCustom" ), region.name, region.hasAccess(player)?1:0, region.exit);
 
             // entering this region, cache message for display after all other exits
-            if (isInTo) {
-                if (entered == null) entered = new ArrayList<Message>();
-                entered.addAll(this.compose(region.enter, "enter", "enterCustom", region, player));
-            }
+            if (isInTo)
+                if (region.enter == null || region.enter.length() > 0) {
+                    final Message enter = Main.courier.compose(( region.enter == null ? "enter" : "enterCustom" ), region.name, region.hasAccess(player)?1:0, region.enter);
+                    if (entered == null) { entered = enter; } else { entered.append(enter); }
+                }
         }
 
         // show any enter messages after exit messages
-        if (entered != null)
-            Main.courier.submit(new Individual(player), entered);
-    }
-
-    public List<Message> compose(final String custom, final String defaultPath, final String customPath, final Region region, final CommandSender target) {
-        if (custom != null && custom.length() == 0) return Collections.emptyList();
-
-        final Object[] arguments = new Object[] { region.name, region.hasAccess(target)?1:0 };
-
-        if (custom != null) {
-            // embed custom formatted inside custom message
-            final StringBuffer formatted = Message.Factory.create(custom, arguments).build().format(target);
-            return Main.courier.compose(customPath, formatted);
-        }
-
-        return Main.courier.compose(defaultPath, arguments);
+        if (entered != null) Main.courier.submit(new Individual(player), entered);
     }
 
     private static boolean sameChunk(final Location i, final Location j) {

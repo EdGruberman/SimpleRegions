@@ -1,6 +1,6 @@
-logLevel: INFO
-deniedItems: [BUCKET, WATER_BUCKET, LAVA_BUCKET, FLINT_AND_STEEL] # usage cancelled if target block is in a denied region
-protectFire: true
+log-level: INFO
+target-face: [BUCKET, WATER_BUCKET, LAVA_BUCKET, FLINT_AND_STEEL] # usage cancelled if target block adjusted by face clicked is in a denied region
+protect-fire: true
 options:
     no-locks: LockCreateCancel
 version: @VERSION@

@@ -6,19 +6,14 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
-import edgruberman.bukkit.simpleregions.BoundaryAlerter;
 import edgruberman.bukkit.simpleregions.Catalog;
 import edgruberman.bukkit.simpleregions.Main;
 import edgruberman.bukkit.simpleregions.Region;
-import edgruberman.bukkit.simpleregions.messaging.Individual;
 
 public class RegionEnter extends RegionExecutor {
 
-    private final BoundaryAlerter alerter;
-
-    public RegionEnter(final Catalog catalog, final BoundaryAlerter alerter) {
+    public RegionEnter(final Catalog catalog) {
         super(catalog, -1, true);
-        this.alerter = alerter;
         this.tokenizer.setIgnoreEmptyTokens(false);
     }
 
@@ -44,7 +39,11 @@ public class RegionEnter extends RegionExecutor {
 
         Main.courier.send(sender, "enterExisting", (region.enter != null ? region.enter : "§onull§r"));
         Main.courier.send(sender, "enterExample");
-        Main.courier.submit(new Individual(sender), this.alerter.compose(region.enter, "enter", "enterCustom", region, sender));
+        if (region.enter == null) {
+            Main.courier.send(sender, "enter", region.name, region.hasAccess(sender)?1:0);
+        } else if (region.enter.length() > 0) {
+            Main.courier.send(sender, "enterCustom", region.name, region.hasAccess(sender)?1:0, region.enter);
+        }
 
         return true;
     }

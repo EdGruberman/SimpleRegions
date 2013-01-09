@@ -1,4 +1,4 @@
-colorCode: '§'
+color-code: '§'
 region:
     +name: '{1,choice,0#§e|1#§2}{0}§r' # 0 = Region Name, 1 = hasAccess(0|1)
     +delimiter: ', '
@@ -7,8 +7,8 @@ current: '-> {3,choice,0#§e|1#§2}Current region{2,choice,0#|2<s}§r: {1} §8({
 target: '-> {3,choice,0#§e|1#§2}Target region{2,choice,0#|2<s}§r: {1} §8({2} at x:{4} y:{5} z:{6})' # 1 = Formatted Region Names, 2 = Count, 3 = hasAccess(0|1), 4 = X, 5 = Y, 6 = Z
 enter: '-> §8Entered region§r {2,choice,0#§e|1#§2}{1}' # 1 = Region Name, 2 = hasAccess(0|1)
 exit: '-> §2Left region §8{1}' # 1 = Region Name, 2 = hasAccess(0|1)
-enterCustom: '-> {1}' # 1 = Enter Message
-exitCustom: '-> {1}' # 1 = Exit Message
+enterCustom: '-> {3}' # 1 = Region Name, 2 = hasAccess(0|1), 3 = Enter Message
+exitCustom: '-> {3}' # 1 = Region Name, 2 = hasAccess(0|1), 3 = Exit Message
 accessGrantAlready: '-> Region access §ealready contains§r {1} for {2} in {3}' # 1 = <Access>, 2 = Region, 3 = World
 accessGrantSuccess: '-> Region §2access added§r to {1} for {2} in {3}' # 1 = <Access>, 2 = Region, 3 = World
 accessGrantNotify: '§8{0,time,HH:mm:ss}§r -> Region §2access granted§r to you by {1} for {2} in {3}' # 1 = Grantor, 2 = Region, 3 = World

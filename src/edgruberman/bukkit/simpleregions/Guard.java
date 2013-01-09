@@ -1,13 +1,11 @@
 package edgruberman.bukkit.simpleregions;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,27 +15,19 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 
 import edgruberman.bukkit.simpleregions.commands.RegionExecutor;
 
 final class Guard implements Listener {
 
-    private static final List<Integer> BUCKETS = new ArrayList<Integer>(Arrays.asList(
-              Material.BUCKET.getId()
-            , Material.WATER_BUCKET.getId()
-            , Material.LAVA_BUCKET.getId()
-    ));
-
     private final Catalog catalog;
-    private final List<Integer> deniedItems = new ArrayList<Integer>();
+    private final List<Integer> targetFace = new ArrayList<Integer>();
     private final boolean protectFire;
 
-    public Guard(final Catalog catalog, final List<Material> deniedItems, final boolean protectFire) {
+    public Guard(final Catalog catalog, final List<Material> targetFace, final boolean protectFire) {
         this.catalog = catalog;
-        for (final Material material : deniedItems) this.deniedItems.add(material.getId());
+        for (final Material material : targetFace) this.targetFace.add(material.getId());
         this.protectFire = protectFire;
-        catalog.plugin.getServer().getPluginManager().registerEvents(this, catalog.plugin);
     }
 
     private void tellDenied(final Player player, final Location target) {
@@ -69,14 +59,16 @@ final class Guard implements Listener {
                 , new Object[] { event.getPlayer().getName(), event.getItemInHand().getType(), target });
     }
 
+    /** cancel protected fire block hits and items used that affect the block based on the face clicked */
     @EventHandler(ignoreCancelled = true)
     public void onPlayerInteract(final PlayerInteractEvent event) {
-        final ItemStack inHand = event.getItem();
-        if (inHand == null || !(this.protectFire && this.leftClickFire(event)) && !this.deniedItems.contains(inHand.getTypeId())) return;
+        final boolean leftClickCheckFire = this.protectFire && event.getAction() == Action.LEFT_CLICK_BLOCK;
+        if (!leftClickCheckFire && !this.rightClickTargetFace(event)) return;
 
         final Location target = event.getClickedBlock().getLocation();
-        if (inHand != null && event.getAction() == Action.RIGHT_CLICK_BLOCK && Guard.BUCKETS.contains(inHand.getTypeId()))
-            target.add(event.getBlockFace().getModX(), event.getBlockFace().getModY(), event.getBlockFace().getModZ());
+        target.add(event.getBlockFace().getModX(), event.getBlockFace().getModY(), event.getBlockFace().getModZ());
+
+        if (leftClickCheckFire && event.getClickedBlock().getWorld().getBlockTypeIdAt(target) != Material.FIRE.getId()) return;
 
         if (this.catalog.isAllowed(event.getPlayer(), target)) return;
 
@@ -84,14 +76,12 @@ final class Guard implements Listener {
         this.tellDenied(event.getPlayer(), target);
         this.catalog.plugin.getLogger().log(Level.FINE,
                 "Cancelled {0} attempting to interact with {1} at {2} on {3}"
-                , new Object[] { event.getPlayer().getName(), inHand.getType().name(), target, event.getBlockFace() });
+                , new Object[] { event.getPlayer().getName(), ( event.getItem() == null ? "hand" : event.getItem().getType().name() ), target, event.getBlockFace() });
     }
 
-    private boolean leftClickFire(final PlayerInteractEvent interaction) {
-        if (!interaction.getAction().equals(Action.LEFT_CLICK_BLOCK)) return false;
-
-        final Block clicked = interaction.getClickedBlock();
-        return clicked.getWorld().getBlockTypeIdAt(clicked.getX() + interaction.getBlockFace().getModX(), clicked.getY() + interaction.getBlockFace().getModY(), clicked.getZ() + interaction.getBlockFace().getModZ()) == Material.FIRE.getId();
+    private boolean rightClickTargetFace(final PlayerInteractEvent interact) {
+        if (interact.getAction() != Action.RIGHT_CLICK_BLOCK) return false;
+        return this.targetFace.contains(( interact.getItem() == null ? null : interact.getItem().getTypeId() ));
     }
 
     @EventHandler(ignoreCancelled = true)

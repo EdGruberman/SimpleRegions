@@ -117,8 +117,8 @@ permissions:
     'simpleregions.[players]':
         description: All players; "Permission group" used to grant access to regions
         default: true
-    simpleregions.region:
-        description: Can use common actions of region command
+    simpleregions.user:
+        description: Can use basic features
         default: true
         children:
             simpleregions.region.current: true
@@ -135,7 +135,7 @@ permissions:
             simpleregions.region.activate: true
             simpleregions.region.deactivate: true
     simpleregions.admin:
-        description: Can use administrative features of SimpleRegions plugin
+        description: Can use administrative features
         default: op
         children:
             simpleregions.override: true
@@ -225,7 +225,7 @@ permissions:
     simpleregions.region.option.remove:
         description: Can use region.option.remove command
         default: false
-    simpleregions.region.reload:
+    simpleregions.reload:
         description: Can use reload command
         default: false
     simpleregions.region.message.color:

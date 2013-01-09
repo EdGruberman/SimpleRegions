@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.HandlerList;
 
@@ -40,20 +41,20 @@ public final class Main extends CustomPlugin {
 
     @Override
     public void onLoad() {
-        this.putConfigMinimum(CustomPlugin.CONFIGURATION_FILE, "4.3.0");
-        this.putConfigMinimum("messages.yml", "4.3.0");
+        this.putConfigMinimum("4.4.0a0");
+        this.putConfigMinimum("messages.yml", "4.4.0a0");
     }
 
     @Override
     public void onEnable() {
         this.reloadConfig();
-        Main.courier = ConfigurationCourier.Factory.create(this).setBase(this.loadConfig("messages.yml")).setColorCode("colorCode").build();
+        Main.courier = ConfigurationCourier.Factory.create(this).setBase(this.loadConfig("messages.yml")).setColorCode("color-code").build();
 
         this.extractConfig("defaults.yml", false);
         final Repository repository = new Repository(this, new File(this.getDataFolder(), "defaults.yml"), new File(this.getDataFolder(), "Worlds"));
         this.catalog = new Catalog(this, repository, this.getConfig().getConfigurationSection("options"));
-        new Guard(this.catalog, this.parseMaterialList("deniedItems"), this.getConfig().getBoolean("protectFire"));
-        final BoundaryAlerter alerter = new BoundaryAlerter(this.catalog);
+        Bukkit.getPluginManager().registerEvents(new Guard(this.catalog, this.parseMaterialList("target-face"), this.getConfig().getBoolean("protect-fire")), this);
+        Bukkit.getPluginManager().registerEvents(new BoundaryAlerter(this.catalog), this);
 
         this.getCommand("simpleregions:reload").setExecutor(new Reload(this));
         this.getCommand("simpleregions:region.current").setExecutor(new RegionCurrent(this.catalog));
@@ -69,8 +70,8 @@ public final class Main extends CustomPlugin {
         this.getCommand("simpleregions:region.access.grant").setExecutor(new RegionAccessGrant(this.catalog));
         this.getCommand("simpleregions:region.access.revoke").setExecutor(new RegionAccessRevoke(this.catalog));
         this.getCommand("simpleregions:region.access.reset").setExecutor(new RegionAccessReset(this.catalog));
-        this.getCommand("simpleregions:region.enter").setExecutor(new RegionEnter(this.catalog, alerter));
-        this.getCommand("simpleregions:region.exit").setExecutor(new RegionExit(this.catalog, alerter));
+        this.getCommand("simpleregions:region.enter").setExecutor(new RegionEnter(this.catalog));
+        this.getCommand("simpleregions:region.exit").setExecutor(new RegionExit(this.catalog));
         this.getCommand("simpleregions:region.create").setExecutor(new RegionCreate(this.catalog));
         this.getCommand("simpleregions:region.define").setExecutor(new RegionDefine(this.catalog));
         this.getCommand("simpleregions:region.delete").setExecutor(new RegionDelete(this.catalog));

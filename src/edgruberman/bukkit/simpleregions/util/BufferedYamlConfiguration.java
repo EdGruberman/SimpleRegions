@@ -87,7 +87,7 @@ public class BufferedYamlConfiguration extends YamlConfiguration implements Runn
         this.plugin.getLogger().finest("Saved configuration file: " + this.file);
     }
 
-    /** @param immediate true to force a save of the configuration file immediately */
+    /** only save immediately if no other queued save requests are pending, otherwise save with next scheduled save */
     public void queueSave() {
         final long elapsed = System.currentTimeMillis() - this.lastSaveAttempt;
 

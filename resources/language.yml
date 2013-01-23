@@ -1,4 +1,4 @@
-color-code: '§'
+format-code: '§'
 region:
     +name: '{1,choice,0#§e|1#§2}{0}' # 0 = Region Name, 1 = hasAccess(0|1)
     +delimiter: '§8, '

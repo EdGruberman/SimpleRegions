@@ -27,7 +27,7 @@ public class Current implements CommandExecutor {
         }
 
         final Player player = (Player) sender;
-        final Set<Region> regions = this.catalog.getRegions(player.getLocation());
+        final Set<Region> regions = this.catalog.cached(player.getLocation());
         final String names = RegionExecutor.formatNames(regions, player);
         Main.courier.send(sender, "current", names, regions.size(), this.catalog.isAllowed(player, player.getLocation())?1:0);
         return true;

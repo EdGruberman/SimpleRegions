@@ -20,8 +20,6 @@ import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.plugin.Plugin;
 
-import edgruberman.bukkit.simpleregions.util.ChunkCoordinates;
-
 /** relates a server to world indices */
 public final class Catalog implements Listener {
 
@@ -96,36 +94,32 @@ public final class Catalog implements Listener {
 
     @EventHandler(priority = EventPriority.LOW)
     public void onChunkLoad(final ChunkLoadEvent event) {
-        this.indices.get(event.getWorld().getName()).loadChunk(event.getChunk());
+        this.indices.get(event.getWorld().getName()).load(event.getChunk());
     }
 
     @EventHandler(priority = EventPriority.LOW)
     public void onChunkUnload(final ChunkUnloadEvent event) {
-        this.indices.get(event.getWorld().getName()).unloadChunk(event.getChunk());
+        this.indices.get(event.getWorld().getName()).unload(event.getChunk());
     }
 
-    /**
-     * @param location location that identifies chunk
-     * @return active regions that contain at least one block for the loaded chunk that contains location; empty set if no regions apply
-     */
-    public Set<Region> getChunkRegions(final Location location) {
-        final Set<Region> possible = this.indices.get(location.getWorld().getName()).loaded.get(ChunkCoordinates.hash(location.getBlockX() >> 4, location.getBlockZ() >> 4));
+    /** @return loaded regions that contain at least one block for the chunk; empty if none apply */
+    public Set<Region> cached(final World world, final int chunkX, final int chunkZ) {
+        final Set<Region> possible = this.indices.get(world.getName()).cached(chunkX, chunkZ);
         return (possible != null ? possible : Collections.<Region>emptySet());
     }
 
     /**
-     * Active regions that contain the specified location in a loaded chunk.
-     * If no regions apply, world default is supplied.  If no world default
-     * server default is supplied.
+     * Loaded regions that contain the specified location.
+     * If no regions apply, world default is supplied.  If no world default server default is supplied.
      * (Unloaded chunks will not have regions returned)
      *
      * @param location contained by regions
      * @return regions containing location
      * TODO regionsForLoadedLocation(location) remove default add
      */
-    public Set<Region> getRegions(final Location location) {
+    public Set<Region> cached(final Location location) {
         final Set<Region> regions = new HashSet<Region>();
-        for (final Region region : this.getChunkRegions(location))
+        for (final Region region : this.cached(location.getWorld(), location.getBlockX() >> 4, location.getBlockZ() >> 4))
             if (region.contains(location)) regions.add(region);
 
         if (regions.size() == 0) {
@@ -148,9 +142,9 @@ public final class Catalog implements Listener {
     }
 
     /**
-     * Determine if player is allowed to manipulate the target location based on region configuration.<br>
+     * determine if player is allowed to manipulate the target location based on cached regions<br>
      * <br>
-     * Access is determined by:<br>
+     * access is determined by:<br>
      *     = true if any active region applies and allows access to the player<br>
      *     = true if no active region applies and the world default region allows access to the player<br>
      *     = true if no active region applies and no world default region applies and the server default region allows access to the player<br>
@@ -166,7 +160,7 @@ public final class Catalog implements Listener {
         boolean found = false;
 
         // check loaded regions, return true if any region allows access
-        for (final Region region : this.getChunkRegions(target))
+        for (final Region region : this.cached(target.getWorld(), target.getBlockX() >> 4, target.getBlockZ() >> 4))
             if (region.contains(target)) {
                 if (region.hasAccess(player)) return true;
                 found = true;

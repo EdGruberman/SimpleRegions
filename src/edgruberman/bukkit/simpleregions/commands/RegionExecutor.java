@@ -57,7 +57,7 @@ public abstract class RegionExecutor extends Executor {
             if (!(sender instanceof Player)) return null;
 
             // assume current region if player is in only one
-            final Set<Region> regions = this.catalog.getRegions(((Player) sender).getLocation());
+            final Set<Region> regions = this.catalog.cached(((Player) sender).getLocation());
             if (regions.size() != 1) {
                 Main.courier.send(sender, "region-not-found", "");
                 return null;

@@ -35,7 +35,7 @@ public class Target implements CommandExecutor {
             return true;
         }
 
-        final Set<Region> regions = this.catalog.getRegions(target);
+        final Set<Region> regions = this.catalog.cached(target);
         final String names = RegionExecutor.formatNames(regions, player);
         Main.courier.send(sender, "target", names, regions.size(), this.catalog.isAllowed(player, target)?1:0, target.getBlockX(), target.getBlockY(), target.getBlockZ());
         return true;

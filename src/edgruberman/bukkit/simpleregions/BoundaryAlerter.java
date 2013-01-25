@@ -61,10 +61,10 @@ public final class BoundaryAlerter implements Listener {
     private void checkCrossings(final Player player, final Location from, final Location to) {
         Message entered = null;
 
-        // determine applicable regions to check
+        // filter applicable regions to check by chunk
         final Set<Region> regions = new HashSet<Region>();
-        regions.addAll(this.catalog.getChunkRegions(from));
-        if (!BoundaryAlerter.sameChunk(from, to)) regions.addAll(this.catalog.getChunkRegions(to));
+        regions.addAll(this.catalog.cached(from.getWorld(), from.getBlockX() >> 4, from.getBlockZ() >> 4));
+        if (!BoundaryAlerter.sameChunk(from, to)) regions.addAll(this.catalog.cached(to.getWorld(), to.getBlockX() >> 4, to.getBlockZ() >> 4));
 
         boolean isInFrom, isInTo;
         for (final Region region : regions) {

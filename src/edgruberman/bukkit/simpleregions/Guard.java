@@ -31,7 +31,7 @@ final class Guard implements Listener {
     }
 
     private void tellDenied(final Player player, final Location target) {
-        final String current = RegionExecutor.formatNames(this.catalog.getRegions(target), player);
+        final String current = RegionExecutor.formatNames(this.catalog.cached(target), player);
         Main.courier.send(player, "denied", current);
     }
 

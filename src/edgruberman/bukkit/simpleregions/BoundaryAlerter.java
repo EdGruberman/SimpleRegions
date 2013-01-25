@@ -1,7 +1,6 @@
 package edgruberman.bukkit.simpleregions;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,33 +20,33 @@ import edgruberman.bukkit.simpleregions.messaging.Message;
 public final class BoundaryAlerter implements Listener {
 
     private final Catalog catalog;
-    private final Map<Player, Location> lastBlockChange = new HashMap<Player, Location>();
+    private final Map<String, Location> lastBlockChange = new HashMap<String, Location>();
 
     BoundaryAlerter(final Catalog catalog) {
         this.catalog = catalog;
-        for (final Player player : Bukkit.getOnlinePlayers()) this.lastBlockChange.put(player, player.getLocation());
+        for (final Player player : Bukkit.getOnlinePlayers()) this.lastBlockChange.put(player.getName(), player.getLocation());
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerJoin(final PlayerJoinEvent event) {
-        this.lastBlockChange.put(event.getPlayer(), event.getPlayer().getLocation());
+        this.lastBlockChange.put(event.getPlayer().getName(), event.getPlayer().getLocation());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerMove(final PlayerMoveEvent event) {
-        final Location last = this.lastBlockChange.get(event.getPlayer());
+        final Location last = this.lastBlockChange.get(event.getPlayer().getName());
         final Location to = event.getTo();
 
         // only check further on block transitions
         if ((last.getBlockX() == to.getBlockX()) && (last.getBlockZ() == to.getBlockZ()) && (last.getBlockY() == to.getBlockY())) return;
 
-        this.lastBlockChange.put(event.getPlayer(), to);
+        this.lastBlockChange.put(event.getPlayer().getName(), to);
         this.checkCrossings(event.getPlayer(), last, to);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(final PlayerQuitEvent event) {
-        this.lastBlockChange.remove(event.getPlayer());
+        this.lastBlockChange.remove(event.getPlayer().getName());
     }
 
     /**
@@ -62,8 +61,7 @@ public final class BoundaryAlerter implements Listener {
         Message entered = null;
 
         // filter applicable regions to check by chunk
-        final Set<Region> regions = new HashSet<Region>();
-        regions.addAll(this.catalog.cached(from.getWorld(), from.getBlockX() >> 4, from.getBlockZ() >> 4));
+        final Set<Region> regions = this.catalog.cached(from.getWorld(), from.getBlockX() >> 4, from.getBlockZ() >> 4);
         if (!BoundaryAlerter.sameChunk(from, to)) regions.addAll(this.catalog.cached(to.getWorld(), to.getBlockX() >> 4, to.getBlockZ() >> 4));
 
         boolean isInFrom, isInTo;

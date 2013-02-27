@@ -141,7 +141,7 @@ public class Repository {
 
         final File source = (world == null ? base : new File(base, world + ".yml"));
         try {
-            config = new BufferedYamlConfiguration(this.plugin, source, this.minSave);
+            config = new BufferedYamlConfiguration(this.plugin, source, this.minSave).load();
         } catch (final FileNotFoundException e) {
         } catch (final Exception e) {
             throw new IllegalStateException("Unable to load region configuration file: " + source, e);

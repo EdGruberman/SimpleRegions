@@ -16,7 +16,7 @@ replace: '§f-> §7Region §2access replaced with {1}§7 for §f{2} §8in {3}' #
 revoke-missing: '§f-> §7Region access does §enot explicitly grant access§7 to {1} for §f{2} §8in {3}' # 1 = <Access>, 2 = Region, 3 = World
 revoke: '§f-> §7Region §2access revoked from {1}§7 for §f{2} §8in {3}' # 1 = <Access>, 2 = Region, 3 = World
 promote-already: '§f-> §7Region owners §ealready contains§7 {1} for §f{2} §8in {3}' # 1 = <Owner>, 2 = Region, 3 = World
-promote: '§f-> §7Region §2ownership added to {1}§7 for §f{2} §8in {3}' # 1 = <Owner>, 2 = Region, 3 = World
+promote: '§f-> §7Region §2ownership added§7 to §f{1}§7 for §f{2} §8in {3}' # 1 = <Owner>, 2 = Region, 3 = World
 promote-notify: '§8{0,time,HH:mm:ss} §f-> §7Region §2ownership granted§7 to you by {1} for §f{2} §8in {3}' # 1 = Grantor, 2 = Region, 3 = World
 reform: '§f-> §7Region §2owners reformed to {1}§7 for §f{2} §8in {3}' # 1 = <Owner>, 2 = Region, 3 = World
 demote-prevent: '§f-> §7You can §cnot remove yourself§7 as a region owner'

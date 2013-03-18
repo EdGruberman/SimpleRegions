@@ -24,7 +24,7 @@ public class Describe extends RegionExecutor {
         final Integer sizeY = (region.getMaxY() == null || region.getMinY() == null ? null : Math.abs(region.getMaxY() - region.getMinY()) + 1);
         final Integer sizeZ = (region.getMaxZ() == null || region.getMinZ() == null ? null : Math.abs(region.getMaxZ() - region.getMinZ()) + 1);
         final Long area = (sizeX == null || sizeZ == null ? null : (long) sizeX * sizeZ);
-        final Long volume = (sizeX == null || sizeZ == null ? null : (long) sizeX * sizeY * sizeZ);
+        final Long volume = (sizeX == null || sizeZ == null || sizeY == null ? null : (long) sizeX * sizeY * sizeZ);
 
         // # 1 = Region, 2 = World, 3 = isActive(0|1), 4 = Owners, 5 = Access
         //      , 6 = Min X, 7 = Max X, 8 = Min Y, 9 = Max Y, 10 = Min Z, 11 = Max Z

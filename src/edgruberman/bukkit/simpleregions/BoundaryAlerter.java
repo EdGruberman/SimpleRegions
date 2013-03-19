@@ -61,9 +61,18 @@ public final class BoundaryAlerter implements Listener {
         Message entered = null;
 
         // filter applicable regions to check by chunk
-        final Set<Region> regions = this.catalog.cached(from.getWorld(), from.getBlockX() >> 4, from.getBlockZ() >> 4);
-        if (!BoundaryAlerter.sameChunk(from, to)) regions.addAll(this.catalog.cached(to.getWorld(), to.getBlockX() >> 4, to.getBlockZ() >> 4));
+        Set<Region> regions = this.catalog.cached(from.getWorld(), from.getBlockX() >> 4, from.getBlockZ() >> 4);
+        entered = this.checkRegions(player, from, to, regions, entered);
+        if (!BoundaryAlerter.sameChunk(from, to)) {
+            regions = this.catalog.cached(to.getWorld(), to.getBlockX() >> 4, to.getBlockZ() >> 4);
+            entered = this.checkRegions(player, from, to, regions, entered);
+        }
 
+        // show any greetings only after farewells
+        if (entered != null) Main.courier.submit(new Individual(player), entered);
+    }
+
+    private Message checkRegions(final Player player, final Location from, final Location to, final Set<Region> regions, Message entered) {
         boolean isInFrom, isInTo;
         for (final Region region : regions) {
             // determine if this region boundary has been crossed
@@ -84,8 +93,7 @@ public final class BoundaryAlerter implements Listener {
                 }
         }
 
-        // show any greetings only after farewells
-        if (entered != null) Main.courier.submit(new Individual(player), entered);
+        return entered;
     }
 
     private static boolean sameChunk(final Location i, final Location j) {

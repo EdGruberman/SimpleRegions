@@ -102,6 +102,7 @@ public final class Catalog implements Listener {
         this.indices.get(event.getWorld().getName()).unload(event.getChunk());
     }
 
+    // TODO unmodifiable to prevent accidental changes?
     /** @return loaded regions that contain at least one block for the chunk; empty if none apply */
     public Set<Region> cached(final World world, final int chunkX, final int chunkZ) {
         final Set<Region> possible = this.indices.get(world.getName()).cached(chunkX, chunkZ);

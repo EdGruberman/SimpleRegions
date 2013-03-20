@@ -1,6 +1,7 @@
 package edgruberman.bukkit.simpleregions;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -61,12 +62,10 @@ public final class BoundaryAlerter implements Listener {
         Message entered = null;
 
         // filter applicable regions to check by chunk
-        Set<Region> regions = this.catalog.cached(from.getWorld(), from.getBlockX() >> 4, from.getBlockZ() >> 4);
+        final Set<Region> regions = new HashSet<Region>();
+        regions.addAll(this.catalog.cached(from.getWorld(), from.getBlockX() >> 4, from.getBlockZ() >> 4));
+        if (!BoundaryAlerter.sameChunk(from, to)) regions.addAll(this.catalog.cached(to.getWorld(), to.getBlockX() >> 4, to.getBlockZ() >> 4));
         entered = this.checkRegions(player, from, to, regions, entered);
-        if (!BoundaryAlerter.sameChunk(from, to)) {
-            regions = this.catalog.cached(to.getWorld(), to.getBlockX() >> 4, to.getBlockZ() >> 4);
-            entered = this.checkRegions(player, from, to, regions, entered);
-        }
 
         // show any greetings only after farewells
         if (entered != null) Main.courier.submit(new Individual(player), entered);
